@@ -603,6 +603,7 @@ def upload_multiple():
 # === ADMIN ===
 @app.route('/admin/login', methods=['POST'])
 @limiter.limit("5 per minute")
+@csrf.exempt
 def admin_login():
     password = request.form.get('password')
     ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH')
@@ -1251,6 +1252,7 @@ def parse_product_url():
 # === USER AUTH ===
 @app.route('/register', methods=['GET', 'POST'])
 @limiter.limit("5 per hour")
+@csrf.exempt
 def register():
     if request.method == 'POST':
         data = request.get_json() if request.is_json else request.form
@@ -1276,6 +1278,7 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")
+@csrf.exempt
 def login():
     if request.method == 'POST':
         data = request.get_json() if request.is_json else request.form
