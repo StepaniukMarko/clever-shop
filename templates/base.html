@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Clever - Магазин оригінального одягу{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Clever — інтернет-магазин оригінального одягу з Європи. Massimo Dutti, Calvin Klein, Tommy Hilfiger. Доставка по Україні 1-2 дні, оплата при отриманні.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Clever — магазин оригінального одягу з Європи та США. Massimo Dutti, Calvin Klein, Tommy Hilfiger. Доставка по Україні 1-2 дні.{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}одяг, магазин одягу, бренди, оригінал, Вінниця, Massimo Dutti, Calvin Klein, Tommy Hilfiger{% endblock %}">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Clever Shop">
@@ -34,7 +34,7 @@
         "name": "Clever Shop",
         "url": "https://www.clevershop.vn.ua",
         "logo": "https://www.clevershop.vn.ua{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}",
-        "description": "Оригінальний брендовий одяг від світових брендів з доставкою по Україні",
+        "description": "Магазин оригінального брендового одягу з Європи та США. Працюємо з 2018 року",
         "address": {
             "@type": "PostalAddress",
             "addressCountry": "UA",
@@ -210,7 +210,7 @@
                     <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever" style="height:40px;">
                     <span>CLEVER</span>
                 </a>
-                <p>Магазин оригінального одягу для чоловіків та жінок. Тільки 100% оригінальна продукція від європейських брендів.</p>
+                <p>Магазин оригінального одягу для чоловіків та жінок. Замовляємо з Європи та США з 2018 року. Тільки 100% оригінальна продукція від світових брендів.</p>
                 <div class="payment-icons">💳 💵 📦</div>
             </div>
             <div class="footer-section">
@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=12"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=11"></script>
     
     <!-- PWA Service Worker -->
     <script>
@@ -439,7 +439,7 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                storage.setItem('email_subscribed', 'true');
+                localStorage.setItem('email_subscribed', 'true');
                 document.getElementById('email-popup').innerHTML = 
                     '<div class="email-popup-content"><div class="email-popup-icon">✅</div>' +
                     '<h3>Дякуємо!</h3><p>Промокод надіслано на ' + email + '</p>' +
