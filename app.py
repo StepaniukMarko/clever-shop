@@ -503,6 +503,7 @@ def thank_you(order_id):
 
 # === FILE UPLOAD ===
 @app.route('/api/upload', methods=['POST'])
+@csrf.exempt
 def upload_image():
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
@@ -517,6 +518,7 @@ def upload_image():
     return jsonify({'url': image_url})
 
 @app.route('/api/proxy-image', methods=['POST'])
+@csrf.exempt
 def proxy_image():
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
@@ -583,6 +585,7 @@ def proxy_image():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/upload-multiple', methods=['POST'])
+@csrf.exempt
 def upload_multiple():
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
@@ -632,6 +635,7 @@ def admin_dashboard():
     return render_template('admin_dashboard.html', categories=categories, products=products, orders=orders)
 
 @app.route('/api/orders/<int:order_id>/status', methods=['POST'])
+@csrf.exempt
 def update_order_status(order_id):
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
@@ -1107,6 +1111,7 @@ def _translate_to_ukrainian(text):
 
 
 @app.route('/api/parse-url', methods=['POST'])
+@csrf.exempt
 def parse_product_url():
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
