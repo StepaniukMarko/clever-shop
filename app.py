@@ -36,7 +36,13 @@ else:
     os.makedirs(instance_path, exist_ok=True)
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "shop.db")}'
 
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    # Для локальної розробки використовуємо тимчасовий ключ
+    import secrets
+    SECRET_KEY = secrets.token_hex(32)
+    print("⚠️  WARNING: Using temporary SECRET_KEY! Set SECRET_KEY environment variable in production!")
+app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads')
 app.config['WTF_CSRF_ENABLED'] = csrf_available
 app.config['WTF_CSRF_TIME_LIMIT'] = None
@@ -359,8 +365,11 @@ def privacy_page():
     return render_template('privacy.html')
 
 def _notify_telegram(order_id, name, phone, total, items, delivery, payment_status='очікується'):
-    token = "8735115362:AAHN_uuxpGm3Ut6U_Zu3Ku10xN96xC4AIko"
-    chat_ids = ["711331128"]
+    token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    if not token:
+        print("⚠️ TELEGRAM_BOT_TOKEN not set, notifications disabled")
+        return
+    chat_ids = [os.environ.get('TELEGRAM_CHAT_ID', '711331128')]
     
     items_text = "\n".join([f"  • {item.get('name', 'Товар')} (×{item.get('quantity', 1)}) - {item.get('price', 0) * item.get('quantity', 1)} грн" for item in items])
     
@@ -577,7 +586,6 @@ def proxy_image():
         return jsonify({'url': url_for('static', filename='uploads/' + filename)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/upload-multiple', methods=['POST'])
 def upload_multiple():
@@ -597,9 +605,19 @@ def upload_multiple():
 @limiter.limit("5 per minute")
 def admin_login():
     password = request.form.get('password')
-    if password == 'clever.admin.123':
-        session['admin'] = True
-        return redirect(url_for('admin_dashboard'))
+    ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH')
+    
+    # Якщо немає хеша в змінних - використовуємо старий пароль (тимчасово)
+    if not ADMIN_PASSWORD_HASH:
+        print("⚠️  WARNING: ADMIN_PASSWORD_HASH not set! Using default password (INSECURE!)")
+        if password == 'clever.admin.123':
+            session['admin'] = True
+            return redirect(url_for('admin_dashboard'))
+    else:
+        if check_password_hash(ADMIN_PASSWORD_HASH, password):
+            session['admin'] = True
+            return redirect(url_for('admin_dashboard'))
+    
     return redirect(url_for('admin_login_page'))
 
 @app.route('/admin/login')
@@ -779,7 +797,7 @@ def _clean_images(images, base_url):
         
         # Пропускаємо службові
         if any(skip in img_lower for skip in skip_patterns):
-            continue
+            continuenue
         if any(skip in img_lower for skip in skip_size_patterns):
             continue
         
@@ -1268,9 +1286,13 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
             session['user_name'] = user.name or user.email
+            
+            # Redirect до попередньої сторінки якщо є
+            redirect_url = request.args.get('redirect') or url_for('account')
+            
             if request.is_json:
-                return jsonify({'success': True})
-            return redirect(url_for('account'))
+                return jsonify({'success': True, 'redirect': redirect_url})
+            return redirect(redirect_url)
         
         if request.is_json:
             return jsonify({'error': 'Невірний email або пароль'}), 400
@@ -1338,17 +1360,44 @@ def subscribe_email():
 @csrf.exempt
 def product_reviews(product_id):
     if request.method == 'POST':
+        # Перевірка авторизації
+        if not session.get('user_id'):
+            return jsonify({'error': 'Щоб залишити відгук, потрібно увійти в акаунт'}), 401
+        
+        # Отримуємо дані користувача
+        user = User.query.get(session['user_id'])
+        if not user:
+            return jsonify({'error': 'Користувача не знайдено'}), 404
+        
+        # Перевіряємо чи користувач вже залишав відгук на цей товар
+        existing_review = Review.query.filter_by(
+            product_id=product_id,
+            customer_name=user.name or user.email
+        ).first()
+        
+        if existing_review:
+            return jsonify({'error': 'Ви вже залишили відгук на цей товар'}), 400
+        
         data = request.get_json()
+        
+        # Перевіряємо чи користувач купував цей товар
+        has_purchased = Order.query.filter_by(
+            customer_email=user.email
+        ).filter(
+            Order.items.like(f'%"id": {product_id}%')
+        ).first()
+        
         review = Review(
             product_id=product_id,
-            customer_name=data['name'],
+            customer_name=user.name or user.email.split('@')[0],
             rating=data['rating'],
             comment=data.get('comment', ''),
-            photo_url=data.get('photo_url', '')
+            photo_url=data.get('photo_url', ''),
+            verified=bool(has_purchased)  # Позначка "Підтверджена покупка"
         )
         db.session.add(review)
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'verified': bool(has_purchased)})
     
     reviews = Review.query.filter_by(product_id=product_id).order_by(Review.created_at.desc()).all()
     return jsonify([{
@@ -1477,6 +1526,26 @@ def api_categories():
 
 # === SEARCH API ===
 @app.route('/api/search', methods=['GET'])
+def search_products():
+    query = request.args.get('q', '').lower()
+    if not query or len(query) < 2:
+        return jsonify([])
+    
+    products = Product.query.filter(
+        db.or_(
+            Product.name.ilike(f'%{query}%'),
+            Product.brand.ilike(f'%{query}%'),
+            Product.description.ilike(f'%{query}%')
+        )
+    ).limit(20).all()
+    
+    return jsonify([{
+        'id': p.id,
+        'name': p.name,
+        'brand': p.brand,
+        'price': p.price,
+        'image_url': p.image_url or ''
+    } for p in products])
 def search_products():
     query = request.args.get('q', '').strip()
     if not query or len(query) < 2:

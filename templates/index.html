@@ -315,10 +315,12 @@
                      data-price="{{ product.price }}">
                     <div class="product-image-wrap">
                         {% if product.image_url %}
-                        <img src="{{ product.image_url }}" alt="{{ product.name }} - {{ product.brand }} оригінальний брендовий одяг" loading="lazy">
-                        {% else %}
-                        <div class="no-image">📷</div>
+                        <img src="{{ product.image_url }}" alt="{{ product.name }} - {{ product.brand }} оригінальний брендовий одяг" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         {% endif %}
+                        <div class="no-image" style="{% if product.image_url %}display:none;{% endif %}">
+                            <div style="font-size: 4rem; opacity: 0.3;">👕</div>
+                            <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #9CA3AF;">Фото незабаром</div>
+                        </div>
                         <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
                         {% if product.stock > 0 and product.stock <= 5 %}
                         <div class="stock-badge">⚠️ Залишилось {{ product.stock }} шт</div>

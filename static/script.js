@@ -548,7 +548,6 @@ if (window.location.pathname === '/checkout') {
 function initScrollEffects() {
     // Header scroll effect
     const header = document.querySelector('header');
-    let lastScroll = 0;
     
     window.addEventListener('scroll', () => {
         const currentScroll = window.scrollY;
@@ -562,8 +561,6 @@ function initScrollEffects() {
         if (scrollBtn) {
             scrollBtn.classList.toggle('visible', currentScroll > 500);
         }
-        
-        lastScroll = currentScroll;
     }, { passive: true });
     
     // Scroll animations

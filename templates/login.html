@@ -11,6 +11,12 @@
             <p>Увійдіть, щоб переглянути замовлення та список бажань</p>
         </div>
         
+        {% if request.args.get('redirect') %}
+        <div class="info-card" style="background:#DBEAFE;border-color:#BFDBFE;margin-bottom:1.5rem;">
+            <p style="margin:0;color:#1E40AF;">ℹ️ Щоб залишити відгук, потрібно увійти в акаунт</p>
+        </div>
+        {% endif %}
+        
         {% if error %}
         <div class="info-card" style="background:#FEE2E2;border-color:#FECACA;margin-bottom:1.5rem;">
             <p style="margin:0;color:#DC2626;">{{ error }}</p>
