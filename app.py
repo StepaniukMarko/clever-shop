@@ -706,6 +706,7 @@ def api_product(product_id):
     if request.method == 'PUT':
         data = request.get_json()
         product.name = data.get('name', product.name)
+        product.description = data.get('description', product.description)
         product.price = data.get('price', product.price)
         product.stock = data.get('stock', product.stock)
         product.brand = data.get('brand', product.brand)
