@@ -36,12 +36,7 @@ else:
     os.makedirs(instance_path, exist_ok=True)
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "shop.db")}'
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    # Для локальної розробки використовуємо тимчасовий ключ
-    import secrets
-    SECRET_KEY = secrets.token_hex(32)
-    print("⚠️  WARNING: Using temporary SECRET_KEY! Set SECRET_KEY environment variable in production!")
+SECRET_KEY = os.environ.get('SECRET_KEY', '51870c0f00da27c6dd6d867835679acab0d9dfce4ec416976cb34e66fa438dae')
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads')
 app.config['WTF_CSRF_ENABLED'] = csrf_available
@@ -607,10 +602,7 @@ def upload_multiple():
 def admin_login():
     password = request.form.get('password')
     ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH')
-    
-    # Якщо немає хеша в змінних - використовуємо старий пароль (тимчасово)
     if not ADMIN_PASSWORD_HASH:
-        print("⚠️  WARNING: ADMIN_PASSWORD_HASH not set! Using default password (INSECURE!)")
         if password == 'clever.admin.123':
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
@@ -618,7 +610,6 @@ def admin_login():
         if check_password_hash(ADMIN_PASSWORD_HASH, password):
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
-    
     return redirect(url_for('admin_login_page'))
 
 @app.route('/admin/login')
