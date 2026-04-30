@@ -225,8 +225,13 @@
     
     <div class="category-section">
         <div class="category-toggle">
-            <button type="button" onclick="switchCategory('men')" id="btn-men-top" class="cat-btn active">👔 Чоловікам</button>
-            <button type="button" onclick="switchCategory('women')" id="btn-women-top" class="cat-btn">👗 Жінкам</button>
+            <a href="/?gender={% if gender == 'men' %}{% else %}men{% endif %}#products" 
+               id="btn-men-top" class="cat-btn {% if gender == 'men' %}active{% endif %}">👔 Чоловікам</a>
+            <a href="/?gender={% if gender == 'women' %}{% else %}women{% endif %}#products" 
+               id="btn-women-top" class="cat-btn {% if gender == 'women' %}active{% endif %}">👗 Жінкам</a>
+            {% if gender %}
+            <a href="/#products" class="cat-btn-clear">✕ Всі товари</a>
+            {% endif %}
         </div>
     </div>
     
@@ -347,6 +352,34 @@
                 </div>
                 {% endfor %}
             </div>
+            
+            <!-- ПАГІНАЦІЯ -->
+            {% if total_pages > 1 %}
+            <div class="pagination">
+                <div class="pagination-info">
+                    Показано {{ ((page-1)*per_page)+1 }}–{{ [page*per_page, total]|min }} з {{ total }} товарів
+                </div>
+                <div class="pagination-controls">
+                    {% if page > 1 %}
+                    <a href="/?page={{ page-1 }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">← Назад</a>
+                    {% endif %}
+                    
+                    {% for p in range(1, total_pages+1) %}
+                        {% if p == page %}
+                        <span class="page-btn active">{{ p }}</span>
+                        {% elif p == 1 or p == total_pages or (p >= page-2 and p <= page+2) %}
+                        <a href="/?page={{ p }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">{{ p }}</a>
+                        {% elif p == page-3 or p == page+3 %}
+                        <span class="page-btn dots">…</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page < total_pages %}
+                    <a href="/?page={{ page+1 }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">Далі →</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </section>

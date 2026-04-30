@@ -310,8 +310,31 @@ def shutdown_session(exception=None):
 @app.route('/')
 def index():
     categories = Category.query.all()
-    products = Product.query.all()
-    return render_template('index.html', categories=categories, products=products)
+    
+    # Параметри фільтрації
+    gender = request.args.get('gender', '')  # men / women
+    page = request.args.get('page', 1, type=int)
+    per_page = 24
+    
+    query = Product.query
+    if gender == 'men':
+        query = query.filter(Product.gender.in_(['чоловічий', 'унісекс']))
+    elif gender == 'women':
+        query = query.filter(Product.gender.in_(['жіночий', 'унісекс']))
+    
+    total = query.count()
+    products = query.order_by(Product.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
+    total_pages = (total + per_page - 1) // per_page
+    
+    return render_template('index.html',
+        categories=categories,
+        products=products,
+        page=page,
+        total_pages=total_pages,
+        total=total,
+        gender=gender,
+        per_page=per_page
+    )
 
 @app.route('/category/<int:category_id>')
 def category(category_id):
