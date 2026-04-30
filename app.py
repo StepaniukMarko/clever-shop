@@ -651,6 +651,7 @@ def update_order_status(order_id):
 
 # === PRODUCTS API ===
 @app.route('/api/products', methods=['GET', 'POST'])
+@csrf.exempt
 def api_products():
     if request.method == 'POST':
         if not session.get('admin'):
@@ -678,6 +679,7 @@ def api_products():
     return jsonify([{'id': p.id, 'name': p.name, 'price': p.price, 'image_url': p.image_url or '', 'brand': p.brand} for p in Product.query.all()])
 
 @app.route('/api/products/<int:product_id>', methods=['PUT', 'DELETE'])
+@csrf.exempt
 def api_product(product_id):
     product = Product.query.get_or_404(product_id)
     if not session.get('admin'):

@@ -379,8 +379,22 @@
         
         function deleteProduct(id) {
             if (confirm('Видалити товар?')) {
-                fetch('/api/products/' + id, { method: 'DELETE' })
-                    .then(() => location.reload());
+                fetch('/api/products/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else if (data.error === 'Unauthorized') {
+                        alert('Сесія закінчилась. Увійдіть знову.');
+                        window.location.href = '/admin/login';
+                    } else {
+                        alert('Помилка: ' + (data.error || 'невідома'));
+                    }
+                })
+                .catch(err => alert('Помилка: ' + err.message));
             }
         }
         
@@ -697,8 +711,22 @@
         
         function deleteProduct(id) {
             if (confirm('Видалити товар?')) {
-                fetch('/api/products/' + id, { method: 'DELETE' })
-                    .then(() => location.reload());
+                fetch('/api/products/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else if (data.error === 'Unauthorized') {
+                        alert('Сесія закінчилась. Увійдіть знову.');
+                        window.location.href = '/admin/login';
+                    } else {
+                        alert('Помилка: ' + (data.error || 'невідома'));
+                    }
+                })
+                .catch(err => alert('Помилка: ' + err.message));
             }
         }
         
