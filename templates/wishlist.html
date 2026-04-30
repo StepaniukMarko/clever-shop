@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Список бажань - Clever{% endblock %}
+
+{% block content %}
+<div class="wishlist-container">
+    <div class="wishlist-header">
+        <h1>♡ Список бажань</h1>
+        <p>Товари, які ви зберегли для покупки</p>
+    </div>
+    
+    <div class="wishlist-grid" id="wishlist-grid">
+        <!-- Products will be loaded via JS -->
+    </div>
+    
+    <div class="wishlist-empty" id="wishlist-empty" style="display:none;">
+        <div class="wishlist-empty-icon">♡</div>
+        <h3>Список бажань порожній</h3>
+        <p>Додавайте товари, натискаючи на серце ♡ на картці товару</p>
+        <a href="/#products" class="btn btn-primary" style="margin-top:1rem;">🛍️ Перейти до каталогу</a>
+    </div>
+</div>
+
+<!-- Floating Contacts -->
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadWishlist();
+});
+
+function loadWishlist() {
+    var wishlist = JSON.parse(storage.getItem('wishlist') || '[]');
+    var grid = document.getElementById('wishlist-grid');
+    var empty = document.getElementById('wishlist-empty');
+    
+    if (wishlist.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+    
+    // Fetch products
+    fetch('/api/products')
+        .then(r => r.json())
+        .then(products => {
+            var wishlistProducts = products.filter(p => wishlist.includes(p.id));
+            
+            if (wishlistProducts.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            grid.innerHTML = wishlistProducts.map(p => `
+                <div class="product-card" onclick="if(!event.target.closest('button')) window.location='/product/${p.id}'">
+                    <div class="product-image-wrap">
+                        ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy">` : '<div class="no-image">📷</div>'}
+                        <button class="wishlist-btn active" onclick="event.stopPropagation(); removeFromWishlist(${p.id}, this)">♥</button>
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <p class="brand">${p.brand}</p>
+                        <p class="price">${p.price.toLocaleString('uk-UA')} грн</p>
+                    </div>
+                    <div class="card-buttons">
+                        <button onclick="event.stopPropagation(); quickAddToCart(${p.id}, '${p.name}', ${p.price})" class="btn btn-primary btn-sm">🛒 В кошик</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+        });
+}
+
+function removeFromWishlist(id, btn) {
+    var wishlist = JSON.parse(storage.getItem('wishlist') || '[]');
+    var index = wishlist.indexOf(id);
+    if (index > -1) {
+        wishlist.splice(index, 1);
+        storage.setItem('wishlist', JSON.stringify(wishlist));
+        updateWishlistCount();
+        loadWishlist();
+    }
+}
+
+function quickAddToCart(id, name, price) {
+    var cart = JSON.parse(storage.getItem('cart') || '[]');
+    var existing = cart.find(c => c.id == id);
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({ id: String(id), name: name, price: price, quantity: 1 });
+    }
+    storage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    
+    if (typeof showToast === 'function') {
+        showToast('Товар додано в кошик', 'success');
+    } else {
+        alert('Товар додано в кошик!');
+    }
+}
+</script>
+{% endblock %}

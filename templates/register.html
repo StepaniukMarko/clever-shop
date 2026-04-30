@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Реєстрація - Clever{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">✨</div>
+            <h1>Створити акаунт</h1>
+            <p>Зареєструйтесь для швидкого оформлення замовлень</p>
+        </div>
+        
+        {% if error %}
+        <div class="info-card" style="background:#FEE2E2;border-color:#FECACA;margin-bottom:1.5rem;">
+            <p style="margin:0;color:#DC2626;">{{ error }}</p>
+        </div>
+        {% endif %}
+        
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label>Ім'я</label>
+                <input type="text" name="name" required placeholder="Іван Петренко">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label>Телефон</label>
+                <input type="tel" name="phone" placeholder="+380 XX XXX XX XX">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" name="password" required placeholder="Мінімум 6 символів" minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Зареєструватися</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Вже є акаунт? <a href="/login">Увійти</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

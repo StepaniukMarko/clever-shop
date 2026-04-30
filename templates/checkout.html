@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+
+{% block title %}Оформлення замовлення - Clever{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="checkout-header">
+        <h1>🛒 Оформлення замовлення</h1>
+        <div class="checkout-steps">
+            <div class="checkout-step active">
+                <span class="step-num">1</span>
+                <span>Контакти</span>
+            </div>
+            <div class="checkout-step">
+                <span class="step-num">2</span>
+                <span>Доставка</span>
+            </div>
+            <div class="checkout-step">
+                <span class="step-num">3</span>
+                <span>Оплата</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="checkout-grid">
+        <div class="checkout-form">
+            <form onsubmit="submitOrder(event)" id="checkout-form">
+                <div class="form-section">
+                    <h3>👤 Контактні дані</h3>
+                    <div class="form-group">
+                        <label>Ім'я та прізвище *</label>
+                        <input type="text" name="name" required placeholder="Іван Петренко">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон *</label>
+                        <input type="tel" id="phone-input" name="phone" required placeholder="+380 XX XXX XX XX" pattern="^\+380\d{9}$" title="Формат: +380XXXXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Email (для підтвердження)</label>
+                        <input type="email" name="email" placeholder="email@example.com">
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>🚚 Доставка</h3>
+                    <div class="form-group">
+                        <label>Місто *</label>
+                        <input type="text" id="city-input" name="city" required placeholder="Почніть вводити назву міста..." autocomplete="off">
+                        <input type="hidden" id="city-ref" name="city_ref">
+                        <div id="city-suggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Відділення Нової Пошти *</label>
+                        <input type="text" id="warehouse-input" name="warehouse" required placeholder="Оберіть спочатку місто" autocomplete="off" disabled>
+                        <input type="hidden" id="warehouse-ref" name="warehouse_ref">
+                        <div id="warehouse-suggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>💳 Спосіб оплати</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option selected">
+                            <input type="radio" name="payment" value="online" checked>
+                            <div class="payment-option-content">
+                                <div class="payment-option-icon">💳</div>
+                                <div>
+                                    <div class="payment-option-title">Онлайн оплата картою</div>
+                                    <div class="payment-option-desc">Visa, Mastercard через LiqPay</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-xl" style="width:100%;margin-top:1rem;">
+                    ✓ Підтвердити замовлення
+                </button>
+                
+                <p style="text-align:center;font-size:0.85rem;color:var(--gray-500);margin-top:1rem;">
+                    Натискаючи кнопку, ви погоджуєтесь з <a href="/oferta" style="color:var(--primary);">умовами оферти</a>
+                </p>
+            </form>
+        </div>
+        
+        <div class="checkout-summary">
+            <h3>🛍️ Ваше замовлення</h3>
+            <div id="checkout-items"></div>
+            
+            <div class="promo-section">
+                <h4>🎁 Промокод</h4>
+                <div class="promo-input-group">
+                    <input type="text" id="promo-input" placeholder="Введіть промокод" maxlength="20">
+                    <button type="button" onclick="applyPromo()" class="btn btn-secondary">Застосувати</button>
+                </div>
+                <div id="promo-message" class="promo-message"></div>
+                <div id="promo-discount" class="promo-discount" style="display:none;">
+                    <span>Знижка:</span>
+                    <span class="discount-amount">-<span id="discount-value">0</span> грн</span>
+                </div>
+            </div>
+            
+            <div class="summary-total">
+                <span>Всього до оплати:</span>
+                <span class="total-price"><span id="checkout-total">0</span> грн</span>
+            </div>
+            
+            <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--gray-200);">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;font-size:0.9rem;color:var(--gray-600);">
+                    <span>🔒</span> Безпечна покупка
+                </div>
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;font-size:0.9rem;color:var(--gray-600);">
+                    <span>✅</span> Оригінальні товари
+                </div>
+                <div style="display:flex;align-items:center;gap:0.75rem;font-size:0.9rem;color:var(--gray-600);">
+                    <span>↩️</span> Повернення 14 днів
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var appliedPromo = null;
+var originalTotal = 0;
+var discountAmount = 0;
+
+// Нова Пошта API
+var selectedCityRef = null;
+var citySearchTimeout = null;
+var warehouseSearchTimeout = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadCheckoutCart();
+    initNovaPoshtaAutocomplete();
+    initPhoneMask();
+});
+
+function initPhoneMask() {
+    var phoneInput = document.getElementById('phone-input');
+    if (!phoneInput) return;
+    
+    phoneInput.addEventListener('input', function(e) {
+        var value = e.target.value.replace(/\D/g, '');
+        
+        // Автоматично додаємо +380
+        if (!value.startsWith('380')) {
+            if (value.startsWith('80')) {
+                value = '3' + value;
+            } else if (value.startsWith('0')) {
+                value = '38' + value;
+            } else if (value.length > 0 && !value.startsWith('380')) {
+                value = '380' + value;
+            }
+        }
+        
+        // Обмежуємо довжину
+        if (value.length > 12) {
+            value = value.substring(0, 12);
+        }
+        
+        // Форматуємо
+        var formatted = '+';
+        if (value.length > 0) {
+            formatted += value.substring(0, 3); // 380
+        }
+        if (value.length > 3) {
+            formatted += ' ' + value.substring(3, 5); // XX
+        }
+        if (value.length > 5) {
+            formatted += ' ' + value.substring(5, 8); // XXX
+        }
+        if (value.length > 8) {
+            formatted += ' ' + value.substring(8, 10); // XX
+        }
+        if (value.length > 10) {
+            formatted += ' ' + value.substring(10, 12); // XX
+        }
+        
+        e.target.value = formatted;
+    });
+    
+    // Встановлюємо +380 при фокусі, якщо поле порожнє
+    phoneInput.addEventListener('focus', function(e) {
+        if (!e.target.value) {
+            e.target.value = '+380 ';
+        }
+    });
+}
+
+function initNovaPoshtaAutocomplete() {
+    var cityInput = document.getElementById('city-input');
+    var warehouseInput = document.getElementById('warehouse-input');
+    
+    // Автозаповнення міст
+    cityInput.addEventListener('input', function() {
+        clearTimeout(citySearchTimeout);
+        var query = this.value.trim();
+        
+        if (query.length < 2) {
+            document.getElementById('city-suggestions').innerHTML = '';
+            return;
+        }
+        
+        citySearchTimeout = setTimeout(function() {
+            searchCities(query);
+        }, 300);
+    });
+    
+    // Автозаповнення відділень
+    warehouseInput.addEventListener('input', function() {
+        clearTimeout(warehouseSearchTimeout);
+        var query = this.value.trim();
+        
+        if (!selectedCityRef) {
+            return;
+        }
+        
+        warehouseSearchTimeout = setTimeout(function() {
+            searchWarehouses(selectedCityRef, query);
+        }, 300);
+    });
+    
+    // Закрити suggestions при кліку поза ними
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.form-group')) {
+            document.getElementById('city-suggestions').innerHTML = '';
+            document.getElementById('warehouse-suggestions').innerHTML = '';
+        }
+    });
+}
+
+function searchCities(query) {
+    var requestData = {
+        apiKey: '',
+        modelName: 'Address',
+        calledMethod: 'searchSettlements',
+        methodProperties: {
+            CityName: query,
+            Limit: 10
+        }
+    };
+    
+    fetch('https://api.novaposhta.ua/v2.0/json/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(requestData)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success && data.data && data.data[0] && data.data[0].Addresses) {
+            showCitySuggestions(data.data[0].Addresses);
+        } else {
+            document.getElementById('city-suggestions').innerHTML = '<div class="suggestion-item">Міста не знайдено</div>';
+        }
+    })
+    .catch(function(err) {
+        console.error('Помилка пошуку міст:', err);
+    });
+}
+
+function showCitySuggestions(cities) {
+    var container = document.getElementById('city-suggestions');
+    var html = '';
+    
+    cities.forEach(function(city) {
+        var cityName = city.Present || city.MainDescription;
+        var region = city.Region || '';
+        var area = city.Area || '';
+        var description = region && area ? region + ', ' + area : (region || area);
+        
+        html += '<div class="suggestion-item" onclick="selectCity(\'' + 
+            city.DeliveryCity + '\', \'' + cityName.replace(/'/g, "\\'") + '\')">' +
+            '<div class="suggestion-main">' + cityName + '</div>' +
+            (description ? '<div class="suggestion-sub">' + description + '</div>' : '') +
+            '</div>';
+    });
+    
+    container.innerHTML = html;
+}
+
+function selectCity(cityRef, cityName) {
+    selectedCityRef = cityRef;
+    document.getElementById('city-input').value = cityName;
+    document.getElementById('city-ref').value = cityRef;
+    document.getElementById('city-suggestions').innerHTML = '';
+    
+    // Активувати поле відділень
+    var warehouseInput = document.getElementById('warehouse-input');
+    warehouseInput.disabled = false;
+    warehouseInput.placeholder = 'Почніть вводити номер або адресу відділення...';
+    warehouseInput.value = '';
+    document.getElementById('warehouse-ref').value = '';
+    
+    // Автоматично завантажити відділення
+    searchWarehouses(cityRef, '');
+}
+
+function searchWarehouses(cityRef, query) {
+    var requestData = {
+        apiKey: '',
+        modelName: 'Address',
+        calledMethod: 'getWarehouses',
+        methodProperties: {
+            CityRef: cityRef,
+            Limit: 500
+        }
+    };
+    
+    if (query) {
+        requestData.methodProperties.FindByString = query;
+    }
+    
+    fetch('https://api.novaposhta.ua/v2.0/json/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(requestData)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success && data.data && data.data.length > 0) {
+            showWarehouseSuggestions(data.data);
+        } else {
+            document.getElementById('warehouse-suggestions').innerHTML = '<div class="suggestion-item">Відділення не знайдено</div>';
+        }
+    })
+    .catch(function(err) {
+        console.error('Помилка пошуку відділень:', err);
+    });
+}
+
+function showWarehouseSuggestions(warehouses) {
+    var container = document.getElementById('warehouse-suggestions');
+    var html = '';
+    
+    // Показуємо всі відділення без обмеження
+    warehouses.forEach(function(warehouse) {
+        var description = warehouse.Description || '';
+        var shortAddress = warehouse.ShortAddress || '';
+        
+        html += '<div class="suggestion-item" onclick="selectWarehouse(\'' + 
+            warehouse.Ref + '\', \'' + description.replace(/'/g, "\\'") + '\')">' +
+            '<div class="suggestion-main">' + description + '</div>' +
+            (shortAddress ? '<div class="suggestion-sub">' + shortAddress + '</div>' : '') +
+            '</div>';
+    });
+    
+    container.innerHTML = html;
+}
+
+function selectWarehouse(warehouseRef, warehouseName) {
+    document.getElementById('warehouse-input').value = warehouseName;
+    document.getElementById('warehouse-ref').value = warehouseRef;
+    document.getElementById('warehouse-suggestions').innerHTML = '';
+}
+
+function loadCheckoutCart() {
+    var cart = JSON.parse(storage.getItem('cart') || '[]');
+    var container = document.getElementById('checkout-items');
+    var totalEl = document.getElementById('checkout-total');
+    
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:2rem;">Кошик порожній</p>';
+        totalEl.textContent = '0';
+        return;
+    }
+    
+    var html = '';
+    var total = 0;
+    
+    cart.forEach(function(item) {
+        var itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        html += '<div class="summary-item">' +
+            '<div><div class="item-name">' + item.name + '</div>' +
+            '<div class="item-details">' + (item.size ? 'Розмір: ' + item.size + ' • ' : '') + '×' + item.quantity + '</div></div>' +
+            '<div class="item-price">' + itemTotal.toLocaleString('uk-UA') + ' грн</div></div>';
+    });
+    
+    container.innerHTML = html;
+    originalTotal = total;
+    totalEl.textContent = total.toLocaleString('uk-UA');
+}
+
+function applyPromo() {
+    var promoInput = document.getElementById('promo-input');
+    var promoCode = promoInput.value.trim().toUpperCase();
+    var messageEl = document.getElementById('promo-message');
+    
+    if (!promoCode) {
+        messageEl.textContent = 'Введіть промокод';
+        messageEl.className = 'promo-message error';
+        return;
+    }
+    
+    messageEl.textContent = 'Перевірка...';
+    messageEl.className = 'promo-message';
+    
+    fetch('/api/promo/validate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: promoCode, amount: originalTotal})
+    })
+    .then(function(r) { 
+        if (!r.ok) throw new Error('Invalid promo');
+        return r.json(); 
+    })
+    .then(function(data) {
+        appliedPromo = promoCode;
+        discountAmount = data.discount;
+        
+        messageEl.textContent = '✓ Промокод застосовано!';
+        messageEl.className = 'promo-message success';
+        
+        document.getElementById('discount-value').textContent = discountAmount.toLocaleString('uk-UA');
+        document.getElementById('promo-discount').style.display = 'flex';
+        document.getElementById('checkout-total').textContent = data.new_total.toLocaleString('uk-UA');
+        
+        promoInput.disabled = true;
+    })
+    .catch(function() {
+        messageEl.textContent = '✗ Промокод недійсний або прострочений';
+        messageEl.className = 'promo-message error';
+        appliedPromo = null;
+        discountAmount = 0;
+    });
+}
+
+function submitOrder(e) {
+    e.preventDefault();
+    var form = e.target;
+    var cart = JSON.parse(storage.getItem('cart') || '[]');
+    
+    if (cart.length === 0) {
+        alert('Кошик порожній');
+        return;
+    }
+    
+    var total = originalTotal - discountAmount;
+    var delivery = form.city.value + ', ' + form.warehouse.value;
+    var paymentMethod = form.querySelector('input[name="payment"]:checked').value;
+    
+    var data = {
+        name: form.name.value,
+        phone: form.phone.value,
+        email: form.email.value || '',
+        delivery: delivery,
+        items: cart,
+        total: total,
+        payment_method: paymentMethod,
+        promo_code: appliedPromo
+    };
+    
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Обробка замовлення...';
+    
+    fetch('/checkout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(function(r) { 
+        if (!r.ok) {
+            return r.json().then(function(err) { throw new Error(err.error); });
+        }
+        return r.json(); 
+    })
+    .then(function(res) {
+        if (res.success) {
+            if (res.payment_required) {
+                var liqpayForm = document.createElement('form');
+                liqpayForm.method = 'POST';
+                liqpayForm.action = 'https://www.liqpay.ua/api/3/checkout';
+                liqpayForm.innerHTML = '<input type="hidden" name="data" value="' + res.payment_data.data + '">' +
+                    '<input type="hidden" name="signature" value="' + res.payment_data.signature + '">';
+                document.body.appendChild(liqpayForm);
+                storage.removeItem('cart');
+                liqpayForm.submit();
+            } else {
+                storage.removeItem('cart');
+                window.location.href = '/thank-you/' + res.order_id;
+            }
+        }
+    })
+    .catch(function(err) {
+        alert('Помилка: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '✓ Підтвердити замовлення';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Бренди - Clever{% endblock %}
+{% block meta_description %}Офіційні бренди в магазині Clever: Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss, Polo Ralph Lauren та інші. Тільки оригінальна продукція.{% endblock %}
+
+{% block content %}
+<div class="brands-container">
+    <div class="brands-header">
+        <span class="section-badge">🏷️ Наші бренди</span>
+        <h1>Працюємо з найкращими</h1>
+        <p>Тільки оригінальна продукція від провідних європейських брендів з офіційними сертифікатами якості</p>
+    </div>
+    
+    <!-- Чоловічі та жіночі бренди -->
+    <div class="brands-section">
+        <h2>👔👗 Чоловічі та жіночі бренди</h2>
+        <div class="brands-grid">
+            <a href="/#products" class="brand-card">
+                <h3>Massimo Dutti</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Calvin Klein</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Tommy Hilfiger</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Polo Ralph Lauren</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Karl Lagerfeld</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Premiata</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Armani Exchange</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Boss</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Levi's</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Diesel</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Lacoste</h3>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Тільки жіночі бренди -->
+    <div class="brands-section">
+        <h2>👗 Жіночі бренди</h2>
+        <div class="brands-grid">
+            <a href="/#products" class="brand-card">
+                <h3>Mango</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Victoria's Secret</h3>
+            </a>
+            <a href="/#products" class="brand-card">
+                <h3>Michael Kors</h3>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Info -->
+    <div class="info-card" style="margin-top:3rem;">
+        <h3>✅ Гарантія оригінальності</h3>
+        <p style="margin:0;">Всі товари — оригінальна продукція з офіційними бірками. Замовляємо тільки в перевірених онлайн магазинах Європи.</p>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Готові оновити гардероб?</h2>
+        <p>Переглядайте каталог та замовляйте оригінальний одяг з доставкою по всій Україні</p>
+        <div class="cta-buttons">
+            <a href="/#products" class="btn btn-lg">🛍️ Перейти до каталогу</a>
+        </div>
+    </div>
+</section>
+
+<!-- Floating Contacts -->
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('scroll', function() {
+    document.getElementById('scroll-top').classList.toggle('visible', window.scrollY > 300);
+});
+</script>
+{% endblock %}

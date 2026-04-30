@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Дякуємо за замовлення - Clever{% endblock %}
+
+{% block content %}
+<div class="thankyou-container">
+    <div class="thankyou-icon">✓</div>
+    
+    <h1>Дякуємо за замовлення!</h1>
+    <p class="order-number">Замовлення #{{ order.id }} успішно оформлено</p>
+    
+    <div class="order-details">
+        <h3>📋 Деталі замовлення</h3>
+        
+        <div class="order-row">
+            <span>Замовник:</span>
+            <span>{{ order.customer_name }}</span>
+        </div>
+        <div class="order-row">
+            <span>Телефон:</span>
+            <span>{{ order.phone }}</span>
+        </div>
+        {% if order.email %}
+        <div class="order-row">
+            <span>Email:</span>
+            <span>{{ order.email }}</span>
+        </div>
+        {% endif %}
+        <div class="order-row">
+            <span>Доставка:</span>
+            <span>{{ order.delivery_address }}</span>
+        </div>
+        <div class="order-row">
+            <span>Сума замовлення:</span>
+            <span style="color:var(--primary-dark);font-weight:700;">{{ "{:,.0f}".format(order.total).replace(",", " ") }} грн</span>
+        </div>
+    </div>
+    
+    <div class="info-card" style="text-align:left;margin-bottom:2rem;">
+        <h3 style="margin-bottom:0.75rem;">📞 Що далі?</h3>
+        <p style="margin:0;color:var(--gray-600);">Наш менеджер зв'яжеться з вами протягом 30 хвилин для підтвердження замовлення. Якщо у вас є питання — телефонуйте <a href="tel:+380632665135" style="color:var(--primary);font-weight:600;">+38 (063) 266-51-35</a> або пишіть в <a href="https://t.me/clevershopv" target="_blank" style="color:var(--primary);font-weight:600;">Telegram</a>.</p>
+    </div>
+    
+    <div class="thankyou-actions">
+        <a href="/" class="btn btn-primary btn-lg">🏠 На головну</a>
+        <a href="/#products" class="btn btn-secondary btn-lg">🛍️ Продовжити покупки</a>
+    </div>
+</div>
+
+<!-- Floating Contacts -->
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+{% endblock %}

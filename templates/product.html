@@ -1,0 +1,663 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Clever{% endblock %}
+{% block meta_description %}{{ product.name }} від {{ product.brand }}. Оригінальний брендовий одяг з доставкою по Україні. Ціна: {{ product.price }} грн{% endblock %}
+
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name }}",
+  "image": {{ product.get_images() | tojson }},
+  "description": "{{ product.description or (product.name + ' від ' + product.brand + '. Оригінальний брендовий одяг з доставкою по Україні.') }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ product.brand }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://www.clevershop.vn.ua/product/{{ product.id }}",
+    "priceCurrency": "UAH",
+    "price": "{{ product.price }}",
+    "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "priceValidUntil": "2026-12-31",
+    "seller": {
+      "@type": "Organization",
+      "name": "Clever Shop"
+    }
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="product-container">
+    <!-- Breadcrumb -->
+    <nav class="product-breadcrumb">
+        <a href="/">Головна</a>
+        <span>›</span>
+        <a href="/#products">Каталог</a>
+        <span>›</span>
+        <span>{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</span>
+    </nav>
+
+    <div class="product-layout">
+        <!-- Gallery -->
+        <div class="product-gallery">
+            {% set images = product.get_images() %}
+            {% if images %}
+            <div class="main-image-wrap" onclick="openPhotoModal(document.getElementById('main-product-image').src)">
+                <img src="{{ images[0] }}" alt="{{ product.name }}" id="main-product-image">
+            </div>
+            {% if images|length > 1 %}
+            <div class="gallery-thumbs">
+                {% for img in images %}
+                <div class="gallery-thumb {% if loop.first %}active{% endif %}" onclick="changeMainImage('{{ img }}', this)">
+                    <img src="{{ img }}" alt="{{ product.name }} - фото {{ loop.index }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="main-image-wrap">
+                <div class="no-image" style="height:500px;">📷</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Details -->
+        <div class="product-details">
+            <span class="product-brand">{{ product.brand }}</span>
+            <h1 class="product-title">{{ product.name }}</h1>
+            
+            <div class="product-price-block">
+                <span class="product-price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</span>
+            </div>
+            
+            <div class="product-stock {% if product.stock > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                {% if product.stock > 0 %}
+                <span>●</span> В наявності
+                {% else %}
+                <span>●</span> Немає в наявності
+                {% endif %}
+            </div>
+            
+            {% if product.stock > 0 %}
+            <!-- Size Selection -->
+            <div class="product-section">
+                <h3>Оберіть розмір</h3>
+                <div class="size-options">
+                    {% for size, in_stock in product.get_sizes_with_stock() %}
+                    <button type="button"
+                        class="size-btn{% if not in_stock %} size-unavailable{% endif %}"
+                        onclick="{% if in_stock %}selectSize(this){% else %}showToast('Цього розміру немає в наявності', 'error'){% endif %}"
+                        {% if not in_stock %}title="Немає в наявності"{% endif %}>
+                        {{ size }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <div id="size-stock-status" style="margin-top:0.5rem;font-size:0.9rem;"></div>
+            </div>
+            
+            <!-- Quantity -->
+            <div class="product-section">
+                <h3>Кількість</h3>
+                <div class="quantity-selector">
+                    <button type="button" class="qty-btn" onclick="changeQuantity(-1)">−</button>
+                    <input type="number" id="qty-input" class="qty-input" value="1" min="1" max="10">
+                    <button type="button" class="qty-btn" onclick="changeQuantity(1)">+</button>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="product-actions">
+                <button onclick="addToCartWithSize()" class="btn btn-primary btn-lg add-to-cart-btn" 
+                        data-id="{{ product.id }}" data-pname="{{ product.name }}" data-pprice="{{ product.price }}">
+                    🛒 Додати в кошик
+                </button>
+                <button onclick="buyNow()" class="btn btn-dark btn-lg buy-now-btn">
+                    ⚡ Купити зараз
+                </button>
+            </div>
+            {% else %}
+            <div class="product-section" style="text-align:center;padding:2rem;background:var(--gray-50);border-radius:var(--radius-lg);">
+                <p style="font-size:1.1rem;color:var(--gray-600);margin-bottom:1rem;">Товар тимчасово відсутній</p>
+                <a href="https://t.me/clevershopv" target="_blank" class="btn btn-primary">✈️ Запитати про наявність</a>
+            </div>
+            {% endif %}
+            
+            <!-- Trust Features -->
+            <div class="product-features">
+                <div class="product-feature">
+                    <div class="product-feature-icon">🚚</div>
+                    <span>Доставка 1-2 дні</span>
+                </div>
+                <div class="product-feature">
+                    <div class="product-feature-icon">💵</div>
+                    <span>Зручна оплата</span>
+                </div>
+                <div class="product-feature">
+                    <div class="product-feature-icon">↩️</div>
+                    <span>14 днів на повернення</span>
+                </div>
+                <div class="product-feature">
+                    <div class="product-feature-icon">✅</div>
+                    <span>100% оригінал</span>
+                </div>
+            </div>
+            
+            <!-- Social Share -->
+            <div class="social-share">
+                <h4>📢 Поділитися:</h4>
+                <div class="share-buttons">
+                    <button onclick="shareToFacebook()" class="share-btn facebook" title="Поділитися у Facebook">
+                        📘 Facebook
+                    </button>
+                    <button onclick="shareToTelegram()" class="share-btn telegram" title="Поділитися у Telegram">
+                        ✈️ Telegram
+                    </button>
+                    <button onclick="shareToViber()" class="share-btn viber" title="Поділитися у Viber">
+                        💜 Viber
+                    </button>
+                    <button onclick="copyLink()" class="share-btn copy" title="Скопіювати посилання">
+                        🔗 Копіювати
+                    </button>
+                </div>
+            </div>
+            
+            {% if product.description %}
+            <div class="product-section" style="border-bottom:none;">
+                <h3>Опис товару</h3>
+                <p class="product-description">{{ product.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Stock Urgency Banner -->
+{% if product.stock > 0 and product.stock <= 5 %}
+<div class="urgency-banner">
+    ⚠️ <strong>Увага!</strong> Залишилось лише <strong>{{ product.stock }} шт</strong> за цією ціною!
+</div>
+{% endif %}
+
+<!-- Reviews Section -->
+<section class="reviews-section container">
+    <div class="reviews-header">
+        <h2>⭐ Відгуки покупців</h2>
+        <button class="btn btn-primary" onclick="openReviewForm()">Залишити відгук</button>
+    </div>
+    
+    <div class="reviews-stats">
+        <div class="rating-summary">
+            <div class="rating-number" id="avg-rating">—</div>
+            <div class="rating-stars" id="avg-stars">☆☆☆☆☆</div>
+            <div class="rating-count"><span id="review-count">0</span> відгуків</div>
+        </div>
+    </div>
+    
+    <div id="reviews-list"></div>
+</section>
+
+<!-- FAQ Section -->
+<section class="product-faq-section container">
+    <div class="faq-header">
+        <h3>❓ Часті питання про цей товар</h3>
+    </div>
+    <div class="product-faq-container" id="product-faq">
+        <!-- FAQ items will be loaded dynamically based on product type -->
+    </div>
+</section>
+
+<!-- Cross-Sell Section -->
+<section class="cross-sell-section container">
+    <div class="cross-sell-header">
+        <h3>🛍️ Купують разом</h3>
+        <p>Клієнти, які купили цей товар, також обирали:</p>
+    </div>
+    <div class="cross-sell-grid" id="cross-sell-products"></div>
+</section>
+
+<!-- Recently Viewed Section -->
+<section class="recently-viewed-section" id="recently-viewed-section">
+    <div class="recently-viewed-header">
+        <h2>👁️ Нещодавно переглянуті</h2>
+        <a href="/#products">Дивитись всі товари →</a>
+    </div>
+    <div class="recently-viewed-grid"></div>
+</section>
+
+<!-- Floating Contacts -->
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+
+<!-- Review Modal -->
+<div id="review-modal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:500px;">
+        <div class="modal-header">
+            <h3>⭐ Залишити відгук</h3>
+            <button class="modal-close" onclick="closeReviewModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="review-form" onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label>Ваше ім'я *</label>
+                    <input type="text" id="review-name" class="form-input" placeholder="Введіть ваше ім'я" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Оцінка *</label>
+                    <div class="rating-input" id="rating-input">
+                        <span class="star" data-rating="1" onclick="selectRating(1)">☆</span>
+                        <span class="star" data-rating="2" onclick="selectRating(2)">☆</span>
+                        <span class="star" data-rating="3" onclick="selectRating(3)">☆</span>
+                        <span class="star" data-rating="4" onclick="selectRating(4)">☆</span>
+                        <span class="star" data-rating="5" onclick="selectRating(5)">☆</span>
+                    </div>
+                    <input type="hidden" id="review-rating" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ваш відгук</label>
+                    <textarea id="review-comment" class="form-input" rows="4" placeholder="Розкажіть про ваш досвід з цим товаром (необов'язково)"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeReviewModal()">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Відправити відгук</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Save current product to recently viewed
+document.addEventListener('DOMContentLoaded', function() {
+    var product = {
+        id: {{ product.id }},
+        name: "{{ product.name | replace('"', '\\"') }}",
+        brand: "{{ product.brand | replace('"', '\\"') }}",
+        price: {{ product.price }},
+        image: "{{ product.image_url or '' }}"
+    };
+    
+    if (typeof addToRecentlyViewed === 'function') {
+        addToRecentlyViewed(product);
+    }
+    
+    // Render recently viewed (excluding current product)
+    setTimeout(function() {
+        if (typeof renderRecentlyViewed === 'function') {
+            renderRecentlyViewed('recently-viewed-section');
+            // Hide current product from the list
+            var section = document.getElementById('recently-viewed-section');
+            if (section) {
+                var items = section.querySelectorAll('.recently-viewed-item');
+                items.forEach(function(item) {
+                    if (item.onclick && item.onclick.toString().includes('/product/{{ product.id }}')) {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+        }
+    }, 100);
+    
+    // Analytics tracking for product view
+    if (typeof gtag !== 'undefined') {
+        trackViewItem({{ product.id }}, "{{ product.name | replace('"', '\\"') }}", {{ product.price }}, "{{ product.brand }}", "{{ product.type }}");
+    }
+    if (typeof fbq !== 'undefined') {
+        trackFBViewContent('product', {{ product.price }});
+    }
+    
+    // Load reviews
+    loadReviews();
+    
+    // Load cross-sell products
+    loadCrossSell();
+    
+    // Load product FAQ
+    loadProductFAQ();
+});
+
+window.addEventListener('scroll', function() {
+    var btn = document.getElementById('scroll-top');
+    btn.classList.toggle('visible', window.scrollY > 300);
+});
+
+// Reviews functionality
+function loadReviews() {
+    fetch('/api/products/{{ product.id }}/reviews')
+        .then(r => r.json())
+        .then(reviews => {
+            const list = document.getElementById('reviews-list');
+            const countEl = document.getElementById('review-count');
+            const avgEl = document.getElementById('avg-rating');
+            
+            countEl.textContent = reviews.length;
+            
+            if (reviews.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:2rem;">Поки що немає відгуків. Будьте першим!</p>';
+                avgEl.textContent = '—';
+                document.getElementById('avg-stars').textContent = '☆☆☆☆☆';
+                return;
+            }
+            
+            const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+            avgEl.textContent = avg.toFixed(1);
+            const fullStars = Math.round(avg);
+            document.getElementById('avg-stars').textContent = '⭐'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+            
+            list.innerHTML = reviews.map(r => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">${r.name.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <span class="reviewer-name">${r.name}</span>
+                                ${r.verified ? '<span class="verified-badge">✓ Підтверджена покупка</span>' : ''}
+                            </div>
+                        </div>
+                        <span class="review-rating">${'⭐'.repeat(r.rating)}</span>
+                    </div>
+                    ${r.comment ? `<p class="review-text">${r.comment}</p>` : ''}
+                    ${r.photo_url ? `<img src="${r.photo_url}" class="review-photo" alt="Фото відгуку">` : ''}
+                    <span class="review-date">${r.created_at}</span>
+                </div>
+            `).join('');
+        });
+}
+
+let selectedRating = 0;
+
+function openReviewForm() {
+    document.getElementById('review-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    selectedRating = 0;
+    document.getElementById('review-form').reset();
+    document.getElementById('review-rating').value = '';
+    // Скинути зірки
+    document.querySelectorAll('#rating-input .star').forEach(star => {
+        star.textContent = '☆';
+        star.classList.remove('selected');
+    });
+}
+
+function closeReviewModal() {
+    document.getElementById('review-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function selectRating(rating) {
+    selectedRating = rating;
+    document.getElementById('review-rating').value = rating;
+    
+    // Оновити зірки
+    document.querySelectorAll('#rating-input .star').forEach((star, index) => {
+        if (index < rating) {
+            star.textContent = '⭐';
+            star.classList.add('selected');
+        } else {
+            star.textContent = '☆';
+            star.classList.remove('selected');
+        }
+    });
+}
+
+function submitReview(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('review-name').value.trim();
+    const rating = parseInt(document.getElementById('review-rating').value);
+    const comment = document.getElementById('review-comment').value.trim();
+    
+    if (!name) {
+        showToast('Будь ласка, введіть ваше ім\'я', 'error');
+        return;
+    }
+    
+    if (!rating || rating < 1 || rating > 5) {
+        showToast('Будь ласка, оберіть оцінку від 1 до 5 зірок', 'error');
+        return;
+    }
+    
+    fetch('/api/products/{{ product.id }}/reviews', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, rating, comment: comment || ''})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Дякуємо за відгук! ⭐', 'success');
+            closeReviewModal();
+            loadReviews();
+        } else {
+            showToast('Помилка при відправці відгуку', 'error');
+        }
+    })
+    .catch(err => {
+        showToast('Помилка при відправці відгуку', 'error');
+    });
+}
+
+// Закрити модалку при кліку поза нею
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('review-modal');
+    if (modal && e.target === modal) {
+        closeReviewModal();
+    }
+});
+
+// Закрити модалку при натисканні Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('review-modal');
+        if (modal && modal.style.display === 'flex') {
+            closeReviewModal();
+        }
+    }
+});
+
+// Cross-sell functionality
+function loadCrossSell() {
+    fetch('/api/products')
+        .then(r => r.json())
+        .then(products => {
+            const filtered = products
+                .filter(p => p.id !== {{ product.id }} && p.brand === '{{ product.brand }}')
+                .slice(0, 4);
+            
+            const container = document.getElementById('cross-sell-products');
+            if (filtered.length === 0) {
+                container.closest('.cross-sell-section').style.display = 'none';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(p => `
+                <div class="product-card" onclick="window.location='/product/${p.id}'">
+                    <div class="product-image-wrap">
+                        ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy">` : '<div class="no-image">📷</div>'}
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <p class="brand">${p.brand}</p>
+                        <p class="price">${p.price.toLocaleString('uk-UA')} грн</p>
+                    </div>
+                </div>
+            `).join('');
+        });
+}
+
+// FAQ functionality
+function loadProductFAQ() {
+    const productType = '{{ product.type }}';
+    const productBrand = '{{ product.brand }}';
+    
+    // FAQ data based on product type and brand
+    const faqData = {
+        'сорочка': [
+            {
+                question: 'Як правильно обрати розмір сорочки?',
+                answer: 'Виміряйте обхват грудей та порівняйте з розмірною сіткою бренду. Сорочки зазвичай мають класичний крій, тому обирайте звичний розмір.'
+            },
+            {
+                question: 'Чи можна прасувати цю сорочку?',
+                answer: 'Так, більшість брендових сорочок можна прасувати при температурі до 150°C. Завжди дивіться на етикетку з догляду.'
+            },
+            {
+                question: 'Чи сідає сорочка після прання?',
+                answer: 'Якісні брендові сорочки проходять попередню обробку і практично не сідають при правильному догляді.'
+            }
+        ],
+        'футболка': [
+            {
+                question: 'Який склад тканини у цієї футболки?',
+                answer: 'Зазвичай це 100% бавовна або суміш бавовни з еластаном для кращої посадки. Точний склад вказано на етикетці.'
+            },
+            {
+                question: 'Як доглядати за футболкою?',
+                answer: 'Прати при температурі до 30°C, не використовувати відбілювач, сушити природним способом.'
+            },
+            {
+                question: 'Чи вицвітає принт на футболці?',
+                answer: 'Брендові футболки використовують стійкі фарби. При правильному догляді принт залишається яскравим довго.'
+            }
+        ],
+        'джинси': [
+            {
+                question: 'Як обрати правильний розмір джинсів?',
+                answer: 'Виміряйте обхват талії та довжину ноги. Джинси можуть трохи розтягнутися після носіння.'
+            },
+            {
+                question: 'Чи можна прати джинси в машинці?',
+                answer: 'Так, але краще при температурі до 30°C і вивернувши навиворіт для збереження кольору.'
+            },
+            {
+                question: 'Чи сідають джинси після прання?',
+                answer: 'Якісні джинси мінімально сідають. Для першого прання рекомендуємо температуру 30°C.'
+            }
+        ],
+        'куртка': [
+            {
+                question: 'Чи підходить ця куртка для зими?',
+                answer: 'Залежить від моделі. Дивіться опис товару - там вказано сезонність та температурний режим.'
+            },
+            {
+                question: 'Як доглядати за курткою?',
+                answer: 'Більшість курток потребують хімчистки. Перевірте етикетку з догляду перед пранням.'
+            },
+            {
+                question: 'Чи є гарантія на куртку?',
+                answer: 'Так, на всі брендові куртки діє гарантія від виробника на дефекти пошиття.'
+            }
+        ],
+        'кросівки': [
+            {
+                question: 'Як обрати розмір кросівок?',
+                answer: 'Виміряйте довжину стопи і додайте 0.5-1 см. Розміри можуть відрізнятися між брендами.'
+            },
+            {
+                question: 'Чи можна прати кросівки?',
+                answer: 'Деякі моделі можна прати в машинці при 30°C. Краще використовувати спеціальні засоби для взуття.'
+            },
+            {
+                question: 'Яка гарантія на кросівки?',
+                answer: 'Гарантія на дефекти виробництва - 6 місяців. Природний знос не покривається гарантією.'
+            }
+        ],
+        'default': [
+            {
+                question: 'Як переконатися, що товар оригінальний?',
+                answer: 'Всі наші товари мають оригінальні бірки, голограми та сертифікати. Ми працюємо тільки з офіційними постачальниками.'
+            },
+            {
+                question: 'Чи можна обміняти товар?',
+                answer: 'Так, протягом 14 днів з моменту отримання. Товар має бути в оригінальному стані з усіма бірками.'
+            },
+            {
+                question: 'Скільки коштує доставка?',
+                answer: 'Доставка Новою Поштою за їх тарифами. При замовленні від 5000 грн доставка безкоштовна!'
+            }
+        ]
+    };
+    
+    // Get FAQ for current product type or default
+    let currentFAQ = faqData[productType] || faqData['default'];
+    
+    // Add brand-specific FAQ
+    if (productBrand === 'Calvin Klein') {
+        currentFAQ.push({
+            question: 'Чи справжній це Calvin Klein?',
+            answer: 'Так, ми працюємо тільки з офіційними дистриб\'юторами Calvin Klein в Європі. Всі товари мають оригінальні бірки та голограми.'
+        });
+    } else if (productBrand === 'Tommy Hilfiger') {
+        currentFAQ.push({
+            question: 'Де виготовлено цей товар Tommy Hilfiger?',
+            answer: 'Tommy Hilfiger виготовляє товари в різних країнах, включаючи Туреччину, Китай та Європу. Країна виробництва вказана на етикетці.'
+        });
+    } else if (productBrand === 'Boss') {
+        currentFAQ.push({
+            question: 'Чи це Hugo Boss чи Boss?',
+            answer: 'Boss - це молодіжна лінія Hugo Boss з більш доступними цінами, але тією ж якістю німецького бренду.'
+        });
+    }
+    
+    const container = document.getElementById('product-faq');
+    container.innerHTML = currentFAQ.map((faq, index) => `
+        <div class="faq-item" onclick="this.classList.toggle('active')">
+            <div class="faq-question">
+                <span>${faq.question}</span>
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>${faq.answer}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Social sharing functions
+function shareToFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent('{{ product.name }} - {{ product.brand }} | Clever Shop');
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+}
+
+function shareToTelegram() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('🛍️ {{ product.name }} від {{ product.brand }}\n💰 {{ product.price }} грн\n✅ 100% оригінал з Європи\n🚚 Доставка 1-2 дні');
+    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+}
+
+function shareToViber() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('{{ product.name }} - {{ product.brand }} | {{ product.price }} грн');
+    window.open(`viber://forward?text=${text} ${url}`, '_blank');
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast('Посилання скопійовано!', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = window.location.href;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('Посилання скопійовано!', 'success');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Обмін і повернення - Clever{% endblock %}
+{% block meta_description %}Умови обміну та повернення товарів у магазині Clever. 14 днів на повернення. Безкоштовний обмін розміру.{% endblock %}
+
+{% block content %}
+<div class="info-container">
+    <div class="info-header">
+        <span class="section-badge">↩️ Обмін і повернення</span>
+        <h1>Гарантія вашого спокою</h1>
+        <p>Ми хочемо, щоб ви були задоволені покупкою на 100%</p>
+    </div>
+    
+    <div class="info-content">
+        <h2>🔄 Обмін товару</h2>
+        <p>Не підійшов розмір? Без проблем! Ми безкоштовно обміняємо товар на інший розмір протягом <strong>14 днів</strong> з моменту отримання.</p>
+        
+        <div class="info-card">
+            <h3>Умови обміну:</h3>
+            <ul style="margin:0;padding-left:1.25rem;">
+                <li>Товар не був у використанні</li>
+                <li>Збережено всі бірки та упаковку</li>
+                <li>Є чек або підтвердження замовлення</li>
+            </ul>
+        </div>
+        
+        <h2>↩️ Повернення товару</h2>
+        <p>Якщо товар вам не підійшов, ви можете повернути його протягом <strong>14 днів</strong> з моменту отримання та отримати повне відшкодування.</p>
+        
+        <div class="info-card">
+            <h3>Умови повернення:</h3>
+            <ul style="margin:0;padding-left:1.25rem;">
+                <li>Товар не був у використанні</li>
+                <li>Збережено товарний вигляд та споживчі властивості</li>
+                <li>Збережено всі бірки, ярлики та упаковку</li>
+                <li>Є документ, що підтверджує покупку</li>
+            </ul>
+        </div>
+        
+        <h2>📋 Як оформити повернення?</h2>
+        <ol>
+            <li>Зв'яжіться з нами по телефону або в Telegram</li>
+            <li>Повідомте номер замовлення та причину повернення</li>
+            <li>Відправте товар Новою Поштою на нашу адресу</li>
+            <li>Після отримання та перевірки — повернемо кошти</li>
+        </ol>
+        
+        <h2>💰 Повернення коштів</h2>
+        <p>Після отримання та перевірки товару ми повертаємо кошти на вашу картку протягом <strong>1-3 робочих днів</strong>.</p>
+        
+        <div class="info-card">
+            <h3>📋 Реквізити для повернення:</h3>
+            <p style="margin:0;">При оформленні повернення надайте нам номер картки, на яку потрібно перерахувати кошти. Ми зробимо переказ одразу після перевірки товару.</p>
+        </div>
+        
+        <div class="info-card">
+            <h3>❓ Потрібна допомога?</h3>
+            <p style="margin:0;">Зв'яжіться з нами: <a href="tel:+380632665135" style="color:var(--primary);font-weight:600;">+38 (063) 266-51-35</a> або <a href="https://t.me/clevershopv" target="_blank" style="color:var(--primary);font-weight:600;">Telegram</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Contacts -->
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('scroll', function() {
+    document.getElementById('scroll-top').classList.toggle('visible', window.scrollY > 300);
+});
+</script>
+{% endblock %}

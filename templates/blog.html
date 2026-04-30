@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Блог - Clever Shop | Поради про моду та стиль{% endblock %}
+{% block meta_description %}📖 Блог Clever Shop - корисні поради про моду, стиль та догляд за брендовим одягом. Дізнайтеся як відрізнити оригінал від підробки, як правильно обирати розміри та доглядати за речами від Massimo Dutti, Calvin Klein, Tommy Hilfiger.{% endblock %}
+{% block meta_keywords %}блог про моду, поради про стиль, брендовий одяг, Massimo Dutti, Calvin Klein, Tommy Hilfiger, як обрати розмір, догляд за одягом, модні тренди 2026{% endblock %}
+
+{% block head %}
+<!-- Structured Data - Blog -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "Блог Clever Shop",
+  "description": "Корисні поради про моду, стиль та догляд за брендовим одягом",
+  "url": "https://www.clevershop.vn.ua/blog",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Clever Shop",
+    "logo": "https://www.clevershop.vn.ua{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}"
+  },
+  "blogPost": [
+    {% for post in posts %}
+    {
+      "@type": "BlogPosting",
+      "headline": "{{ post.title }}",
+      "url": "https://www.clevershop.vn.ua/blog/{{ post.slug }}",
+      "datePublished": "{{ post.created_at.strftime('%Y-%m-%d') }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ post.author }}"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Clever Shop"
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+<!-- Structured Data - BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Головна",
+      "item": "https://www.clevershop.vn.ua/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Блог",
+      "item": "https://www.clevershop.vn.ua/blog"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav class="blog-breadcrumb">
+    <div class="container">
+        <a href="/">Головна</a>
+        <span>›</span>
+        <span>Блог</span>
+    </div>
+</nav>
+
+<!-- Blog Header -->
+<section class="blog-header">
+    <div class="container">
+        <div class="blog-header-content">
+            <span class="blog-badge">📖 Блог</span>
+            <h1>Поради про моду та стиль</h1>
+            <p class="blog-subtitle">Дізнайтеся все про брендовий одяг, модні тренди та правильний догляд за речами від світових брендів</p>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Categories -->
+<section class="blog-categories">
+    <div class="container">
+        <div class="categories-nav">
+            <button class="category-btn active" onclick="filterPosts('all')">Всі статті</button>
+            <button class="category-btn" onclick="filterPosts('style')">Стиль</button>
+            <button class="category-btn" onclick="filterPosts('care')">Догляд</button>
+            <button class="category-btn" onclick="filterPosts('brands')">Бренди</button>
+            <button class="category-btn" onclick="filterPosts('trends')">Тренди</button>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Posts Grid -->
+<section class="blog-posts">
+    <div class="container">
+        {% if posts %}
+        <div class="posts-grid" id="posts-grid">
+            {% for post in posts %}
+            <article class="post-card" data-category="{{ post.slug.split('-')[0] if '-' in post.slug else 'style' }}" onclick="window.location='/blog/{{ post.slug }}'">
+                <div class="post-image">
+                    {% if post.image_url %}
+                    <img src="{{ post.image_url }}" alt="{{ post.title }}" loading="lazy">
+                    {% else %}
+                    <div class="post-image-placeholder">
+                        {% if 'massimo' in post.title.lower() %}
+                        🏷️
+                        {% elif 'calvin' in post.title.lower() %}
+                        👔
+                        {% elif 'tommy' in post.title.lower() %}
+                        🇺🇸
+                        {% elif 'розмір' in post.title.lower() %}
+                        📏
+                        {% elif 'догляд' in post.title.lower() %}
+                        🧼
+                        {% elif 'тренд' in post.title.lower() %}
+                        ✨
+                        {% elif 'колір' in post.title.lower() %}
+                        🎨
+                        {% elif 'гардероб' in post.title.lower() %}
+                        👗
+                        {% elif 'оригінал' in post.title.lower() %}
+                        ✅
+                        {% elif 'фігур' in post.title.lower() %}
+                        👤
+                        {% else %}
+                        📖
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="post-meta-overlay">
+                        <span class="post-date">{{ post.created_at.strftime('%d.%m.%Y') }}</span>
+                        <span class="post-views">👁️ {{ post.views }}</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <div class="post-category">
+                        {% if 'massimo' in post.title.lower() or 'calvin' in post.title.lower() or 'tommy' in post.title.lower() %}
+                        <span class="category-tag brands">Бренди</span>
+                        {% elif 'тренд' in post.title.lower() %}
+                        <span class="category-tag trends">Тренди</span>
+                        {% elif 'догляд' in post.title.lower() %}
+                        <span class="category-tag care">Догляд</span>
+                        {% else %}
+                        <span class="category-tag style">Стиль</span>
+                        {% endif %}
+                    </div>
+                    <h2 class="post-title">{{ post.title }}</h2>
+                    <p class="post-excerpt">{{ post.excerpt or (post.content[:150] + '...' if post.content|length > 150 else post.content) }}</p>
+                    <div class="post-footer">
+                        <span class="post-author">✍️ {{ post.author }}</span>
+                        <span class="read-more">Читати далі →</span>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-posts">
+            <div class="no-posts-content">
+                <h3>📝 Статті скоро з'являться</h3>
+                <p>Ми готуємо для вас корисні поради про моду та стиль. Слідкуйте за оновленнями!</p>
+                <a href="/" class="btn btn-primary">🛍️ Перейти до каталогу</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Newsletter Subscription -->
+<section class="blog-newsletter">
+    <div class="container">
+        <div class="newsletter-content">
+            <div class="newsletter-text">
+                <h3>📧 Підпишіться на новини блогу</h3>
+                <p>Отримуйте найсвіжіші поради про моду та ексклюзивні знижки</p>
+            </div>
+            <div class="newsletter-form">
+                <input type="email" id="blog-email" placeholder="Ваш email" class="newsletter-input">
+                <button onclick="subscribeToBlog()" class="btn btn-primary newsletter-btn">Підписатися</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Links -->
+<section class="blog-related">
+    <div class="container">
+        <h3>🔗 Корисні посилання</h3>
+        <div class="related-links">
+            <a href="/#products" class="related-link">
+                <span class="link-icon">🛍️</span>
+                <div>
+                    <strong>Каталог товарів</strong>
+                    <p>Переглянути всі товари</p>
+                </div>
+            </a>
+            <a href="/brands" class="related-link">
+                <span class="link-icon">🏷️</span>
+                <div>
+                    <strong>Наші бренди</strong>
+                    <p>Дізнатися про бренди</p>
+                </div>
+            </a>
+            <a href="/contacts" class="related-link">
+                <span class="link-icon">📞</span>
+                <div>
+                    <strong>Контакти</strong>
+                    <p>Зв'язатися з нами</p>
+                </div>
+            </a>
+            <a href="/delivery" class="related-link">
+                <span class="link-icon">🚚</span>
+                <div>
+                    <strong>Доставка</strong>
+                    <p>Умови доставки</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Blog functionality
+function filterPosts(category) {
+    const posts = document.querySelectorAll('.post-card');
+    const buttons = document.querySelectorAll('.category-btn');
+    
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter posts
+    posts.forEach(post => {
+        if (category === 'all' || post.dataset.category === category) {
+            post.style.display = 'block';
+            post.style.animation = 'fadeIn 0.3s ease-in';
+        } else {
+            post.style.display = 'none';
+        }
+    });
+}
+
+// Newsletter subscription
+function subscribeToBlog() {
+    const email = document.getElementById('blog-email').value;
+    
+    if (!email) {
+        showToast('Введіть email адресу', 'error');
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        showToast('Введіть коректну email адресу', 'error');
+        return;
+    }
+    
+    fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: email,
+            source: 'blog'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success || data.message) {
+            showToast('Дякуємо за підписку! 🎉', 'success');
+            document.getElementById('blog-email').value = '';
+        } else {
+            showToast(data.error || 'Помилка підписки', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Помилка підписки', 'error');
+    });
+}
+
+// Email validation
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Analytics tracking
+document.addEventListener('DOMContentLoaded', function() {
+    // Track blog page view
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_view', {
+            page_title: 'Blog',
+            page_location: window.location.href
+        });
+    }
+    
+    if (typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent', {
+            content_type: 'blog',
+            content_name: 'Blog Page'
+        });
+    }
+});
+
+// Animate posts on scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.post-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(card);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Помилка сервера | Clever{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-title">500</h1>
+        <h2 class="error-subtitle">Помилка сервера</h2>
+        <p class="error-text">
+            Вибачте, сталася внутрішня помилка сервера. Ми вже працюємо над її виправленням.
+        </p>
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary btn-lg">🏠 На головну</a>
+            <a href="javascript:location.reload()" class="btn btn-secondary btn-lg">🔄 Оновити сторінку</a>
+        </div>
+        
+        <div class="error-suggestions">
+            <h3>Потрібна допомога?</h3>
+            <div class="suggestion-links">
+                <a href="/contacts">📞 Зв'язатися з нами</a>
+                <a href="https://t.me/clevershopv" target="_blank">✈️ Telegram</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #FEE2E2 0%, var(--white) 100%);
+}
+
+.error-content {
+    text-align: center;
+    max-width: 600px;
+}
+
+.error-icon {
+    font-size: 6rem;
+    margin-bottom: 1.5rem;
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+.error-title {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--danger) 0%, #DC2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.error-subtitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 1rem;
+}
+
+.error-text {
+    font-size: 1.1rem;
+    color: var(--gray-600);
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+}
+
+.error-suggestions {
+    padding-top: 2rem;
+    border-top: 2px solid var(--gray-200);
+}
+
+.error-suggestions h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 1rem;
+}
+
+.suggestion-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.suggestion-links a {
+    padding: 0.625rem 1.25rem;
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    color: var(--gray-700);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--tr);
+}
+
+.suggestion-links a:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .error-title {
+        font-size: 5rem;
+    }
+    
+    .error-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+    }
+    
+    .error-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Clever - Магазин оригінального одягу{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Clever — інтернет-магазин оригінального одягу з Європи. Massimo Dutti, Calvin Klein, Tommy Hilfiger. Доставка по Україні 1-2 дні, оплата при отриманні.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}одяг, магазин одягу, бренди, оригінал, Вінниця, Massimo Dutti, Calvin Klein, Tommy Hilfiger{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Clever Shop">
+    <link rel="canonical" href="https://www.clevershop.vn.ua{% block canonical_url %}{{ request.path }}{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="https://www.clevershop.vn.ua{% block og_url %}{{ request.path }}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://www.clevershop.vn.ua{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}{% endblock %}">
+    <meta property="og:site_name" content="Clever Shop">
+    <meta property="og:locale" content="uk_UA">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.clevershop.vn.ua{% block twitter_url %}{{ request.path }}{% endblock %}">
+    <meta property="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="twitter:image" content="{% block twitter_image %}https://www.clevershop.vn.ua{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}{% endblock %}">
+    
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Clever Shop",
+        "url": "https://www.clevershop.vn.ua",
+        "logo": "https://www.clevershop.vn.ua{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}",
+        "description": "Оригінальний брендовий одяг від світових брендів з доставкою по Україні",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "UA",
+            "addressLocality": "Україна"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+380632665135",
+            "contactType": "customer service",
+            "availableLanguage": "Ukrainian"
+        },
+        "sameAs": [
+            "https://t.me/clevershopv"
+        ]
+    }
+    </script>
+    
+    <!-- Structured Data - WebSite -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Clever Shop",
+        "url": "https://www.clevershop.vn.ua",
+        "description": "Оригінальний брендовий одяг від світових брендів",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.clevershop.vn.ua/#products?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    <meta name="theme-color" content="#10B981">
+    <link rel="icon" href="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" type="image/jpeg">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Clever Shop">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=24">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+      
+      // Enhanced ecommerce events
+      function trackPurchase(orderId, value, items) {
+          gtag('event', 'purchase', {
+              transaction_id: orderId,
+              value: value,
+              currency: 'UAH',
+              items: items
+          });
+      }
+      
+      function trackAddToCart(itemId, itemName, price, brand) {
+          gtag('event', 'add_to_cart', {
+              currency: 'UAH',
+              value: price,
+              items: [{
+                  item_id: itemId,
+                  item_name: itemName,
+                  price: price,
+                  item_brand: brand,
+                  quantity: 1
+              }]
+          });
+      }
+      
+      function trackViewItem(itemId, itemName, price, brand, category) {
+          gtag('event', 'view_item', {
+              currency: 'UAH',
+              value: price,
+              items: [{
+                  item_id: itemId,
+                  item_name: itemName,
+                  item_category: category,
+                  price: price,
+                  item_brand: brand,
+                  quantity: 1
+              }]
+          });
+      }
+    </script>
+    
+    <!-- Facebook Pixel -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', 'YOUR_PIXEL_ID');
+      fbq('track', 'PageView');
+      
+      // Enhanced events
+      function trackFBPurchase(value, currency = 'UAH') {
+          fbq('track', 'Purchase', {value: value, currency: currency});
+      }
+      
+      function trackFBAddToCart(value, currency = 'UAH') {
+          fbq('track', 'AddToCart', {value: value, currency: currency});
+      }
+      
+      function trackFBViewContent(contentType = 'product', value, currency = 'UAH') {
+          fbq('track', 'ViewContent', {
+              content_type: contentType,
+              value: value,
+              currency: currency
+          });
+      }
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
+    /></noscript>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="page-loader" id="page-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <header>
+        <nav class="navbar">
+            <button class="hamburger" onclick="toggleMenu()" aria-label="Меню">☰</button>
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever">
+                <span>CLEVER</span>
+            </a>
+            <div class="header-actions">
+                <button onclick="toggleHeaderSearch()" class="header-btn" aria-label="Пошук">🔍</button>
+                <a href="/account" class="header-btn" aria-label="Акаунт">👤</a>
+                <a href="/wishlist" class="header-btn" aria-label="Список бажань">♡<span id="wish-count" class="header-badge" style="display:none;">0</span></a>
+                <a href="#" onclick="event.preventDefault();openCart()" class="header-btn" aria-label="Кошик">🛒<span id="cart-count-top" class="header-badge" style="display:none;">0</span></a>
+            </div>
+        </nav>
+        <div id="header-search" style="display:none;">
+            <input type="text" id="header-search-input" placeholder="Пошук товарів..." autocomplete="off" oninput="headerSearch(this.value)">
+            <div id="search-results"></div>
+        </div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="/">🏠 Головна</a></li>
+            <li><a href="/brands">🏷️ Бренди</a></li>
+            <li><a href="/about">ℹ️ Про нас</a></li>
+            <li><a href="/delivery">🚚 Доставка</a></li>
+            <li><a href="/contacts">📞 Контакти</a></li>
+        </ul>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="/" class="logo" style="margin-bottom:1rem;">
+                    <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever" style="height:40px;">
+                    <span>CLEVER</span>
+                </a>
+                <p>Магазин оригінального одягу для чоловіків та жінок. Тільки 100% оригінальна продукція від європейських брендів.</p>
+                <div class="payment-icons">💳 💵 📦</div>
+            </div>
+            <div class="footer-section">
+                <h4>Каталог</h4>
+                <a href="/#products">Чоловічий одяг</a>
+                <a href="/#products">Жіночий одяг</a>
+                <a href="/brands">Бренди</a>
+            </div>
+            <div class="footer-section">
+                <h4>Інформація</h4>
+                <a href="/delivery">Доставка і оплата</a>
+                <a href="/returns">Обмін і повернення</a>
+                <a href="/oferta">Публічна оферта</a>
+                <a href="/privacy">Конфіденційність</a>
+            </div>
+            <div class="footer-section">
+                <h4>Контакти</h4>
+                <a href="tel:+380632665135">📞 +38 (063) 266-51-35</a>
+                <a href="mailto:clevershopvn@ukr.net">📧 clevershopvn@ukr.net</a>
+                <a href="https://t.me/clevershopv" target="_blank">✈️ Telegram</a>
+                <a href="https://www.instagram.com/clevershopvn" target="_blank">📸 Instagram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-social">
+                <a href="https://www.instagram.com/clevershopvn" target="_blank" aria-label="Instagram">📸</a>
+                <a href="https://t.me/clevershopv" target="_blank" aria-label="Telegram">✈️</a>
+                <a href="https://www.tiktok.com/@clevershopvn" target="_blank" aria-label="TikTok">🎵</a>
+            </div>
+            <p>© 2026 Clever. Всі права захищені. Вінниця, Україна</p>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <button class="close" onclick="closeCart()">×</button>
+            <h2 style="margin-bottom:1.5rem;font-weight:800;">🛒 Ваш кошик</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <span>Всього:</span>
+                <span><span id="cart-total">0</span> грн</span>
+            </div>
+            <button onclick="goToCheckout()" class="btn btn-primary btn-lg" style="width:100%;">Оформити замовлення →</button>
+        </div>
+    </div>
+
+    <!-- Size Picker Modal -->
+    <div id="size-picker-modal" class="modal" onclick="if(event.target===this)closeSizePicker()">
+        <div class="modal-content" style="max-width:420px;">
+            <button class="close" onclick="closeSizePicker()">×</button>
+            <h3 style="margin-bottom:0.25rem;font-weight:800;" id="size-picker-name"></h3>
+            <p style="color:var(--gray-500);font-size:0.9rem;margin-bottom:1.5rem;">Оберіть розмір</p>
+            <div id="size-picker-options" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.5rem;"></div>
+            <button onclick="confirmSizePicker()" class="btn btn-primary btn-lg" style="width:100%;">🛒 Додати в кошик</button>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photo-modal" onclick="if(event.target===this)closePhotoModal()">
+        <span onclick="closePhotoModal()" class="photo-modal-close">✕</span>
+        <button class="photo-modal-arrow photo-modal-prev" onclick="event.stopPropagation();photoModalNav(-1)">&#8249;</button>
+        <div id="photo-modal-inner" style="position:relative;display:inline-block;">
+            <img id="modal-photo" src="" alt="Фото товару" style="cursor:zoom-in;transition:transform 0.2s;">
+        </div>
+        <button class="photo-modal-arrow photo-modal-next" onclick="event.stopPropagation();photoModalNav(1)">&#8250;</button>
+        <div class="photo-modal-zoom-btns">
+            <button onclick="event.stopPropagation();photoZoom(1.3)" title="Збільшити">＋</button>
+            <button onclick="event.stopPropagation();photoZoom(1/1.3)" title="Зменшити">－</button>
+            <button onclick="event.stopPropagation();photoZoomReset()" title="Скинути">⊙</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}?v=12"></script>
+    
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+        
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button after 30 seconds
+            setTimeout(() => {
+                if (deferredPrompt && !storage.getItem('pwa-dismissed')) {
+                    showPWAInstallPrompt();
+                }
+            }, 30000);
+        });
+        
+        function showPWAInstallPrompt() {
+            const installBanner = document.createElement('div');
+            installBanner.className = 'pwa-install-banner';
+            installBanner.innerHTML = `
+                <div class="pwa-content">
+                    <span>📱 Встановити Clever Shop як додаток?</span>
+                    <div class="pwa-buttons">
+                        <button onclick="installPWA()" class="btn btn-primary btn-sm">Встановити</button>
+                        <button onclick="dismissPWA()" class="btn btn-secondary btn-sm">Пізніше</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(installBanner);
+        }
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+            document.querySelector('.pwa-install-banner')?.remove();
+        }
+        
+        function dismissPWA() {
+            storage.setItem('pwa-dismissed', 'true');
+            document.querySelector('.pwa-install-banner')?.remove();
+        }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('page-loader').classList.add('hidden');
+            }, 300);
+        });
+        
+        function toggleMenu() {
+            document.getElementById('nav-menu').classList.toggle('active');
+        }
+        
+        function toggleHeaderSearch() {
+            var s = document.getElementById('header-search');
+            s.style.display = s.style.display === 'none' ? 'block' : 'none';
+            if (s.style.display === 'block') {
+                document.getElementById('header-search-input').focus();
+            }
+        }
+        
+        function headerSearch(val) {
+            var results = document.getElementById('search-results');
+            if (!val || val.length < 2) { 
+                results.style.display = 'none'; 
+                return; 
+            }
+            fetch('/api/products').then(r => r.json()).then(products => {
+                var q = val.toLowerCase();
+                var matches = products.filter(p => 
+                    p.name.toLowerCase().includes(q) || 
+                    p.brand.toLowerCase().includes(q)
+                ).slice(0, 6);
+                
+                if (matches.length === 0) {
+                    results.innerHTML = '<div style="padding:1.25rem;color:#9CA3AF;text-align:center;">Нічого не знайдено</div>';
+                } else {
+                    results.innerHTML = matches.map(p => 
+                        '<a href="/product/' + p.id + '" style="display:flex;align-items:center;gap:1rem;padding:1rem;text-decoration:none;color:#111827;border-bottom:1px solid #F3F4F6;transition:background 0.2s;" onmouseover="this.style.background=\'#F9FAFB\'" onmouseout="this.style.background=\'transparent\'">' +
+                        (p.image_url ? '<img src="' + p.image_url + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:#F3F4F6;">' : '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;">📷</div>') +
+                        '<div><div style="font-weight:600;margin-bottom:2px;">' + p.name + '</div><div style="font-size:0.9rem;color:#10B981;font-weight:700;">' + p.price.toLocaleString() + ' грн</div></div></a>'
+                    ).join('');
+                }
+                results.style.display = 'block';
+            });
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#header-search')) {
+                document.getElementById('search-results').style.display = 'none';
+            }
+        });
+    </script>
+    
+    <!-- Email Popup -->
+    <div id="email-popup" class="email-popup">
+        <div class="email-popup-content">
+            <button class="email-popup-close" onclick="closeEmailPopup()">✕</button>
+            <div class="email-popup-icon">🎁</div>
+            <h3>Отримай знижку 10%</h3>
+            <p>Підпишись на розсилку і отримай промокод на перше замовлення</p>
+            <form onsubmit="subscribeEmail(event)" id="email-form">
+                <input type="email" placeholder="Твій email" required>
+                <button type="submit" class="btn btn-primary">Отримати знижку</button>
+            </form>
+            <p class="email-popup-note">Без спаму, тільки корисні пропозиції</p>
+        </div>
+    </div>
+    
+    <script>
+    // Email Popup Logic
+    setTimeout(function() {
+        if (!storage.getItem('email_subscribed')) {
+            document.getElementById('email-popup').classList.add('active');
+        }
+    }, 10000);
+    
+    function closeEmailPopup() {
+        document.getElementById('email-popup').classList.remove('active');
+        storage.setItem('email_popup_closed', 'true');
+    }
+    
+    function subscribeEmail(e) {
+        e.preventDefault();
+        var email = e.target.querySelector('input').value;
+        
+        fetch('/api/subscribe', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, source: 'popup'})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                storage.setItem('email_subscribed', 'true');
+                document.getElementById('email-popup').innerHTML = 
+                    '<div class="email-popup-content"><div class="email-popup-icon">✅</div>' +
+                    '<h3>Дякуємо!</h3><p>Промокод надіслано на ' + email + '</p>' +
+                    '<button class="btn btn-primary" onclick="closeEmailPopup()">Закрити</button></div>';
+                setTimeout(closeEmailPopup, 3000);
+            }
+        });
+    }
+    </script>
+    
+    {% block scripts %}{% endblock %}
+    
+    <!-- Code Protection -->
+    <script>
+    // Захист від копіювання коду
+    (function() {
+        // Вимкнути правий клік (опціонально - може дратувати користувачів)
+        // document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Вимкнути F12, Ctrl+Shift+I, Ctrl+U
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I (DevTools)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J (Console)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U (View Source)
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+S (Save)
+            if (e.ctrlKey && e.keyCode === 83) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Захист від виділення тексту (опціонально)
+        // document.addEventListener('selectstart', e => e.preventDefault());
+        
+        // Виявлення DevTools
+        const devtools = {
+            isOpen: false,
+            orientation: null
+        };
+        
+        const threshold = 160;
+        const emitEvent = (isOpen, orientation) => {
+            if (devtools.isOpen !== isOpen || devtools.orientation !== orientation) {
+                devtools.isOpen = isOpen;
+                devtools.orientation = orientation;
+                if (isOpen) {
+                    // Можна перенаправити або показати повідомлення
+                    console.clear();
+                    console.log('%c⚠️ УВАГА!', 'color: red; font-size: 40px; font-weight: bold;');
+                    console.log('%cЦей сайт захищений від копіювання коду.', 'font-size: 16px;');
+                }
+            }
+        };
+        
+        setInterval(() => {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            const orientation = widthThreshold ? 'vertical' : 'horizontal';
+            
+            if (widthThreshold || heightThreshold) {
+                emitEvent(true, orientation);
+            } else {
+                emitEvent(false, null);
+            }
+        }, 500);
+        
+        // Очищення консолі кожні 100мс
+        setInterval(() => {
+            console.clear();
+        }, 100);
+    })();
+    </script>
+</body>
+</html>

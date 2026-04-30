@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Блог Clever{% endblock %}
+{% block meta_description %}{{ post.excerpt or post.title }}{% endblock %}
+
+{% block content %}
+<article class="blog-post-container">
+    <div class="blog-post-header">
+        <nav class="breadcrumb">
+            <a href="/">Головна</a>
+            <span>›</span>
+            <a href="/blog">Блог</a>
+            <span>›</span>
+            <span>{{ post.title[:50] }}{% if post.title|length > 50 %}...{% endif %}</span>
+        </nav>
+        
+        <h1>{{ post.title }}</h1>
+        
+        <div class="blog-post-meta">
+            <span>👤 {{ post.author }}</span>
+            <span>📅 {{ post.created_at.strftime('%d %B %Y') }}</span>
+            <span>👁️ {{ post.views }} переглядів</span>
+        </div>
+        
+        {% if post.image_url %}
+        <div class="blog-post-image">
+            <img src="{{ post.image_url }}" alt="{{ post.title }}">
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="blog-post-content">
+        {{ post.content | safe }}
+    </div>
+    
+    <div class="blog-post-footer">
+        <a href="/blog" class="btn btn-secondary">← Повернутися до блогу</a>
+    </div>
+</article>
+{% endblock %}

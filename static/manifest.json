@@ -1,0 +1,52 @@
+{
+  "name": "Clever Shop - Оригінальний брендовий одяг",
+  "short_name": "Clever Shop",
+  "description": "Оригінальний брендовий одяг від світових брендів з доставкою по Україні",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10B981",
+  "orientation": "portrait-primary",
+  "categories": ["shopping", "lifestyle"],
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "/static/photo_2026-04-05_00-35-20.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/photo_2026-04-05_00-35-20.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Каталог товарів",
+      "short_name": "Каталог",
+      "description": "Переглянути всі товари",
+      "url": "/#products",
+      "icons": [
+        {
+          "src": "/static/photo_2026-04-05_00-35-20.jpg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Контакти",
+      "short_name": "Контакти",
+      "description": "Зв'язатися з нами",
+      "url": "/contacts",
+      "icons": [
+        {
+          "src": "/static/photo_2026-04-05_00-35-20.jpg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

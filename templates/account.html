@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Мій акаунт - Clever{% endblock %}
+
+{% block content %}
+<div class="account-container">
+    <div class="account-header">
+        <h1>👤 Мій акаунт</h1>
+        <p>Вітаємо, {{ user.name }}!</p>
+    </div>
+    
+    <div class="account-grid">
+        <aside class="account-sidebar">
+            <nav>
+                <ul class="account-nav">
+                    <li><a href="/account" class="active">📋 Мої замовлення</a></li>
+                    <li><a href="/wishlist">♡ Список бажань</a></li>
+                    <li><a href="/account/settings">⚙️ Налаштування</a></li>
+                    <li><a href="/logout">🚪 Вийти</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <div class="account-content">
+            <div class="account-section">
+                <div class="bonus-card" id="bonus-card">
+                    <h3>🎁 Бонусна програма</h3>
+                    <p style="opacity:0.9;margin-bottom:0.5rem;">Ваш баланс:</p>
+                    <div class="bonus-points"><span id="bonus-points">0</span> балів</div>
+                    <p style="font-size:0.9rem;opacity:0.8;">1 бал = 1 грн знижки</p>
+                    <div class="bonus-info">
+                        <div class="bonus-stat">
+                            <div class="bonus-stat-label">Зароблено всього</div>
+                            <div class="bonus-stat-value"><span id="bonus-earned">0</span></div>
+                        </div>
+                        <div class="bonus-stat">
+                            <div class="bonus-stat-label">Витрачено</div>
+                            <div class="bonus-stat-value"><span id="bonus-spent">0</span></div>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem;opacity:0.8;margin-top:1rem;">
+                        💡 Отримуйте 1 бал за кожні 100 грн покупки
+                    </p>
+                </div>
+            </div>
+            
+            <div class="account-section">
+                <h2>📦 Мої замовлення</h2>
+                
+                {% if orders %}
+                <div class="orders-list">
+                    {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <h4>Замовлення #{{ order.id }}</h4>
+                            <span class="order-status status-{{ order.status }}">
+                                {% if order.status == 'pending' %}Очікує підтвердження
+                                {% elif order.status == 'processing' %}В обробці
+                                {% elif order.status == 'shipped' %}Відправлено
+                                {% elif order.status == 'delivered' %}Доставлено
+                                {% else %}{{ order.status }}{% endif %}
+                            </span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                            <div>
+                                <p style="color:var(--gray-500);font-size:0.9rem;">{{ order.created_at.strftime('%d.%m.%Y') }}</p>
+                                <p style="color:var(--gray-600);">{{ order.delivery_address }}</p>
+                            </div>
+                            <div style="text-align:right;">
+                                <p style="font-size:1.25rem;font-weight:700;color:var(--primary-dark);">{{ "{:,.0f}".format(order.total).replace(",", " ") }} грн</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="wishlist-empty" style="padding:3rem;">
+                    <div class="wishlist-empty-icon">📦</div>
+                    <h3>Замовлень поки немає</h3>
+                    <p>Перегляньте каталог та зробіть перше замовлення</p>
+                    <a href="/#products" class="btn btn-primary" style="margin-top:1rem;">🛍️ Перейти до каталогу</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadBonusBalance();
+});
+
+function loadBonusBalance() {
+    fetch('/api/bonus/balance')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('bonus-points').textContent = data.points || 0;
+            document.getElementById('bonus-earned').textContent = data.total_earned || 0;
+            document.getElementById('bonus-spent').textContent = data.total_spent || 0;
+        })
+        .catch(err => console.error('Error loading bonus:', err));
+}
+</script>

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Доставка і оплата - Clever{% endblock %}
+{% block meta_description %}Доставка Новою Поштою 1-2 дні по всій Україні. Безкоштовна доставка від 5000 грн.{% endblock %}
+
+{% block content %}
+<div class="info-container">
+    <div class="info-header">
+        <span class="section-badge">🚚 Доставка і оплата</span>
+        <h1>Швидко, зручно, безпечно</h1>
+        <p>Доставляємо по всій Україні</p>
+    </div>
+    
+    <div class="info-content">
+        <h2>📦 Доставка</h2>
+        
+        <div class="info-card">
+            <h3>🚚 Нова Пошта</h3>
+            <p style="margin:0;">Доставка на відділення або поштомат. Термін: <strong>1-2 робочих дні</strong>. Вартість за тарифами перевізника.</p>
+        </div>
+        
+        <div class="info-card" style="border-left: 4px solid var(--primary);">
+            <h3>🎁 Безкоштовна доставка</h3>
+            <p style="margin:0;">При замовленні від <strong>5000 грн</strong> доставка по Україні за наш рахунок!</p>
+        </div>
+        
+        <h2>💵 Оплата</h2>
+        
+        <div class="info-card">
+            <h3>💳 Онлайн оплата</h3>
+            <p style="margin:0;">Оплата карткою онлайн через захищену платіжну систему LiqPay.</p>
+        </div>
+        
+        <div class="info-card">
+            <h3>📦 Накладений платіж</h3>
+            <p style="margin:0;">Оплата при отриманні на відділенні Нової Пошти. Комісія перевізника за тарифами НП.</p>
+        </div>
+        
+        <h2>📋 Як оформити замовлення?</h2>
+        <ol>
+            <li>Оберіть товар та додайте в кошик</li>
+            <li>Перейдіть до оформлення замовлення</li>
+            <li>Вкажіть контактні дані та адресу доставки</li>
+            <li>Оберіть зручний спосіб оплати</li>
+            <li>Наш менеджер зв'яжеться для підтвердження</li>
+        </ol>
+        
+        <h2>⏰ Терміни обробки</h2>
+        <p>Замовлення, оформлені до 15:00, відправляємо <strong>в той же день</strong>. Замовлення після 15:00 — наступного робочого дня.</p>
+        
+        <div class="info-card">
+            <h3>❓ Залишились питання?</h3>
+            <p style="margin:0;">Зв'яжіться з нами: <a href="tel:+380632665135" style="color:var(--primary);font-weight:600;">+38 (063) 266-51-35</a> або <a href="https://t.me/clevershopv" target="_blank" style="color:var(--primary);font-weight:600;">Telegram</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('scroll', function() {
+    document.getElementById('scroll-top').classList.toggle('visible', window.scrollY > 300);
+});
+</script>
+{% endblock %}

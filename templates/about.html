@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Про нас - Clever Shop{% endblock %}
+{% block meta_description %}Clever Shop - ваш надійний партнер у світі брендового одягу та взуття. Оригінальні товари з Європи з доставкою по Україні.{% endblock %}
+
+{% block content %}
+<div class="about-hero">
+    <div class="about-hero-content">
+        <h1>Про Clever Shop</h1>
+        <p>Ваш надійний партнер у світі брендового одягу та взуття</p>
+    </div>
+</div>
+
+<section class="section section-light">
+    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+        <div class="about-intro">
+            <h2>Хто ми?</h2>
+            <p class="lead">
+                Clever Shop — це український інтернет-магазин оригінального брендового одягу та взуття з Європи. 
+                Ми працюємо з 2024 року і за цей час завоювали довіру тисяч клієнтів по всій Україні.
+            </p>
+        </div>
+
+        <div class="about-features">
+            <div class="about-feature-card">
+                <div class="about-feature-icon">✅</div>
+                <h3>100% Оригінал</h3>
+                <p>Всі товари мають оригінальні бірки та сертифікати якості. Ми працюємо тільки з офіційними постачальниками.</p>
+            </div>
+            
+            <div class="about-feature-card">
+                <div class="about-feature-icon">🚚</div>
+                <h3>Швидка доставка</h3>
+                <p>Доставка Новою Поштою по всій Україні. Відправка протягом 1-2 днів після оформлення замовлення.</p>
+            </div>
+            
+            <div class="about-feature-card">
+                <div class="about-feature-icon">💳</div>
+                <h3>Зручна оплата</h3>
+                <p>Безпечна онлайн-оплата картою через LiqPay. Всі платежі захищені.</p>
+            </div>
+            
+            <div class="about-feature-card">
+                <div class="about-feature-icon">↩️</div>
+                <h3>Повернення 14 днів</h3>
+                <p>Не підійшов розмір або модель? Ви можете повернути товар протягом 14 днів.</p>
+            </div>
+            
+            <div class="about-feature-card">
+                <div class="about-feature-icon">🏷️</div>
+                <h3>Найкращі ціни</h3>
+                <p>Ми працюємо напряму з постачальниками, тому можемо запропонувати вигідні ціни.</p>
+            </div>
+            
+            <div class="about-feature-card">
+                <div class="about-feature-icon">💬</div>
+                <h3>Підтримка 24/7</h3>
+                <p>Наша команда завжди готова відповісти на ваші запитання в Telegram або по телефону.</p>
+            </div>
+        </div>
+
+        <div class="about-values">
+            <h2>Наші цінності</h2>
+            <div class="values-grid">
+                <div class="value-item">
+                    <h4>🎯 Якість</h4>
+                    <p>Ми продаємо тільки оригінальні товари від перевірених брендів</p>
+                </div>
+                <div class="value-item">
+                    <h4>🤝 Чесність</h4>
+                    <p>Прозорі ціни, чесні відгуки, реальні фото товарів</p>
+                </div>
+                <div class="value-item">
+                    <h4>⚡ Швидкість</h4>
+                    <p>Швидка обробка замовлень та доставка по всій Україні</p>
+                </div>
+                <div class="value-item">
+                    <h4>❤️ Турбота</h4>
+                    <p>Індивідуальний підхід до кожного клієнта</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-brands">
+            <h2>Бренди, з якими ми працюємо</h2>
+            <p>Ми співпрацюємо з найкращими світовими брендами:</p>
+            <div class="brands-list">
+                <span class="brand-tag">Calvin Klein</span>
+                <span class="brand-tag">Tommy Hilfiger</span>
+                <span class="brand-tag">Boss</span>
+                <span class="brand-tag">Lacoste</span>
+                <span class="brand-tag">Ralph Lauren</span>
+                <span class="brand-tag">Armani</span>
+                <span class="brand-tag">Guess</span>
+                <span class="brand-tag">Levi's</span>
+                <span class="brand-tag">Nike</span>
+                <span class="brand-tag">Adidas</span>
+                <span class="brand-tag">Puma</span>
+                <span class="brand-tag">New Balance</span>
+            </div>
+        </div>
+
+        <div class="about-cta">
+            <h2>Готові зробити замовлення?</h2>
+            <p>Переглядайте наш каталог та обирайте найкращі товари</p>
+            <div class="cta-buttons">
+                <a href="/#products" class="btn btn-primary btn-xl">🛍️ До каталогу</a>
+                <a href="/contacts" class="btn btn-secondary btn-xl">📞 Зв'язатися з нами</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.about-hero {
+    background: linear-gradient(135deg, var(--dark) 0%, #0F172A 100%);
+    padding: 6rem 2rem;
+    text-align: center;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+.about-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16,185,129,0.15) 0%, transparent 50%);
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    letter-spacing: -2px;
+}
+
+.about-hero p {
+    font-size: 1.5rem;
+    color: var(--gray-300);
+}
+
+.about-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+}
+
+.about-intro h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+.lead {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: var(--gray-600);
+}
+
+.about-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 5rem;
+}
+
+.about-feature-card {
+    background: var(--white);
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--gray-200);
+    text-align: center;
+    transition: var(--tr);
+}
+
+.about-feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-2xl);
+    border-color: var(--primary);
+}
+
+.about-feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.about-feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.about-feature-card p {
+    color: var(--gray-600);
+    line-height: 1.7;
+}
+
+.about-values {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.about-values h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 3rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.value-item {
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--white) 100%);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--primary-100);
+}
+
+.value-item h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.value-item p {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+}
+
+.about-brands {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.about-brands h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.about-brands > p {
+    font-size: 1.1rem;
+    color: var(--gray-600);
+    margin-bottom: 2rem;
+}
+
+.brands-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.brand-tag {
+    padding: 0.75rem 1.5rem;
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+    border-radius: 50px;
+    font-weight: 600;
+    color: var(--dark);
+    transition: var(--tr);
+}
+
+.brand-tag:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.about-cta {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--white) 100%);
+    border-radius: var(--radius-2xl);
+    border: 2px solid var(--primary-100);
+}
+
+.about-cta h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.about-cta p {
+    font-size: 1.25rem;
+    color: var(--gray-600);
+    margin-bottom: 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+    .about-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .values-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .about-hero p {
+        font-size: 1.25rem;
+    }
+    
+    .about-features {
+        grid-template-columns: 1fr;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

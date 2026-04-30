@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Контакти - Clever{% endblock %}
+{% block meta_description %}Контакти магазину Clever. Телефон: +38 (063) 266-51-35. Telegram, Instagram. Працюємо щодня з 9:00 до 21:00.{% endblock %}
+
+{% block content %}
+<div class="info-container">
+    <div class="info-header">
+        <span class="section-badge">📞 Контакти</span>
+        <h1>Зв'яжіться з нами</h1>
+        <p>Ми завжди раді допомогти з вибором та відповісти на ваші питання</p>
+    </div>
+    
+    <div class="contact-grid">
+        <a href="tel:+380632665135" class="contact-card">
+            <div class="contact-card-icon">📞</div>
+            <h3>Телефон</h3>
+            <p>+38 (063) 266-51-35</p>
+        </a>
+        
+        <a href="https://t.me/clevershopv" target="_blank" class="contact-card">
+            <div class="contact-card-icon">✈️</div>
+            <h3>Telegram</h3>
+            <p>@clevershopv</p>
+        </a>
+        
+        <a href="https://www.instagram.com/clevershopvn" target="_blank" class="contact-card">
+            <div class="contact-card-icon">📸</div>
+            <h3>Instagram</h3>
+            <p>@clevershopvn</p>
+        </a>
+        
+        <a href="mailto:clevershopvn@ukr.net" class="contact-card">
+            <div class="contact-card-icon">📧</div>
+            <h3>Email</h3>
+            <p>clevershopvn@ukr.net</p>
+        </a>
+    </div>
+    
+    <div class="info-content" style="margin-top:3rem;">
+        <h2>🕐 Графік роботи</h2>
+        <p>Ми працюємо щодня з <strong>9:00 до 21:00</strong>. Відповідаємо на повідомлення в Telegram та Instagram протягом 15-30 хвилин.</p>
+        
+        <h2>📍 Локація</h2>
+        <p>Ми працюємо онлайн з доставкою по всій Україні. Офіс знаходиться у місті <strong>Вінниця</strong>.</p>
+        
+        <h2>❓ Часті питання</h2>
+        <p>Перед тим як зв'язатися з нами, перегляньте розділ <a href="/#faq" style="color:var(--primary);font-weight:600;">FAQ</a> — можливо, ви знайдете відповідь на своє питання.</p>
+        
+        <div class="info-card">
+            <h3>💬 Потрібна консультація?</h3>
+            <p style="margin:0;">Напишіть нам в Telegram — ми допоможемо підібрати розмір, порадимо модель та відповімо на всі питання про товар.</p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Готові зробити замовлення?</h2>
+        <p>Переглядайте каталог та замовляйте оригінальний одяг з доставкою по всій Україні</p>
+        <div class="cta-buttons">
+            <a href="/#products" class="btn btn-lg">🛍️ Перейти до каталогу</a>
+            <a href="https://t.me/clevershopv" target="_blank" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5);color:#fff;">✈️ Написати в Telegram</a>
+        </div>
+    </div>
+</section>
+
+<!-- Floating Contacts -->
+<div class="quick-contacts">
+    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
+    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
+</div>
+
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('scroll', function() {
+    document.getElementById('scroll-top').classList.toggle('visible', window.scrollY > 300);
+});
+</script>
+{% endblock %}
