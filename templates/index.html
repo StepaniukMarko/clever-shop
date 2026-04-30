@@ -715,8 +715,17 @@
 var currentCategory = 'men';
 
 document.addEventListener('DOMContentLoaded', function() {
-    initializeFilters();
-    filterProducts();
+    // Перевіряємо параметр ?gender= в URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var genderParam = urlParams.get('gender');
+    if (genderParam === 'men') {
+        switchCategory('men');
+    } else if (genderParam === 'women') {
+        switchCategory('women');
+    } else {
+        initializeFilters();
+        filterProducts();
+    }
     initScrollAnimations();
 });
 
