@@ -1329,11 +1329,13 @@ def account_update():
 
 with app.app_context():
     db.create_all()
-    # Create default category if none exists
-    if not Category.query.first():
-        cat = Category(name='Одяг')
-        db.session.add(cat)
-        db.session.commit()
+    # Ensure all default categories exist
+    default_categories = ['Одяг', 'Взуття', 'Аксесуари']
+    existing = [c.name for c in Category.query.all()]
+    for cat_name in default_categories:
+        if cat_name not in existing:
+            db.session.add(Category(name=cat_name))
+    db.session.commit()
 
 # === EMAIL SUBSCRIPTION ===
 @app.route('/api/subscribe', methods=['POST'])
@@ -1525,6 +1527,22 @@ def spend_bonus():
 def api_categories():
     categories = Category.query.all()
     return jsonify([{'id': c.id, 'name': c.name} for c in categories])
+
+@app.route('/api/categories', methods=['POST'])
+@csrf.exempt
+def api_categories_create():
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify({'error': 'Назва обов\'язкова'}), 400
+    if Category.query.filter_by(name=name).first():
+        return jsonify({'error': 'Категорія вже існує'}), 400
+    cat = Category(name=name)
+    db.session.add(cat)
+    db.session.commit()
+    return jsonify({'id': cat.id, 'name': cat.name})
 
 # === SEARCH API ===
 @app.route('/api/search', methods=['GET'])
