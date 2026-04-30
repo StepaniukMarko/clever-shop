@@ -71,6 +71,140 @@
     </div>
 </section>
 
+<!-- CATALOG -->
+<section class="section section-light" id="products">
+    <div class="section-header">
+        <span class="section-badge">🛍️ Каталог</span>
+        <h2 class="section-title">Наші товари</h2>
+        <p class="section-subtitle">Оригінальний одяг від найкращих світових брендів</p>
+    </div>
+    
+    <div class="category-section">
+        <div class="category-toggle">
+            <a href="/?gender={% if gender == 'men' %}{% else %}men{% endif %}#products" 
+               id="btn-men-top" class="cat-btn {% if gender == 'men' %}active{% endif %}">👔 Чоловікам</a>
+            <a href="/?gender={% if gender == 'women' %}{% else %}women{% endif %}#products" 
+               id="btn-women-top" class="cat-btn {% if gender == 'women' %}active{% endif %}">👗 Жінкам</a>
+            {% if gender %}
+            <a href="/#products" class="cat-btn-clear">✕ Всі товари</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <button class="mobile-filter-toggle" onclick="toggleMobileFilters()">☰ Фільтри та сортування</button>
+    
+    <div class="shop-layout" id="main-grid">
+        <aside class="filters" id="filters-aside">
+            <div class="filters-header-mobile">
+                <h3>🔍 Фільтри</h3>
+                <button onclick="toggleMobileFilters()" class="close-filters">✕</button>
+            </div>
+            <h3 class="filters-header-desktop">🔍 Фільтри</h3>
+            <div class="filter-group">
+                <h4>Сортування</h4>
+                <select id="sort-select" onchange="sortProducts()" class="filter-select">
+                    <option value="default">За замовчуванням</option>
+                    <option value="price-asc">Ціна: від низької</option>
+                    <option value="price-desc">Ціна: від високої</option>
+                    <option value="newest">Новинки</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <h4>Ціна (грн)</h4>
+                <div class="price-range">
+                    <input type="number" id="price-min" placeholder="Від" min="0" step="100" onchange="filterProducts()">
+                    <span>—</span>
+                    <input type="number" id="price-max" placeholder="До" min="0" step="100" onchange="filterProducts()">
+                </div>
+                <div class="price-slider-container">
+                    <input type="range" id="price-slider-min" min="0" max="10000" value="0" step="100" oninput="updatePriceMin(this.value)">
+                    <input type="range" id="price-slider-max" min="0" max="10000" value="10000" step="100" oninput="updatePriceMax(this.value)">
+                </div>
+            </div>
+            <div class="filter-group">
+                <h4>Наявність</h4>
+                <div class="filter-content">
+                    <label><input type="checkbox" value="in-stock" onchange="filterProducts()"> В наявності</label>
+                    <label><input type="checkbox" value="low-stock" onchange="filterProducts()"> Залишилось мало</label>
+                </div>
+            </div>
+            <div class="filter-group">
+                <h4>Тип одягу</h4>
+                <div class="filter-content" id="types-filter"></div>
+            </div>
+            <div class="filter-group">
+                <h4>Бренд</h4>
+                <div class="filter-content" id="brands-filter"></div>
+            </div>
+            <div class="filter-group">
+                <h4>Розмір</h4>
+                <div class="filter-content" id="sizes-filter"></div>
+            </div>
+            <button onclick="resetFilters()" class="btn btn-secondary filter-reset">Очистити фільтри</button>
+            <button onclick="applyFilters()" class="btn btn-primary filter-apply">✓ Застосувати</button>
+        </aside>
+        
+        <div>
+            <div class="product-grid" id="products-container">
+                {% for product in products %}
+                <div class="product-card" onclick="if(!event.target.closest('button')) window.location='/product/{{ product.id }}'" 
+                     data-brand="{{ product.brand | replace('"', '&quot;') }}" 
+                     data-sizes="{{ product.sizes | replace('"', '&quot;') }}" 
+                     data-type="{{ product.type | replace('"', '&quot;') }}" 
+                     data-gender="{{ product.gender | replace('"', '&quot;') }}" 
+                     data-price="{{ product.price }}">
+                    <div class="product-image-wrap">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        {% endif %}
+                        <div class="no-image" style="{% if product.image_url %}display:none;{% endif %}">
+                            <div style="font-size:4rem;opacity:0.3;">👕</div>
+                            <div style="margin-top:0.5rem;font-size:0.9rem;color:#9CA3AF;">Фото незабаром</div>
+                        </div>
+                        <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
+                        {% if product.stock > 0 and product.stock <= 5 %}
+                        <div class="stock-badge">⚠️ Залишилось {{ product.stock }} шт</div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <p class="brand">{{ product.brand }}</p>
+                        <p class="price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</p>
+                        <p class="stock {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+                            {% if product.stock > 0 %}В наявності{% else %}Немає в наявності{% endif %}
+                        </p>
+                    </div>
+                    <div class="card-buttons">
+                        {% if product.stock > 0 %}
+                        <button onclick="event.stopPropagation(); addToCart(this)" 
+                                data-id="{{ product.id }}" 
+                                data-pname="{{ product.name | replace('"', '&quot;') | replace("'", '&#39;') }}" 
+                                data-pprice="{{ product.price }}" 
+                                data-brand="{{ product.brand | replace('"', '&quot;') }}"
+                                class="btn btn-primary btn-sm">🛒 В кошик</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if total_pages > 1 %}
+            <div class="pagination">
+                <div class="pagination-info">Показано {{ ((page-1)*per_page)+1 }}–{{ [page*per_page, total]|min }} з {{ total }} товарів</div>
+                <div class="pagination-controls">
+                    {% if page > 1 %}<a href="/?page={{ page-1 }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">← Назад</a>{% endif %}
+                    {% for p in range(1, total_pages+1) %}
+                        {% if p == page %}<span class="page-btn active">{{ p }}</span>
+                        {% elif p == 1 or p == total_pages or (p >= page-2 and p <= page+2) %}<a href="/?page={{ p }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">{{ p }}</a>
+                        {% elif p == page-3 or p == page+3 %}<span class="page-btn dots">…</span>{% endif %}
+                    {% endfor %}
+                    {% if page < total_pages %}<a href="/?page={{ page+1 }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">Далі →</a>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
 <!-- TRUST BADGES -->
 <section class="trust-section">
     <div class="trust-badges">
@@ -383,7 +517,6 @@
         </div>
     </div>
 </section>
-
 
 <!-- BRANDS SECTION -->
 <section class="section section-light">
