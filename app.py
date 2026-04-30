@@ -596,24 +596,21 @@ def upload_multiple():
     return jsonify({'urls': urls})
 
 # === ADMIN ===
-@app.route('/admin/login', methods=['POST'])
-@limiter.limit("5 per minute")
+@app.route('/admin/login', methods=['GET', 'POST'])
 @csrf.exempt
-def admin_login():
-    password = request.form.get('password')
-    ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH')
-    if not ADMIN_PASSWORD_HASH:
-        if password == 'clever.admin.123':
-            session['admin'] = True
-            return redirect(url_for('admin_dashboard'))
-    else:
-        if check_password_hash(ADMIN_PASSWORD_HASH, password):
-            session['admin'] = True
-            return redirect(url_for('admin_dashboard'))
-    return redirect(url_for('admin_login_page'))
-
-@app.route('/admin/login')
 def admin_login_page():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH')
+        if not ADMIN_PASSWORD_HASH:
+            if password == 'clever.admin.123':
+                session['admin'] = True
+                return redirect(url_for('admin_dashboard'))
+        else:
+            if check_password_hash(ADMIN_PASSWORD_HASH, password):
+                session['admin'] = True
+                return redirect(url_for('admin_dashboard'))
+        return render_template('admin_login.html', error='Невірний пароль')
     return render_template('admin_login.html')
 
 @app.route('/admin/logout')
