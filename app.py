@@ -1537,24 +1537,6 @@ def search_products():
         'name': p.name,
         'brand': p.brand,
         'price': p.price,
-        'image_url': p.image_url or ''
-    } for p in products])
-def search_products():
-    query = request.args.get('q', '').strip()
-    if not query or len(query) < 2:
-        return jsonify([])
-    
-    products = Product.query.filter(
-        (Product.name.ilike(f'%{query}%')) | 
-        (Product.brand.ilike(f'%{query}%')) |
-        (Product.description.ilike(f'%{query}%'))
-    ).limit(10).all()
-    
-    return jsonify([{
-        'id': p.id,
-        'name': p.name,
-        'brand': p.brand,
-        'price': p.price,
         'image_url': p.image_url or '',
         'stock': p.stock
     } for p in products])
