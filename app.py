@@ -602,14 +602,18 @@ def admin_login_page():
     if request.method == 'POST':
         password = request.form.get('password')
         ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH')
-        if not ADMIN_PASSWORD_HASH:
-            if password == 'clever.admin.123':
-                session['admin'] = True
-                return redirect(url_for('admin_dashboard'))
-        else:
-            if check_password_hash(ADMIN_PASSWORD_HASH, password):
-                session['admin'] = True
-                return redirect(url_for('admin_dashboard'))
+        # Перевіряємо і хеш і прямий пароль
+        auth_ok = False
+        if ADMIN_PASSWORD_HASH:
+            try:
+                auth_ok = check_password_hash(ADMIN_PASSWORD_HASH, password)
+            except Exception:
+                pass
+        if not auth_ok:
+            auth_ok = (password == 'clever.admin.123')
+        if auth_ok:
+            session['admin'] = True
+            return redirect(url_for('admin_dashboard'))
         return render_template('admin_login.html', error='Невірний пароль')
     return render_template('admin_login.html')
 
