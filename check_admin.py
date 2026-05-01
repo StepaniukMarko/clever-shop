@@ -1,0 +1,5 @@
+c = open('templates/admin_dashboard.html', encoding='utf-8').read()
+print('product-form listeners:', c.count("getElementById('product-form')"))
+print('submitEditProduct:', 'submitEditProduct' in c)
+print('onsubmit in edit-form:', 'onsubmit="submitEditProduct' in c)
+print('Syntax errors (catch without try):', c.count('.catch(err => alert') - c.count('fetch('))
