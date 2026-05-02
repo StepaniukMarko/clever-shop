@@ -315,6 +315,16 @@ def _run_fix_once():
     if not _slugs_generated:
         _slugs_generated = True
         try:
+            # Check if slug column exists first
+            from sqlalchemy import text
+            try:
+                db.session.execute(text("SELECT slug FROM product LIMIT 1"))
+                db.session.rollback()  # Clean up the test query
+            except Exception:
+                db.session.rollback()
+                print("Slug column not ready yet, skipping slug generation")
+                return
+            
             products_without_slug = Product.query.filter(
                 (Product.slug == None) | (Product.slug == '')
             ).all()
@@ -328,6 +338,7 @@ def _run_fix_once():
                 prod.slug = slug
             if products_without_slug:
                 db.session.commit()
+                print(f"✅ Generated slugs for {len(products_without_slug)} products")
         except Exception as e:
             print(f"Error generating slugs: {e}")
             db.session.rollback()
@@ -1481,6 +1492,26 @@ def account_update():
 
 with app.app_context():
     db.create_all()
+    
+    # Migrate: add slug column if it doesn't exist (PostgreSQL)
+    try:
+        from sqlalchemy import text, inspect
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('product')]
+        if 'slug' not in columns:
+            db.session.execute(text('ALTER TABLE product ADD COLUMN slug VARCHAR(300)'))
+            db.session.commit()
+            print("✅ Added 'slug' column to product table")
+        # Create index if not exists
+        try:
+            db.session.execute(text('CREATE UNIQUE INDEX IF NOT EXISTS ix_product_slug ON product (slug) WHERE slug IS NOT NULL'))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Migration check: {e}")
+    
     # Ensure all default categories exist
     default_categories = ['Одяг', 'Взуття', 'Аксесуари']
     existing = [c.name for c in Category.query.all()]
