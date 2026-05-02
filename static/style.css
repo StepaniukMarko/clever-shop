@@ -1376,7 +1376,7 @@ header.scrolled {
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.05'%3E%3Cpath d='M20 20h20v20H20zM0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
 }
-.cta-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+.cta-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
 .cta-section h2 { 
     font-size: clamp(2rem, 5vw, 3rem); 
     font-weight: 800; 
@@ -4785,7 +4785,7 @@ textarea.form-input {
 
 /* ===== FAQ SECTION ===== */
 .faq-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -4883,7 +4883,7 @@ textarea.form-input {
 .cta-content {
     position: relative;
     z-index: 1;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
