@@ -2855,7 +2855,7 @@ textarea.form-input {
 
 /* ===== PREMIUM INFO PAGES ===== */
 .info-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 4rem clamp(1rem, 3vw, 3rem);
 }
