@@ -152,7 +152,8 @@
                      data-sizes="{{ product.sizes | replace('"', '&quot;') }}" 
                      data-type="{{ product.type | replace('"', '&quot;') }}" 
                      data-gender="{{ product.gender | replace('"', '&quot;') }}" 
-                     data-price="{{ product.price }}">
+                     data-price="{{ product.price }}"
+                     data-images="{{ product.get_images()|join(',') }}">
                     <div class="product-image-wrap">
                         {% if product.image_url %}
                         <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -238,22 +239,27 @@
         <span class="section-badge">😤 Знайома ситуація?</span>
         <h2 class="section-title">Проблеми з покупкою брендового одягу</h2>
     </div>
-    <div class="problems-grid">
-        <div class="problem-card animate-on-scroll">
-            <div class="problem-icon">❌</div>
-            <h3>Підробки скрізь</h3>
-            <p>На ринках та в інтернеті 80% "брендового" одягу — це підробки низької якості</p>
+    <div class="spoiler-block">
+        <div class="spoiler-block-content">
+            <div class="problems-grid">
+                <div class="problem-card animate-on-scroll">
+                    <div class="problem-icon">❌</div>
+                    <h3>Підробки скрізь</h3>
+                    <p>На ринках та в інтернеті 80% "брендового" одягу — це підробки низької якості</p>
+                </div>
+                <div class="problem-card animate-on-scroll animate-delay-1">
+                    <div class="problem-icon">🤷</div>
+                    <h3>Невпевненість</h3>
+                    <p>Страшно замовляти онлайн — а раптом не підійде розмір або якість?</p>
+                </div>
+                <div class="problem-card animate-on-scroll animate-delay-2">
+                    <div class="problem-icon">⏰</div>
+                    <h3>Довге очікування</h3>
+                    <p>Замовлення з-за кордону йдуть тижнями, а хочеться отримати швидко</p>
+                </div>
+            </div>
         </div>
-        <div class="problem-card animate-on-scroll animate-delay-1">
-            <div class="problem-icon">🤷</div>
-            <h3>Невпевненість</h3>
-            <p>Страшно замовляти онлайн — а раптом не підійде розмір або якість?</p>
-        </div>
-        <div class="problem-card animate-on-scroll animate-delay-2">
-            <div class="problem-icon">⏰</div>
-            <h3>Довге очікування</h3>
-            <p>Замовлення з-за кордону йдуть тижнями, а хочеться отримати швидко</p>
-        </div>
+        <button class="spoiler-block-toggle" aria-expanded="false">Читати далі ▼</button>
     </div>
 </section>
 
@@ -290,37 +296,42 @@
         <h2 class="section-title">Переваги покупки у Clever</h2>
         <p class="section-subtitle">Ми робимо шопінг простим, безпечним та приємним для кожного клієнта</p>
     </div>
-    <div class="features-grid">
-        <div class="feature-card animate-on-scroll">
-            <div class="feature-icon">🏷️</div>
-            <h3>Тільки оригінал</h3>
-            <p>Замовляємо товар тільки в офіційних та перевірених онлайн магазинах</p>
+    <div class="spoiler-block">
+        <div class="spoiler-block-content">
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🏷️</div>
+                    <h3>Тільки оригінал</h3>
+                    <p>Замовляємо товар тільки в офіційних та перевірених онлайн магазинах</p>
+                </div>
+                <div class="feature-card animate-on-scroll animate-delay-1">
+                    <div class="feature-icon">💰</div>
+                    <h3>Найкращі ціни</h3>
+                    <p>Ціни нижче ніж в офіційних магазинах України — замовляємо товари з офіційних онлайн-магазинів Європи для наших клієнтів</p>
+                </div>
+                <div class="feature-card animate-on-scroll animate-delay-2">
+                    <div class="feature-icon">🎁</div>
+                    <h3>Безкоштовна доставка</h3>
+                    <p>При замовленні від 5000 грн доставка по Україні за наш рахунок</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">📞</div>
+                    <h3>Підтримка 24/7</h3>
+                    <p>Завжди на зв'язку в Telegram та по телефону для консультацій</p>
+                </div>
+                <div class="feature-card animate-on-scroll animate-delay-1">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Швидка доставка</h3>
+                    <p>Відправляємо в день замовлення. Отримуєте за 1-2 дні</p>
+                </div>
+                <div class="feature-card animate-on-scroll animate-delay-2">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Зручна оплата</h3>
+                    <p>Оплачуйте онлайн або при отриманні — обирайте зручний спосіб</p>
+                </div>
+            </div>
         </div>
-        <div class="feature-card animate-on-scroll animate-delay-1">
-            <div class="feature-icon">💰</div>
-            <h3>Найкращі ціни</h3>
-            <p>Ціни нижче ніж в офіційних магазинах України — замовляємо товари з офіційних онлайн-магазинів Європи для наших клієнтів</p>
-        </div>
-        <div class="feature-card animate-on-scroll animate-delay-2">
-            <div class="feature-icon">🎁</div>
-            <h3>Безкоштовна доставка</h3>
-            <p>При замовленні від 5000 грн доставка по Україні за наш рахунок</p>
-        </div>
-        <div class="feature-card animate-on-scroll">
-            <div class="feature-icon">📞</div>
-            <h3>Підтримка 24/7</h3>
-            <p>Завжди на зв'язку в Telegram та по телефону для консультацій</p>
-        </div>
-        <div class="feature-card animate-on-scroll animate-delay-1">
-            <div class="feature-icon">⚡</div>
-            <h3>Швидка доставка</h3>
-            <p>Відправляємо в день замовлення. Отримуєте за 1-2 дні</p>
-        </div>
-        <div class="feature-card animate-on-scroll animate-delay-2">
-            <div class="feature-icon">🔒</div>
-            <h3>Зручна оплата</h3>
-            <p>Оплачуйте онлайн або при отриманні — обирайте зручний спосіб</p>
-        </div>
+        <button class="spoiler-block-toggle" aria-expanded="false">Читати далі ▼</button>
     </div>
 </section>
 
@@ -348,31 +359,6 @@
         </div>
     </div>
 </section>
-
-<!-- CATALOG -->
-<section class="section section-light" id="products">
-    <div class="section-header">
-        <span class="section-badge">🛍️ Каталог</span>
-        <h2 class="section-title">Наші товари</h2>
-        <p class="section-subtitle">Оригінальний одяг від найкращих світових брендів</p>
-    </div>
-    
-    <div class="category-section">
-        <div class="category-toggle">
-            <a href="/?gender={% if gender == 'men' %}{% else %}men{% endif %}#products" 
-               id="btn-men-top" class="cat-btn {% if gender == 'men' %}active{% endif %}">👔 Чоловікам</a>
-            <a href="/?gender={% if gender == 'women' %}{% else %}women{% endif %}#products" 
-               id="btn-women-top" class="cat-btn {% if gender == 'women' %}active{% endif %}">👗 Жінкам</a>
-            {% if gender %}
-            <a href="/#products" class="cat-btn-clear">✕ Всі товари</a>
-            {% endif %}
-        </div>
-    </div>
-    
-    <button class="mobile-filter-toggle" onclick="toggleMobileFilters()">☰ Фільтри та сортування</button>
-    
-    <div class="shop-layout" id="main-grid">
-        
 
 <!-- BRANDS SECTION -->
 <section class="section section-light">
@@ -717,17 +703,11 @@
         </div>
         <div class="cta-trust">
             <span>✓ Безкоштовна доставка від 5000 грн</span>
-            <span>✓ Зручна оплата</span></span>
+            <span>✓ Зручна оплата</span>
             <span>✓ 14 днів на повернення</span>
         </div>
     </div>
 </section>
-
-<!-- FLOATING ELEMENTS -->
-<div class="quick-contacts">
-    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
-    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
-</div>
 
 <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
 {% endblock %}
@@ -888,15 +868,36 @@ function updateProductCount() {
     var visible = document.querySelectorAll('.product-card:not([style*="display: none"])').length;
     var total = document.querySelectorAll('.product-card').length;
     
+    // Update or create the product count element
     var countEl = document.getElementById('product-count');
     if (!countEl) {
         countEl = document.createElement('div');
         countEl.id = 'product-count';
-        countEl.style.cssText = 'text-align:center;margin:1rem 0;color:var(--gray-600);font-size:0.9rem;';
+        countEl.style.cssText = 'text-align:center;margin:1rem 0;color:var(--gray-600);font-size:0.95rem;font-weight:600;padding:0.75rem 1.5rem;background:var(--gray-50);border-radius:12px;border:1px solid var(--gray-200);';
         document.getElementById('products-container').parentNode.insertBefore(countEl, document.getElementById('products-container'));
     }
     
-    countEl.textContent = `Показано ${visible} з ${total} товарів`;
+    countEl.textContent = 'Знайдено: ' + visible + ' товарів';
+    
+    // Show/hide no-products message
+    var noProductsEl = document.getElementById('no-products-message');
+    if (visible === 0) {
+        if (!noProductsEl) {
+            noProductsEl = document.createElement('div');
+            noProductsEl.id = 'no-products-message';
+            noProductsEl.style.cssText = 'text-align:center;padding:3rem 1.5rem;color:var(--gray-500);';
+            noProductsEl.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">🔍</div>' +
+                '<p style="font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;">Товарів не знайдено</p>' +
+                '<p style="font-size:0.9rem;margin-bottom:1.5rem;">Спробуйте змінити параметри фільтрів</p>' +
+                '<button onclick="resetFilters()" class="btn btn-primary" style="font-size:0.95rem;">Очистити фільтри</button>';
+            document.getElementById('products-container').parentNode.insertBefore(noProductsEl, document.getElementById('products-container').nextSibling);
+        }
+        noProductsEl.style.display = 'block';
+    } else {
+        if (noProductsEl) {
+            noProductsEl.style.display = 'none';
+        }
+    }
 }
 
 function updatePriceMin(value) {

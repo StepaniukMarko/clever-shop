@@ -35,10 +35,6 @@
                         <label>Телефон *</label>
                         <input type="tel" id="phone-input" name="phone" required placeholder="+380 XX XXX XX XX" pattern="^\+380\d{9}$" title="Формат: +380XXXXXXXXX">
                     </div>
-                    <div class="form-group">
-                        <label>Email (для підтвердження)</label>
-                        <input type="email" name="email" placeholder="email@example.com">
-                    </div>
                 </div>
                 
                 <div class="form-section">
@@ -54,6 +50,14 @@
                         <input type="text" id="warehouse-input" name="warehouse" required placeholder="Оберіть спочатку місто" autocomplete="off" disabled>
                         <input type="hidden" id="warehouse-ref" name="warehouse_ref">
                         <div id="warehouse-suggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>📧 Додатково</h3>
+                    <div class="form-group">
+                        <label>Email <span style="color:var(--gray-400);font-weight:normal;">(необов'язково, для підтвердження)</span></label>
+                        <input type="email" name="email" placeholder="email@example.com">
                     </div>
                 </div>
                 

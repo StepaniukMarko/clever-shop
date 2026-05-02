@@ -169,6 +169,54 @@ function _doAddToCart(item, btn, brand) {
     if (typeof gtag !== 'undefined') trackAddToCart(item.id, item.name, item.price, brand);
     if (typeof fbq !== 'undefined') trackFBAddToCart(item.price);
 
+    // Fly animation toward cart icon
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var cartBadge = document.getElementById('cart-count-top');
+
+    if (!prefersReduced && btn) {
+        var card = btn.closest('.product-card') || btn.closest('.product-gallery');
+        var imgEl = card ? (card.querySelector('.product-image img') || card.querySelector('img')) : null;
+        var cartTarget = cartBadge || document.querySelector('.header-btn[aria-label="Кошик"]');
+
+        if (imgEl && cartTarget) {
+            var imgRect = imgEl.getBoundingClientRect();
+            var cartRect = cartTarget.getBoundingClientRect();
+            var flyImg = document.createElement('img');
+            flyImg.src = imgEl.src;
+            flyImg.className = 'cart-fly-img';
+            flyImg.style.left = imgRect.left + imgRect.width / 2 - 30 + 'px';
+            flyImg.style.top = imgRect.top + imgRect.height / 2 - 30 + 'px';
+            flyImg.style.opacity = '1';
+            document.body.appendChild(flyImg);
+
+            var dx = cartRect.left + cartRect.width / 2 - 30 - parseFloat(flyImg.style.left);
+            var dy = cartRect.top + cartRect.height / 2 - 30 - parseFloat(flyImg.style.top);
+
+            requestAnimationFrame(function() {
+                flyImg.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(0.2)';
+                flyImg.style.opacity = '0.3';
+            });
+
+            flyImg.addEventListener('transitionend', function handler() {
+                flyImg.removeEventListener('transitionend', handler);
+                flyImg.remove();
+                if (cartBadge) {
+                    cartBadge.classList.remove('cart-badge-bounce');
+                    void cartBadge.offsetWidth;
+                    cartBadge.classList.add('cart-badge-bounce');
+                }
+            });
+
+            // Safety cleanup
+            setTimeout(function() { if (flyImg.parentNode) flyImg.remove(); }, 700);
+        }
+    } else if (cartBadge) {
+        // Reduced motion: simple fade on badge
+        cartBadge.classList.remove('cart-badge-fade');
+        void cartBadge.offsetWidth;
+        cartBadge.classList.add('cart-badge-fade');
+    }
+
     if (btn) {
         const originalText = btn.innerHTML;
         btn.innerHTML = '✓ Додано';
@@ -548,18 +596,26 @@ if (window.location.pathname === '/checkout') {
 function initScrollEffects() {
     // Header scroll effect
     const header = document.querySelector('header');
+    let ticking = false;
     
     window.addEventListener('scroll', () => {
-        const currentScroll = window.scrollY;
-        
-        if (header) {
-            header.classList.toggle('scrolled', currentScroll > 50);
-        }
-        
-        // Scroll to top button
-        const scrollBtn = document.getElementById('scroll-top');
-        if (scrollBtn) {
-            scrollBtn.classList.toggle('visible', currentScroll > 500);
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                const currentScroll = window.scrollY;
+                
+                if (header) {
+                    header.classList.toggle('scrolled', currentScroll > 50);
+                }
+                
+                // Scroll to top button
+                const scrollBtn = document.getElementById('scroll-top');
+                if (scrollBtn) {
+                    scrollBtn.classList.toggle('visible', currentScroll > 500);
+                }
+                
+                ticking = false;
+            });
+            ticking = true;
         }
     }, { passive: true });
     
@@ -685,4 +741,121 @@ function renderRecentlyViewed(containerId) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     renderRecentlyViewed('recently-viewed-section');
+});
+
+// ===== Task 3.1: Spoiler Block Toggle =====
+function initSpoilerBlocks() {
+    var toggles = document.querySelectorAll('.spoiler-block-toggle');
+    toggles.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var content = btn.previousElementSibling;
+            if (!content || !content.classList.contains('spoiler-block-content')) return;
+
+            var isExpanded = content.classList.contains('expanded');
+            if (isExpanded) {
+                content.classList.remove('expanded');
+                btn.textContent = 'Читати далі ▼';
+                btn.setAttribute('aria-expanded', 'false');
+                // Scroll back to the section so user sees the collapsed state
+                var block = btn.closest('.spoiler-block');
+                if (block) {
+                    block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } else {
+                content.classList.add('expanded');
+                btn.textContent = 'Згорнути ▲';
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initSpoilerBlocks();
+});
+
+// ===== Task 5.4: Hover Gallery (Second Image on Hover) =====
+function initHoverGallery() {
+    // Respect prefers-reduced-motion
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Only apply on desktop (non-touch devices)
+    var isTouchDevice = window.matchMedia('(hover: none)').matches;
+    if (isTouchDevice) return;
+
+    var cards = document.querySelectorAll('.product-card[data-images]');
+    if (!cards.length) return;
+
+    // Use IntersectionObserver to preload second image when card enters viewport
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+
+            var card = entry.target;
+            var imagesStr = card.getAttribute('data-images');
+            if (!imagesStr) return;
+
+            var images = imagesStr.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+            if (images.length < 2) return;
+
+            // Preload the second image
+            var preloadImg = new Image();
+            preloadImg.src = images[1];
+
+            // Store images data on the card element
+            card._hoverImages = images;
+            card._hoverPreloaded = true;
+
+            // Stop observing once preloaded
+            observer.unobserve(card);
+        });
+    }, { rootMargin: '200px 0px' });
+
+    cards.forEach(function(card) {
+        var imagesStr = card.getAttribute('data-images');
+        if (!imagesStr) return;
+        var images = imagesStr.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+        if (images.length < 2) return;
+
+        // Observe for preloading
+        observer.observe(card);
+
+        // Set up hover gallery container
+        var imgWrap = card.querySelector('.product-image-wrap');
+        if (!imgWrap) return;
+
+        var primaryImg = imgWrap.querySelector('img');
+        if (!primaryImg) return;
+
+        // Create hover overlay image
+        var hoverImg = document.createElement('img');
+        hoverImg.className = 'hover-gallery-img';
+        hoverImg.alt = primaryImg.alt || '';
+        hoverImg.loading = 'lazy';
+        hoverImg.src = images[1];
+        hoverImg.setAttribute('aria-hidden', 'true');
+        imgWrap.appendChild(hoverImg);
+
+        // Add hover class to wrap for CSS targeting
+        imgWrap.classList.add('has-hover-gallery');
+
+        // Mouse events
+        card.addEventListener('mouseenter', function() {
+            if (!card._hoverPreloaded && !card._hoverImages) return;
+            if (prefersReducedMotion) {
+                hoverImg.style.transition = 'none';
+            }
+            hoverImg.classList.add('visible');
+        });
+
+        card.addEventListener('mouseleave', function() {
+            if (prefersReducedMotion) {
+                hoverImg.style.transition = 'none';
+            }
+            hoverImg.classList.remove('visible');
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initHoverGallery();
 });

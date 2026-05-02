@@ -11,6 +11,15 @@
         <p class="error-text">
             На жаль, сторінка, яку ви шукаєте, не існує або була переміщена.
         </p>
+
+        <!-- Search input -->
+        <div class="error-search">
+            <form action="/#products" method="get" class="error-search-form">
+                <input type="text" name="q" placeholder="Пошук товарів..." class="error-search-input" aria-label="Пошук товарів">
+                <button type="submit" class="btn btn-primary error-search-btn">🔍 Знайти</button>
+            </form>
+        </div>
+
         <div class="error-actions">
             <a href="/" class="btn btn-primary btn-lg">🏠 На головну</a>
             <a href="/#products" class="btn btn-secondary btn-lg">🛍️ До каталогу</a>
@@ -19,10 +28,11 @@
         <div class="error-suggestions">
             <h3>Можливо, вас зацікавить:</h3>
             <div class="suggestion-links">
+                <a href="/?gender=men">👔 Чоловічий одяг</a>
+                <a href="/?gender=women">👗 Жіночий одяг</a>
                 <a href="/brands">Бренди</a>
                 <a href="/delivery">Доставка</a>
                 <a href="/contacts">Контакти</a>
-                <a href="/blog">Блог</a>
             </div>
         </div>
     </div>
@@ -75,8 +85,37 @@
 .error-text {
     font-size: 1.1rem;
     color: var(--gray-600);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     line-height: 1.7;
+}
+
+.error-search {
+    margin-bottom: 2rem;
+}
+
+.error-search-form {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.error-search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.error-search-input:focus {
+    border-color: var(--primary);
+}
+
+.error-search-btn {
+    white-space: nowrap;
 }
 
 .error-actions {
@@ -137,6 +176,14 @@
     }
     
     .error-actions .btn {
+        width: 100%;
+    }
+
+    .error-search-form {
+        flex-direction: column;
+    }
+
+    .error-search-btn {
         width: 100%;
     }
 }

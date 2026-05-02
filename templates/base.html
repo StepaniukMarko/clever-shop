@@ -76,6 +76,7 @@
     </script>
     <meta name="theme-color" content="#10B981">
     <link rel="icon" href="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" type="image/jpeg">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" type="image/jpeg">
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -87,7 +88,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=31">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=32">
     
     <!-- CRITICAL LAYOUT FIX - prevents horizontal overflow -->
     <style>
@@ -376,6 +377,14 @@
             }, 300);
         });
         
+        // Force-hide page loader after 3 seconds regardless of load state
+        setTimeout(function() {
+            var loader = document.getElementById('page-loader');
+            if (loader && !loader.classList.contains('hidden')) {
+                loader.classList.add('hidden');
+            }
+        }, 3000);
+        
         function toggleMenu() {
             document.getElementById('nav-menu').classList.toggle('active');
         }
@@ -388,30 +397,48 @@
             }
         }
         
+        var searchTimeout = null;
+        
         function headerSearch(val) {
             var results = document.getElementById('search-results');
+            
+            // Clear any pending search
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+                searchTimeout = null;
+            }
+            
             if (!val || val.length < 2) { 
                 results.style.display = 'none'; 
                 return; 
             }
-            fetch('/api/products').then(r => r.json()).then(products => {
-                var q = val.toLowerCase();
-                var matches = products.filter(p => 
-                    p.name.toLowerCase().includes(q) || 
-                    p.brand.toLowerCase().includes(q)
-                ).slice(0, 6);
-                
-                if (matches.length === 0) {
-                    results.innerHTML = '<div style="padding:1.25rem;color:#9CA3AF;text-align:center;">Нічого не знайдено</div>';
-                } else {
-                    results.innerHTML = matches.map(p => 
-                        '<a href="/product/' + p.id + '" style="display:flex;align-items:center;gap:1rem;padding:1rem;text-decoration:none;color:#111827;border-bottom:1px solid #F3F4F6;transition:background 0.2s;" onmouseover="this.style.background=\'#F9FAFB\'" onmouseout="this.style.background=\'transparent\'">' +
-                        (p.image_url ? '<img src="' + p.image_url + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:#F3F4F6;">' : '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;">📷</div>') +
-                        '<div><div style="font-weight:600;margin-bottom:2px;">' + p.name + '</div><div style="font-size:0.9rem;color:#10B981;font-weight:700;">' + p.price.toLocaleString() + ' грн</div></div></a>'
-                    ).join('');
-                }
-                results.style.display = 'block';
-            });
+            
+            // Debounce: wait 300ms after last keystroke
+            searchTimeout = setTimeout(function() {
+                fetch('/api/search?q=' + encodeURIComponent(val))
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(matches) {
+                    if (matches.length === 0) {
+                        results.innerHTML = '<div style="padding:1.25rem;color:#9CA3AF;text-align:center;">Нічого не знайдено</div>';
+                    } else {
+                        results.innerHTML = matches.slice(0, 6).map(function(p) {
+                            return '<a href="/product/' + p.id + '" style="display:flex;align-items:center;gap:1rem;padding:1rem;text-decoration:none;color:#111827;border-bottom:1px solid #F3F4F6;transition:background 0.2s;" onmouseover="this.style.background=\'#F9FAFB\'" onmouseout="this.style.background=\'transparent\'">' +
+                            (p.image_url ? '<img src="' + p.image_url + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:#F3F4F6;" alt="' + (p.name || '') + '">' : '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;">📷</div>') +
+                            '<div><div style="font-weight:600;margin-bottom:2px;">' + p.name + '</div>' +
+                            '<div style="font-size:0.8rem;color:#6B7280;margin-bottom:2px;">' + (p.brand || '') + '</div>' +
+                            '<div style="font-size:0.9rem;color:#10B981;font-weight:700;">' + p.price.toLocaleString() + ' грн</div></div></a>';
+                        }).join('');
+                    }
+                    results.style.display = 'block';
+                })
+                .catch(function(err) {
+                    results.innerHTML = '<div style="padding:1.25rem;color:#EF4444;text-align:center;">Помилка пошуку. Спробуйте ще раз.</div>';
+                    results.style.display = 'block';
+                });
+            }, 300);
         }
         
         document.addEventListener('click', function(e) {
@@ -470,6 +497,28 @@
             }
         });
     }
+    </script>
+    
+    <!-- Floating Contact Widget -->
+    <div class="contact-widget" id="contact-widget">
+        <div class="contact-widget-links" id="contact-widget-links">
+            <a href="https://t.me/clevershopv" target="_blank" class="contact-widget-link cw-telegram" aria-label="Telegram">✈️</a>
+            <a href="viber://chat?number=+380632665135" class="contact-widget-link cw-viber" aria-label="Viber">💜</a>
+        </div>
+        <button class="contact-widget-toggle" id="contact-widget-toggle" aria-label="Зв'язатися" onclick="toggleContactWidget()">💬</button>
+    </div>
+    <script>
+    function toggleContactWidget() {
+        var widget = document.getElementById('contact-widget');
+        widget.classList.toggle('open');
+    }
+    // Close widget when clicking outside
+    document.addEventListener('click', function(e) {
+        var widget = document.getElementById('contact-widget');
+        if (widget && !widget.contains(e.target) && widget.classList.contains('open')) {
+            widget.classList.remove('open');
+        }
+    });
     </script>
     
     {% block scripts %}{% endblock %}

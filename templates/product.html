@@ -120,6 +120,28 @@
                     ⚡ Купити зараз
                 </button>
             </div>
+
+            <!-- Quick Order Form -->
+            <div class="quick-order-section" style="margin-top:1.5rem;padding:1.5rem;background:var(--gray-50);border-radius:var(--radius-lg);border:2px solid var(--gray-200);">
+                <h3 style="margin-bottom:1rem;font-size:1.1rem;">⚡ Швидке замовлення</h3>
+                <p style="font-size:0.9rem;color:var(--gray-600);margin-bottom:1rem;">Залиште контакти — ми зателефонуємо для підтвердження</p>
+                <form id="quick-order-form" onsubmit="submitQuickOrder(event)">
+                    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                        <input type="text" name="name" id="quick-order-name" placeholder="Ваше ім'я" required
+                               style="padding:0.75rem 1rem;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:1rem;width:100%;box-sizing:border-box;">
+                        <input type="tel" name="phone" id="quick-order-phone" placeholder="+380XXXXXXXXX" required
+                               pattern="^\+380\d{9}$" title="Формат: +380XXXXXXXXX"
+                               style="padding:0.75rem 1rem;border:2px solid var(--gray-200);border-radius:var(--radius);font-size:1rem;width:100%;box-sizing:border-box;">
+                        <div id="quick-order-phone-error" style="display:none;color:#e53e3e;font-size:0.85rem;">
+                            Невірний формат телефону. Використовуйте +380XXXXXXXXX
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">
+                            ⚡ Швидке замовлення
+                        </button>
+                    </div>
+                </form>
+                <div id="quick-order-message" style="display:none;margin-top:0.75rem;padding:0.75rem 1rem;border-radius:var(--radius);font-size:0.95rem;text-align:center;"></div>
+            </div>
             {% else %}
             <div class="product-section" style="text-align:center;padding:2rem;background:var(--gray-50);border-radius:var(--radius-lg);">
                 <p style="font-size:1.1rem;color:var(--gray-600);margin-bottom:1rem;">Товар тимчасово відсутній</p>
@@ -232,12 +254,6 @@
     </div>
     <div class="recently-viewed-grid"></div>
 </section>
-
-<!-- Floating Contacts -->
-<div class="quick-contacts">
-    <a href="tel:+380632665135" class="quick-btn quick-phone" title="Зателефонувати">📞</a>
-    <a href="https://t.me/clevershopv" target="_blank" class="quick-btn quick-telegram" title="Написати в Telegram">✈️</a>
-</div>
 
 <!-- Review Modal -->
 <div id="review-modal" class="modal" style="display:none;">
@@ -647,6 +663,87 @@ function loadProductFAQ() {
         </div>
     `).join('');
 }
+
+// Quick Order form handler
+function submitQuickOrder(event) {
+    event.preventDefault();
+    var nameInput = document.getElementById('quick-order-name');
+    var phoneInput = document.getElementById('quick-order-phone');
+    var phoneError = document.getElementById('quick-order-phone-error');
+    var messageEl = document.getElementById('quick-order-message');
+    var phone = phoneInput.value.replace(/\s/g, '');
+
+    // Client-side phone validation
+    if (!/^\+380\d{9}$/.test(phone)) {
+        phoneError.style.display = 'block';
+        phoneInput.style.borderColor = '#e53e3e';
+        return;
+    }
+    phoneError.style.display = 'none';
+    phoneInput.style.borderColor = 'var(--gray-200)';
+
+    // Get selected size
+    var selectedSizeBtn = document.querySelector('.size-btn.selected');
+    var size = selectedSizeBtn ? selectedSizeBtn.textContent.trim() : '';
+
+    var submitBtn = event.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Оформлення...';
+
+    fetch('/api/quick-order', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            product_id: {{ product.id }},
+            name: nameInput.value.trim(),
+            phone: phone,
+            size: size
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            messageEl.style.display = 'block';
+            messageEl.style.background = '#c6f6d5';
+            messageEl.style.color = '#22543d';
+            messageEl.textContent = '✅ Замовлення #' + data.order_id + ' оформлено! Ми зателефонуємо вам найближчим часом.';
+            event.target.reset();
+        } else {
+            messageEl.style.display = 'block';
+            messageEl.style.background = '#fed7d7';
+            messageEl.style.color = '#9b2c2c';
+            messageEl.textContent = '❌ ' + (data.error || 'Помилка при оформленні замовлення. Спробуйте пізніше.');
+        }
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '⚡ Швидке замовлення';
+    })
+    .catch(function() {
+        messageEl.style.display = 'block';
+        messageEl.style.background = '#fed7d7';
+        messageEl.style.color = '#9b2c2c';
+        messageEl.textContent = '❌ Помилка при оформленні замовлення. Спробуйте пізніше.';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '⚡ Швидке замовлення';
+    });
+}
+
+// Phone input validation feedback
+document.addEventListener('DOMContentLoaded', function() {
+    var qoPhone = document.getElementById('quick-order-phone');
+    if (qoPhone) {
+        qoPhone.addEventListener('input', function() {
+            var phoneError = document.getElementById('quick-order-phone-error');
+            var val = this.value.replace(/\s/g, '');
+            if (val && !/^\+380\d{0,9}$/.test(val)) {
+                phoneError.style.display = 'block';
+                this.style.borderColor = '#e53e3e';
+            } else {
+                phoneError.style.display = 'none';
+                this.style.borderColor = 'var(--gray-200)';
+            }
+        });
+    }
+});
 
 // Social sharing functions
 function shareToFacebook() {

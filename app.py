@@ -9,6 +9,32 @@ import base64
 import hashlib
 import json
 import urllib.parse
+import re
+
+# === TRANSLITERATION UTILITY ===
+TRANSLIT_MAP = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g',
+    'д': 'd', 'е': 'e', 'є': 'ye', 'ж': 'zh', 'з': 'z',
+    'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y', 'к': 'k',
+    'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p',
+    'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f',
+    'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+    'ь': '', 'ю': 'yu', 'я': 'ya', 'ъ': '',
+}
+
+def transliterate_to_slug(text):
+    """Convert Ukrainian text to URL-safe slug."""
+    text = text.lower().strip()
+    result = []
+    for char in text:
+        if char in TRANSLIT_MAP:
+            result.append(TRANSLIT_MAP[char])
+        elif char.isascii() and (char.isalnum() or char == '-'):
+            result.append(char)
+        elif char == ' ' or char == '_':
+            result.append('-')
+    slug = '-'.join(filter(None, ''.join(result).split('-')))
+    return slug
 
 # Опціональні імпорти для безпеки (якщо встановлені)
 try:
@@ -91,7 +117,15 @@ class Product(db.Model):
     sizes = db.Column(db.String(200), default='XS,S,M,L,XL,XXL')
     gender = db.Column(db.String(20), default='унісекс')
     type = db.Column(db.String(50), default='інше')
+    slug = db.Column(db.String(300), unique=True, nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def generate_slug(self):
+        """Generate URL slug from product name using Ukrainian transliteration."""
+        base_slug = transliterate_to_slug(self.name)
+        if not base_slug:
+            base_slug = f'product-{self.id}'
+        return base_slug
 
     def get_images(self):
         imgs = []
@@ -270,13 +304,33 @@ def fix_shoe_sizes():
         pass
 
 _shoe_sizes_fixed = False
+_slugs_generated = False
 
 @app.before_request
 def _run_fix_once():
-    global _shoe_sizes_fixed
+    global _shoe_sizes_fixed, _slugs_generated
     if not _shoe_sizes_fixed:
         _shoe_sizes_fixed = True
         fix_shoe_sizes()
+    if not _slugs_generated:
+        _slugs_generated = True
+        try:
+            products_without_slug = Product.query.filter(
+                (Product.slug == None) | (Product.slug == '')
+            ).all()
+            for prod in products_without_slug:
+                base_slug = prod.generate_slug()
+                slug = base_slug
+                # Handle duplicates by appending -id
+                existing = Product.query.filter(Product.slug == slug, Product.id != prod.id).first()
+                if existing:
+                    slug = f'{base_slug}-{prod.id}'
+                prod.slug = slug
+            if products_without_slug:
+                db.session.commit()
+        except Exception as e:
+            print(f"Error generating slugs: {e}")
+            db.session.rollback()
 
 # Security headers
 @app.after_request
@@ -355,9 +409,23 @@ def about():
 def contacts():
     return render_template('contacts.html')
 
-@app.route('/product/<int:product_id>')
-def product(product_id):
-    prod = Product.query.get_or_404(product_id)
+@app.route('/product/<path:slug_or_id>')
+def product(slug_or_id):
+    # Check if it's a numeric ID
+    try:
+        product_id = int(slug_or_id)
+        prod = Product.query.get_or_404(product_id)
+        # If product has a slug, redirect 301 to slug URL
+        if prod.slug:
+            return redirect(url_for('product', slug_or_id=prod.slug), code=301)
+        # No slug, render directly
+        products = Product.query.limit(8).all()
+        categories = Category.query.all()
+        return render_template('product.html', product=prod, categories=categories, products=products)
+    except (ValueError, TypeError):
+        pass
+    # It's a slug - find product by slug
+    prod = Product.query.filter_by(slug=slug_or_id).first_or_404()
     products = Product.query.limit(8).all()
     categories = Category.query.all()
     return render_template('product.html', product=prod, categories=categories, products=products)
@@ -419,6 +487,66 @@ def _notify_telegram(order_id, name, phone, total, items, delivery, payment_stat
             requests.post(f"https://api.telegram.org/bot{token}/sendMessage", data={"chat_id": cid, "text": text})
         except:
             pass
+
+@app.route('/api/quick-order', methods=['POST'])
+@limiter.limit("10 per minute")
+@csrf.exempt
+def quick_order():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Невірний формат запиту'}), 400
+
+    name = (data.get('name') or '').strip()
+    phone = (data.get('phone') or '').strip()
+    product_id = data.get('product_id')
+    size = data.get('size', '')
+
+    # Validate name
+    if not name:
+        return jsonify({'error': "Ім'я обов'язкове"}), 400
+
+    # Validate phone: +380 followed by 9 digits
+    if not re.match(r'^\+380\d{9}$', phone):
+        return jsonify({'error': 'Невірний формат телефону. Використовуйте +380XXXXXXXXX'}), 400
+
+    # Validate product
+    prod = Product.query.get(product_id)
+    if not prod:
+        return jsonify({'error': 'Товар не знайдено'}), 404
+
+    # Create order
+    items_data = json.dumps([{
+        'id': prod.id,
+        'name': prod.name,
+        'price': prod.price,
+        'quantity': 1,
+        'size': size
+    }])
+
+    order = Order(
+        customer_name=name,
+        customer_phone=phone,
+        customer_email='',
+        delivery='Швидке замовлення - уточнити',
+        items=items_data,
+        total_price=prod.price,
+        status='нове'
+    )
+    db.session.add(order)
+    db.session.commit()
+
+    # Send Telegram notification
+    try:
+        _notify_telegram(
+            order.id, name, phone, prod.price,
+            [{'name': prod.name, 'quantity': 1, 'price': prod.price, 'size': size}],
+            'Швидке замовлення - уточнити',
+            'очікується'
+        )
+    except Exception:
+        pass
+
+    return jsonify({'success': True, 'order_id': order.id})
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")
@@ -820,7 +948,7 @@ def _clean_images(images, base_url):
         
         # Пропускаємо службові
         if any(skip in img_lower for skip in skip_patterns):
-            continuenue
+            continue
         if any(skip in img_lower for skip in skip_size_patterns):
             continue
         
@@ -1612,7 +1740,7 @@ def sitemap():
     products = Product.query.all()
     for product in products:
         pages.append({
-            'loc': url_for('product', product_id=product.id, _external=True),
+            'loc': url_for('product', slug_or_id=product.slug or str(product.id), _external=True),
             'lastmod': product.created_at.strftime('%Y-%m-%d'),
             'changefreq': 'daily',
             'priority': '1.0'
