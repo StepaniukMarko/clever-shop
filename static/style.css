@@ -96,6 +96,12 @@ body {
 /* Selection */
 ::selection { background: var(--primary-100); color: var(--primary-dark); }
 
+/* Main content area - full width, sections handle their own centering */
+main {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 /* ===== PREMIUM LOADER ===== */
 .page-loader {
     position: fixed;
@@ -147,8 +153,9 @@ header.scrolled {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 2rem;
-    max-width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
 }
 
 /* Navigation */
@@ -1535,6 +1542,8 @@ footer::before {
     text-align: center;
     padding-top: 2.5rem;
     border-top: 1px solid rgba(255,255,255,0.1);
+    max-width: 1400px;
+    margin: 0 auto;
 }
 .footer-social { 
     display: flex; 
@@ -2824,6 +2833,25 @@ textarea.form-input {
 .admin-table .btn-edit:hover { background: var(--primary-100); }
 .admin-table .btn-delete { background: #FEE2E2; color: var(--danger); }
 .admin-table .btn-delete:hover { background: #FECACA; }
+
+/* ===== ERROR PAGES ===== */
+.error-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+.error-content {
+    background: var(--white);
+    padding: 3rem 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+.error-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+.error-title { font-size: 4rem; font-weight: 900; color: var(--primary); margin-bottom: 0.5rem; }
+.error-subtitle { font-size: 1.5rem; font-weight: 700; color: var(--dark); margin-bottom: 1rem; }
+.error-text { color: var(--gray-500); margin-bottom: 2rem; line-height: 1.7; }
+.error-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
 /* ===== PREMIUM INFO PAGES ===== */
 .info-container {
@@ -4676,6 +4704,7 @@ textarea.form-input {
 /* ===== ABOUT SECTION ===== */
 .about-section {
     padding: 8rem 2rem;
+    overflow: hidden;
 }
 
 .about-container {
@@ -4689,7 +4718,7 @@ textarea.form-input {
 
 .about-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
 }
@@ -4716,7 +4745,7 @@ textarea.form-input {
 
 .about-features {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
 }
 
@@ -5022,7 +5051,7 @@ textarea.form-input {
 /* ===== BLOG STYLES ===== */
 .blog-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2.5rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -5555,7 +5584,7 @@ textarea.form-input {
 
 .process-steps {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
 }
 
