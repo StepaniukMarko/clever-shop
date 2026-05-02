@@ -9,6 +9,13 @@
 html {
     overflow-x: hidden;
     scroll-behavior: smooth;
+    width: 100%;
+}
+
+/* Prevent any element from causing horizontal overflow */
+img, video, iframe, embed, object {
+    max-width: 100%;
+    height: auto;
 }
 
 :root {
@@ -98,7 +105,9 @@ body {
 
 /* Main content area - full width, sections handle their own centering */
 main {
+    display: block;
     width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
 }
 
@@ -335,6 +344,7 @@ header.scrolled {
     align-items: center;
     justify-content: center;
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
 }
 .hero::before {
@@ -524,6 +534,7 @@ header.scrolled {
     border-bottom: 1px solid var(--gray-100);
     position: relative;
     width: 100%;
+    max-width: 100%;
     overflow: hidden;
 }
 .trust-badges {
@@ -580,8 +591,10 @@ header.scrolled {
 
 /* ===== PREMIUM SECTIONS ===== */
 .section { 
+    display: block;
     padding: 5rem clamp(1rem, 3vw, 3rem);
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -590,6 +603,7 @@ header.scrolled {
     margin-left: auto;
     margin-right: auto;
     width: 100%;
+    box-sizing: border-box;
 }
 .section-light { background: var(--white); }
 .section-gray { background: var(--gray-50); }
@@ -1132,13 +1146,16 @@ header.scrolled {
     padding: 2rem 0;
     background: var(--gray-50);
     border-radius: var(--radius-xl);
-    margin: 0 2rem;
+    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
 }
 .brands-track {
     display: flex;
     gap: 3rem;
     animation: marquee 40s linear infinite;
     width: max-content;
+    max-width: none;
 }
 .brands-track:hover { animation-play-state: paused; }
 @keyframes marquee {
@@ -1489,6 +1506,7 @@ footer {
     padding: 5rem clamp(1rem, 3vw, 3rem) 2rem;
     position: relative;
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
     overflow: hidden;
 }
