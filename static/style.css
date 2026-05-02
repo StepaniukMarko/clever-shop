@@ -18,6 +18,15 @@ img, video, iframe, embed, object {
     height: auto;
 }
 
+/* Prevent grid/flex children from overflowing */
+.section > *,
+.about-container > *,
+.footer-content > *,
+.shop-layout > *,
+.checkout-grid > * {
+    min-width: 0;
+}
+
 :root {
     --primary: #10B981;
     --primary-dark: #059669;
@@ -107,8 +116,8 @@ body {
 main {
     display: block;
     width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
+    max-width: 100vw;
+    overflow: hidden;
 }
 
 /* ===== PREMIUM LOADER ===== */
@@ -152,6 +161,9 @@ header {
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-bottom: 1px solid rgba(0,0,0,0.06);
     transition: var(--tr);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 header.scrolled {
     background: rgba(255,255,255,0.95);
@@ -1246,7 +1258,7 @@ header.scrolled {
 }
 
 /* ===== PREMIUM ABOUT SECTION ===== */
-.about-section { padding: 5rem clamp(1rem, 3vw, 3rem); }
+.about-section { padding: 5rem clamp(1rem, 3vw, 3rem); overflow: hidden; }
 .about-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1255,6 +1267,10 @@ header.scrolled {
     margin: 0 auto;
     align-items: center;
     width: 100%;
+}
+.about-container > * {
+    min-width: 0;
+    overflow: hidden;
 }
 .about-content .section-badge { margin-bottom: 1.5rem; }
 .about-stats {
@@ -1281,7 +1297,7 @@ header.scrolled {
 }
 .about-features {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
 }
 .about-feature {
@@ -5544,25 +5560,28 @@ textarea.form-input {
 
 .trust-certificates {
     background: rgba(255,255,255,0.05);
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: var(--radius-xl);
     border: 1px solid rgba(255,255,255,0.1);
+    overflow: hidden;
 }
 
 .certificates-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
 }
 
 .certificate {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.875rem;
     background: rgba(255,255,255,0.05);
     border-radius: var(--radius-lg);
     transition: var(--tr);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .certificate:hover {
@@ -5571,9 +5590,9 @@ textarea.form-input {
 }
 
 .cert-icon {
-    font-size: 2rem;
-    width: 60px;
-    height: 60px;
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
