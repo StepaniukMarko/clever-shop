@@ -996,14 +996,22 @@ def api_products():
             return jsonify({'error': 'Unauthorized'}), 401
         try:
             data = request.get_json()
+            if not data:
+                return jsonify({'error': 'Невірний формат запиту'}), 400
             image_urls = data.get('image_urls', [])
+            # Handle case where image_urls is a string (from FormData hidden input)
+            if isinstance(image_urls, str):
+                try:
+                    image_urls = json.loads(image_urls) if image_urls else []
+                except (json.JSONDecodeError, TypeError):
+                    image_urls = []
             main_image = image_urls[0] if image_urls else data.get('image_url', '')
             extra_images = ','.join(image_urls[1:]) if len(image_urls) > 1 else ''
             product = Product(
-                name=data['name'],
+                name=data.get('name', '').strip(),
                 description=data.get('description', ''),
-                price=data['price'],
-                category_id=data['category_id'],
+                price=float(data.get('price', 0)),
+                category_id=int(data.get('category_id', 1)),
                 image_url=main_image,
                 images=extra_images,
                 stock=data.get('stock', 0),
