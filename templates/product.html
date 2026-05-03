@@ -9,6 +9,7 @@
   "@context": "https://schema.org/",
   "@type": "Product",
   "name": "{{ product.name }}",
+  "sku": "{{ product.id }}",
   "image": {{ product.get_images() | tojson }},
   "description": "{{ product.description or (product.name + ' від ' + product.brand + '. Оригінальний брендовий одяг з доставкою по Україні.') }}",
   "brand": {
@@ -27,6 +28,14 @@
       "name": "Clever Shop"
     }
   }
+  {% if review_count and review_count > 0 %}
+  ,"aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ '%.1f' | format(avg_rating) }}",
+    "reviewCount": "{{ review_count }}",
+    "bestRating": "5"
+  }
+  {% endif %}
 }
 </script>
 {% endblock %}
@@ -61,7 +70,11 @@
             {% endif %}
             {% else %}
             <div class="main-image-wrap">
-                <div class="no-image" style="height:500px;">📷</div>
+                <div class="fallback-image fallback-image--large">
+                    <div class="fallback-image__icon">📷</div>
+                    <div class="fallback-image__brand">{{ product.brand }}</div>
+                    <div class="fallback-image__message">Фото скоро з'явиться</div>
+                </div>
             </div>
             {% endif %}
         </div>
@@ -73,6 +86,7 @@
             
             <div class="product-price-block">
                 <span class="product-price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</span>
+                <span class="bonus-badge">🎁 +{{ (product.price // 100)|int }} бонусів</span>
             </div>
             
             <div class="product-stock {% if product.stock > 0 %}in-stock{% else %}out-of-stock{% endif %}">
@@ -91,13 +105,27 @@
                     {% for size, in_stock in product.get_sizes_with_stock() %}
                     <button type="button"
                         class="size-btn{% if not in_stock %} size-unavailable{% endif %}"
-                        onclick="{% if in_stock %}selectSize(this){% else %}showToast('Цього розміру немає в наявності', 'error'){% endif %}"
-                        {% if not in_stock %}title="Немає в наявності"{% endif %}>
-                        {{ size }}
+                        onclick="{% if in_stock %}selectSize(this){% else %}openNotifyForm('{{ size }}'){% endif %}"
+                        {% if not in_stock %}title="Повідомити про наявність"{% endif %}>
+                        {{ size }}{% if not in_stock %} <small style="font-size:0.65rem;display:block;">Повідомити</small>{% endif %}
                     </button>
                     {% endfor %}
                 </div>
                 <div id="size-stock-status" style="margin-top:0.5rem;font-size:0.9rem;"></div>
+                
+                <!-- Notify When Available Form -->
+                <div id="notify-form-container" class="notify-form-container" style="display:none;">
+                    <div class="notify-form">
+                        <p class="notify-form__title">🔔 Повідомити про наявність розміру <strong id="notify-size-label"></strong></p>
+                        <p class="notify-form__subtitle">Залиште email або телефон — ми повідомимо, коли з'явиться</p>
+                        <div class="notify-form__input-row">
+                            <input type="text" id="notify-contact" class="notify-form__input" placeholder="Email або +380XXXXXXXXX">
+                            <button type="button" onclick="submitNotifyForm()" class="btn btn-primary notify-form__btn">Повідомити</button>
+                        </div>
+                        <div id="notify-message" class="notify-form__message" style="display:none;"></div>
+                        <button type="button" onclick="closeNotifyForm()" class="notify-form__close">✕ Закрити</button>
+                    </div>
+                </div>
             </div>
             
             <!-- Quantity -->
@@ -191,7 +219,12 @@
             {% if product.description %}
             <div class="product-section" style="border-bottom:none;">
                 <h3>Опис товару</h3>
-                <p class="product-description">{{ product.description }}</p>
+                <div class="product-description">{{ product.description | render_rich_description | safe }}</div>
+            </div>
+            {% else %}
+            <div class="product-section" style="border-bottom:none;">
+                <h3>Опис товару</h3>
+                <div class="product-description">{{ '' | render_rich_description | safe }}</div>
             </div>
             {% endif %}
         </div>
@@ -662,6 +695,67 @@ function loadProductFAQ() {
             </div>
         </div>
     `).join('');
+}
+
+// Notify When Available form
+var notifyCurrentSize = '';
+
+function openNotifyForm(size) {
+    notifyCurrentSize = size;
+    document.getElementById('notify-size-label').textContent = size;
+    document.getElementById('notify-form-container').style.display = 'block';
+    document.getElementById('notify-contact').value = '';
+    var msgEl = document.getElementById('notify-message');
+    msgEl.style.display = 'none';
+    document.getElementById('notify-contact').focus();
+}
+
+function closeNotifyForm() {
+    document.getElementById('notify-form-container').style.display = 'none';
+    notifyCurrentSize = '';
+}
+
+function submitNotifyForm() {
+    var contact = document.getElementById('notify-contact').value.trim();
+    var msgEl = document.getElementById('notify-message');
+
+    if (!contact) {
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#FED7D7';
+        msgEl.style.color = '#9B2C2C';
+        msgEl.textContent = 'Введіть email або телефон';
+        return;
+    }
+
+    fetch('/api/notify', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            product_id: {{ product.id }},
+            size: notifyCurrentSize,
+            contact: contact
+        })
+    })
+    .then(function(r) { return r.json().then(function(data) { return {ok: r.ok, data: data}; }); })
+    .then(function(result) {
+        msgEl.style.display = 'block';
+        if (result.ok && result.data.success) {
+            msgEl.style.background = '#C6F6D5';
+            msgEl.style.color = '#22543D';
+            msgEl.textContent = '✅ ' + result.data.message;
+            document.getElementById('notify-contact').value = '';
+        } else {
+            msgEl.style.background = '#FED7D7';
+            msgEl.style.color = '#9B2C2C';
+            msgEl.textContent = '❌ ' + (result.data.error || 'Помилка. Спробуйте пізніше.');
+        }
+    })
+    .catch(function() {
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#FED7D7';
+        msgEl.style.color = '#9B2C2C';
+        msgEl.textContent = '❌ Помилка з\'єднання. Спробуйте пізніше.';
+    });
 }
 
 // Quick Order form handler

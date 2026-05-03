@@ -88,98 +88,145 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=32">
+    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=33" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=33"></noscript>
     
-    <!-- CRITICAL LAYOUT FIX - prevents horizontal overflow -->
+    <!-- Critical CSS inlined for fast first paint -->
     <style>
-        html, body { overflow-x: hidden !important; }
-        .hero, .section, .trust-section, .about-section, .cta-section {
-            width: 100vw !important;
-            max-width: 100vw !important;
-            margin-left: calc(-50vw + 50%) !important;
-            box-sizing: border-box !important;
-            overflow: hidden !important;
+        /* Critical: Layout & Header */
+        html,body{overflow-x:hidden!important}
+        .hero,.section,.trust-section,.about-section,.cta-section{width:100vw!important;max-width:100vw!important;margin-left:calc(-50vw + 50%)!important;box-sizing:border-box!important;overflow:hidden!important}
+        .section>*,.about-container>*{min-width:0!important}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#F9FAFB;color:#111827;line-height:1.6}
+        .container{max-width:1400px;margin:0 auto;padding:0 1rem}
+        header{background:#0F172A;position:sticky;top:0;z-index:100;padding:0.75rem 1.5rem}
+        .navbar{display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto}
+        .logo{display:flex;align-items:center;gap:0.75rem;text-decoration:none;color:#fff;font-weight:800;font-size:1.5rem}
+        .logo img{height:44px;width:44px;border-radius:50%;object-fit:cover}
+        .header-actions{display:flex;gap:0.5rem;align-items:center}
+        .header-btn{background:rgba(255,255,255,0.08);border:none;color:#fff;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;text-decoration:none;position:relative}
+        .hamburger{display:none;background:rgba(255,255,255,0.08);border:none;color:#fff;font-size:1.3rem;width:40px;height:40px;border-radius:10px;cursor:pointer}
+        .nav-links{display:flex;list-style:none;background:#1E293B;justify-content:center;gap:0;padding:0;margin:0;overflow-x:auto}
+        .nav-links li a{display:block;padding:0.75rem 1.25rem;color:#CBD5E1;text-decoration:none;font-size:0.9rem;font-weight:500;white-space:nowrap}
+        /* Critical: Hero */
+        .hero{background:linear-gradient(135deg,#0F172A 0%,#1E293B 40%,#0F172A 100%);padding:5rem clamp(1rem,3vw,3rem) 6rem;text-align:center;position:relative;overflow:hidden;min-height:70vh;display:flex;align-items:center;justify-content:center}
+        .hero-content{position:relative;z-index:2;max-width:800px;margin:0 auto}
+        .hero h1{font-size:clamp(2.75rem,7vw,4.5rem);font-weight:900;color:#fff;margin-bottom:1.5rem}
+        .hero-subtitle{font-size:1.35rem;color:#9CA3AF;margin-bottom:2.5rem}
+        /* Critical: Product grid first row */
+        .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
+        .product-card{background:#fff;border-radius:16px;overflow:hidden;border:2px solid #F3F4F6;cursor:pointer}
+        .product-image-wrap{position:relative;aspect-ratio:4/3;overflow:hidden;background:#F3F4F6}
+        .product-image-wrap img{width:100%;height:100%;object-fit:contain}
+        .product-info{padding:1.25rem}
+        .product-info h3{font-size:1rem;font-weight:700;margin-bottom:0.25rem}
+        .price{font-size:1.15rem;font-weight:800;color:#10B981}
+        /* Critical: Page loader */
+        .page-loader{position:fixed;inset:0;background:#0F172A;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity 0.5s}
+        .page-loader.hidden{opacity:0;pointer-events:none}
+        .loader-spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.1);border-top-color:#10B981;border-radius:50%;animation:spin 0.8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        /* Critical: Section basics */
+        .section{padding:5rem 2rem}
+        .section-light{background:#F9FAFB}
+        .section-header{text-align:center;margin-bottom:3rem}
+        .section-title{font-size:2.5rem;font-weight:800;margin-bottom:0.75rem}
+        @media(max-width:768px){
+            .hamburger{display:flex}
+            .nav-links{display:none;flex-direction:column;position:absolute;top:100%;left:0;right:0;z-index:99}
+            .nav-links.active{display:flex}
+            .hero{padding:3rem 1rem 4rem;min-height:auto}
+            .hero h1{font-size:1.75rem}
+            .product-grid{grid-template-columns:repeat(2,1fr);gap:0.75rem}
         }
-        .section > *, .about-container > * { min-width: 0 !important; }
     </style>
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <!-- Deferred Google Analytics & Facebook Pixel -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
-      
-      // Enhanced ecommerce events
-      function trackPurchase(orderId, value, items) {
-          gtag('event', 'purchase', {
-              transaction_id: orderId,
-              value: value,
-              currency: 'UAH',
-              items: items
-          });
-      }
-      
-      function trackAddToCart(itemId, itemName, price, brand) {
-          gtag('event', 'add_to_cart', {
-              currency: 'UAH',
-              value: price,
-              items: [{
-                  item_id: itemId,
-                  item_name: itemName,
-                  price: price,
-                  item_brand: brand,
-                  quantity: 1
-              }]
-          });
-      }
-      
-      function trackViewItem(itemId, itemName, price, brand, category) {
-          gtag('event', 'view_item', {
-              currency: 'UAH',
-              value: price,
-              items: [{
-                  item_id: itemId,
-                  item_name: itemName,
-                  item_category: category,
-                  price: price,
-                  item_brand: brand,
-                  quantity: 1
-              }]
-          });
-      }
-    </script>
-    
-    <!-- Facebook Pixel -->
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', 'YOUR_PIXEL_ID');
-      fbq('track', 'PageView');
-      
-      // Enhanced events
-      function trackFBPurchase(value, currency = 'UAH') {
-          fbq('track', 'Purchase', {value: value, currency: currency});
-      }
-      
-      function trackFBAddToCart(value, currency = 'UAH') {
-          fbq('track', 'AddToCart', {value: value, currency: currency});
-      }
-      
-      function trackFBViewContent(contentType = 'product', value, currency = 'UAH') {
-          fbq('track', 'ViewContent', {
-              content_type: contentType,
-              value: value,
-              currency: currency
-          });
-      }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load Google Analytics
+        var gaScript = document.createElement('script');
+        gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX';
+        gaScript.async = true;
+        document.head.appendChild(gaScript);
+        
+        gaScript.onload = function() {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+        };
+        
+        // Enhanced ecommerce events (available globally)
+        window.trackPurchase = function(orderId, value, items) {
+            if (window.gtag) {
+                gtag('event', 'purchase', {
+                    transaction_id: orderId,
+                    value: value,
+                    currency: 'UAH',
+                    items: items
+                });
+            }
+        };
+        
+        window.trackAddToCart = function(itemId, itemName, price, brand) {
+            if (window.gtag) {
+                gtag('event', 'add_to_cart', {
+                    currency: 'UAH',
+                    value: price,
+                    items: [{
+                        item_id: itemId,
+                        item_name: itemName,
+                        price: price,
+                        item_brand: brand,
+                        quantity: 1
+                    }]
+                });
+            }
+        };
+        
+        window.trackViewItem = function(itemId, itemName, price, brand, category) {
+            if (window.gtag) {
+                gtag('event', 'view_item', {
+                    currency: 'UAH',
+                    value: price,
+                    items: [{
+                        item_id: itemId,
+                        item_name: itemName,
+                        item_category: category,
+                        price: price,
+                        item_brand: brand,
+                        quantity: 1
+                    }]
+                });
+            }
+        };
+        
+        // Load Facebook Pixel
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', 'YOUR_PIXEL_ID');
+        fbq('track', 'PageView');
+        
+        // FB enhanced events
+        window.trackFBPurchase = function(value, currency) {
+            if (window.fbq) fbq('track', 'Purchase', {value: value, currency: currency || 'UAH'});
+        };
+        window.trackFBAddToCart = function(value, currency) {
+            if (window.fbq) fbq('track', 'AddToCart', {value: value, currency: currency || 'UAH'});
+        };
+        window.trackFBViewContent = function(contentType, value, currency) {
+            if (window.fbq) fbq('track', 'ViewContent', {content_type: contentType || 'product', value: value, currency: currency || 'UAH'});
+        };
+    });
     </script>
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
@@ -230,7 +277,7 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <a href="/" class="logo" style="margin-bottom:1rem;">
-                    <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever" style="height:40px;">
+                    <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever" style="height:40px;" loading="lazy">
                     <span>CLEVER</span>
                 </a>
                 <p>Магазин оригінального одягу для чоловіків та жінок. Замовляємо з Європи та США з 2018 року. Тільки 100% оригінальна продукція від світових брендів.</p>
@@ -309,10 +356,10 @@
 
     <script src="{{ url_for('static', filename='script.js') }}?v=11"></script>
     
-    <!-- PWA Service Worker -->
+    <!-- PWA Service Worker (deferred) -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+            document.addEventListener('DOMContentLoaded', function() {
                 navigator.serviceWorker.register('/static/sw.js')
                     .then(registration => {
                         console.log('SW registered: ', registration);
@@ -499,27 +546,17 @@
     }
     </script>
     
-    <!-- Floating Contact Widget -->
-    <div class="contact-widget" id="contact-widget">
-        <div class="contact-widget-links" id="contact-widget-links">
-            <a href="https://t.me/clevershopv" target="_blank" class="contact-widget-link cw-telegram" aria-label="Telegram">✈️</a>
-            <a href="viber://chat?number=+380632665135" class="contact-widget-link cw-viber" aria-label="Viber">💜</a>
-        </div>
-        <button class="contact-widget-toggle" id="contact-widget-toggle" aria-label="Зв'язатися" onclick="toggleContactWidget()">💬</button>
+    <!-- Chat Widget -->
+    <div class="chat-widget" id="chat-widget">
+        <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="chat-widget__button"
+           aria-label="Написати в Telegram">
+            <span class="chat-widget__status {{ 'online' if manager_online else 'offline' }}"></span>
+            <span class="chat-widget__icon">✈️</span>
+            <span class="chat-widget__text">
+                {% if manager_online %}Менеджер онлайн{% else %}Напишіть нам{% endif %}
+            </span>
+        </a>
     </div>
-    <script>
-    function toggleContactWidget() {
-        var widget = document.getElementById('contact-widget');
-        widget.classList.toggle('open');
-    }
-    // Close widget when clicking outside
-    document.addEventListener('click', function(e) {
-        var widget = document.getElementById('contact-widget');
-        if (widget && !widget.contains(e.target) && widget.classList.contains('open')) {
-            widget.classList.remove('open');
-        }
-    });
-    </script>
     
     {% block scripts %}{% endblock %}
     

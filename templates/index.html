@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Clever Shop - Оригінальний брендовий одяг з Європи | Massimo Dutti, Calvin Klein, Tommy Hilfiger{% endblock %}
-{% block meta_description %}🛍️ Clever Shop - найкращий вибір оригінального брендового одягу з Європи! Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss, Levi's та інші топові бренди. ✅ 100% оригінал ✅ Доставка 1-2 дні ✅ Безкоштовна доставка від 5000 грн ✅ Гарантія якості. Замовляйте зараз!{% endblock %}
+{% block meta_description %}{% if catalog_meta %}{{ catalog_meta }}{% else %}🛍️ Clever Shop - найкращий вибір оригінального брендового одягу з Європи! Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss, Levi's та інші топові бренди. ✅ 100% оригінал ✅ Доставка 1-2 дні ✅ Безкоштовна доставка від 5000 грн ✅ Гарантія якості. Замовляйте зараз!{% endif %}{% endblock %}
 {% block meta_keywords %}брендовий одяг, оригінальний одяг, Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss, Levi's, Diesel, Lacoste, Mango, Michael Kors, Clever Shop, інтернет магазин одягу, доставка Україна{% endblock %}
 
 {% block head %}
@@ -45,6 +45,14 @@
 {% block content %}
 <!-- HERO SECTION -->
 <section class="hero">
+    {% if hero_video_url %}
+    <video class="hero-video" autoplay muted loop playsinline
+           poster="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}"
+           onerror="this.style.display='none'">
+        <source src="{{ hero_video_url }}" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    {% endif %}
     <div class="hero-content">
         <span class="hero-badge">✨ Преміум бренди з Європи</span>
         <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever Shop - магазин оригінального брендового одягу" class="hero-logo">
@@ -158,9 +166,9 @@
                         {% if product.image_url %}
                         <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         {% endif %}
-                        <div class="no-image" style="{% if product.image_url %}display:none;{% endif %}">
-                            <div style="font-size:4rem;opacity:0.3;">👕</div>
-                            <div style="margin-top:0.5rem;font-size:0.9rem;color:#9CA3AF;">Фото незабаром</div>
+                        <div class="fallback-image" style="{% if product.image_url %}display:none;{% endif %}">
+                            <div class="fallback-image__icon">📷</div>
+                            <div class="fallback-image__brand">{{ product.brand }}</div>
                         </div>
                         <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
                         {% if product.stock == 1 %}
@@ -174,6 +182,7 @@
                         <p class="stock {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
                             {% if product.stock > 0 %}В наявності{% else %}Немає в наявності{% endif %}
                         </p>
+                        <span class="bonus-badge">🎁 +{{ (product.price // 100)|int }} бонусів</span>
                     </div>
                     <div class="card-buttons">
                         {% if product.stock > 0 %}
@@ -367,30 +376,26 @@
         <h2 class="section-title">Працюємо з найкращими</h2>
         <p class="section-subtitle">Замовляємо оригінальні товари від провідних європейських брендів</p>
     </div>
-    <div class="brands-marquee">
-        <div class="brands-track">
-            <div class="brand-item">Massimo Dutti</div>
-            <div class="brand-item">Calvin Klein</div>
-            <div class="brand-item">Tommy Hilfiger</div>
-            <div class="brand-item">Polo Ralph Lauren</div>
-            <div class="brand-item">Karl Lagerfeld</div>
-            <div class="brand-item">Premiata</div>
-            <div class="brand-item">Armani Exchange</div>
-            <div class="brand-item">Boss</div>
-            <div class="brand-item">Levi's</div>
-            <div class="brand-item">Diesel</div>
-            <div class="brand-item">Lacoste</div>
-            <div class="brand-item">Mango</div>
-            <div class="brand-item">Victoria's Secret</div>
-            <div class="brand-item">Michael Kors</div>
-            <div class="brand-item">Massimo Dutti</div>
-            <div class="brand-item">Calvin Klein</div>
-            <div class="brand-item">Tommy Hilfiger</div>
-            <div class="brand-item">Polo Ralph Lauren</div>
-            <div class="brand-item">Karl Lagerfeld</div>
-            <div class="brand-item">Premiata</div>
-            <div class="brand-item">Armani Exchange</div>
-            <div class="brand-item">Boss</div>
+    <div class="brand-slider" role="list" aria-label="Бренди">
+        <div class="brand-slider__track">
+            {% for brand in brands_list %}
+            <a href="/?brand={{ brand.slug }}#products" class="brand-slider__item" role="listitem"
+               aria-label="{{ brand.name }}" tabindex="0">
+                <img src="{{ url_for('static', filename='brands/' + brand.slug + '.png') }}"
+                     alt="{{ brand.name }}" loading="lazy"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <span class="brand-slider__text-fallback" style="display:none;">{{ brand.name }}</span>
+            </a>
+            {% endfor %}
+            {% for brand in brands_list %}
+            <a href="/?brand={{ brand.slug }}#products" class="brand-slider__item" role="listitem"
+               aria-label="{{ brand.name }}" tabindex="-1">
+                <img src="{{ url_for('static', filename='brands/' + brand.slug + '.png') }}"
+                     alt="{{ brand.name }}" loading="lazy"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <span class="brand-slider__text-fallback" style="display:none;">{{ brand.name }}</span>
+            </a>
+            {% endfor %}
         </div>
     </div>
 </section>

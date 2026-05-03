@@ -10,6 +10,7 @@ import hashlib
 import json
 import urllib.parse
 import re
+import html as html_module
 
 # === TRANSLITERATION UTILITY ===
 TRANSLIT_MAP = {
@@ -36,6 +37,94 @@ def transliterate_to_slug(text):
     slug = '-'.join(filter(None, ''.join(result).split('-')))
     return slug
 
+# === RICH DESCRIPTION PARSER ===
+SECTION_ICONS = {
+    'тканина': '🧵', 'матеріал': '🧵',
+    'поради': '💡', 'стиль': '👔',
+    'переваги': '⭐', 'бренд': '🏷️',
+    'догляд': '🧼', 'розмір': '📏',
+}
+
+def render_rich_description(text):
+    """Convert markdown-like description to structured HTML.
+
+    Supports:
+    - ## Section headers (with icons based on keyword mapping)
+    - **bold text**
+    - - bullet lists (lines starting with -)
+    - Paragraph breaks (double newline)
+
+    Escapes HTML entities in user text before applying formatting (XSS prevention).
+    Returns styled placeholder when description is empty/None.
+    """
+    if not text or not text.strip():
+        return '<div class="rich-description"><p class="rich-description__placeholder">Опис скоро буде додано</p></div>'
+
+    # Escape HTML entities first for XSS prevention
+    text = html_module.escape(text)
+
+    lines = text.split('\n')
+    html_parts = []
+    current_list_items = []
+    current_paragraph_lines = []
+
+    def flush_paragraph():
+        if current_paragraph_lines:
+            para_text = ' '.join(current_paragraph_lines)
+            # Apply bold formatting
+            para_text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', para_text)
+            html_parts.append(f'<p>{para_text}</p>')
+            current_paragraph_lines.clear()
+
+    def flush_list():
+        if current_list_items:
+            items_html = ''.join(f'<li>{item}</li>' for item in current_list_items)
+            html_parts.append(f'<ul>{items_html}</ul>')
+            current_list_items.clear()
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Empty line = paragraph break
+        if not stripped:
+            flush_list()
+            flush_paragraph()
+            continue
+
+        # Section header: ## Title
+        if stripped.startswith('## '):
+            flush_list()
+            flush_paragraph()
+            title = stripped[3:].strip()
+            # Find matching icon
+            icon = ''
+            title_lower = title.lower()
+            for keyword, emoji in SECTION_ICONS.items():
+                if keyword in title_lower:
+                    icon = emoji + ' '
+                    break
+            html_parts.append(f'<h4 class="rich-description__heading">{icon}{title}</h4>')
+            continue
+
+        # Bullet list item: - text
+        if stripped.startswith('- '):
+            flush_paragraph()
+            item_text = stripped[2:].strip()
+            # Apply bold formatting
+            item_text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', item_text)
+            current_list_items.append(item_text)
+            continue
+
+        # Regular text line - accumulate for paragraph
+        flush_list()
+        current_paragraph_lines.append(stripped)
+
+    # Flush remaining content
+    flush_list()
+    flush_paragraph()
+
+    return '<div class="rich-description">' + ''.join(html_parts) + '</div>'
+
 # Опціональні імпорти для безпеки (якщо встановлені)
 try:
     from flask_wtf.csrf import CSRFProtect
@@ -53,6 +142,9 @@ except ImportError:
     print("Warning: Flask-Limiter not installed. Rate limiting disabled.")
 
 app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/static')
+
+# Register Jinja2 template filters
+app.jinja_env.filters['render_rich_description'] = render_rich_description
 
 if os.environ.get('DATABASE_URL'):
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
@@ -96,6 +188,8 @@ else:
             def decorator(func):
                 return func
             return decorator
+        def exempt(self, func):
+            return func
     limiter = DummyLimiter()
 
 # === MODELS ===
@@ -242,6 +336,15 @@ class UserBonus(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class NotificationSubscriber(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    size = db.Column(db.String(20), nullable=False)
+    contact_type = db.Column(db.String(10), nullable=False)  # 'email' or 'phone'
+    contact_value = db.Column(db.String(200), nullable=False)
+    notified = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 # === LIQPAY INTEGRATION ===
 class LiqPay:
     def __init__(self, public_key, private_key):
@@ -371,6 +474,62 @@ def shutdown_session(exception=None):
         db.session.rollback()
     db.session.remove()
 
+# === CONTEXT PROCESSOR ===
+@app.context_processor
+def inject_manager_status():
+    """Inject manager_online status into all templates."""
+    return {
+        'manager_online': os.environ.get('MANAGER_ONLINE', 'false').lower() == 'true'
+    }
+
+# === BRANDS LIST ===
+BRANDS_LIST = [
+    {"name": "Massimo Dutti", "slug": "massimo-dutti"},
+    {"name": "Calvin Klein", "slug": "calvin-klein"},
+    {"name": "Tommy Hilfiger", "slug": "tommy-hilfiger"},
+    {"name": "Polo Ralph Lauren", "slug": "polo-ralph-lauren"},
+    {"name": "Karl Lagerfeld", "slug": "karl-lagerfeld"},
+    {"name": "Premiata", "slug": "premiata"},
+    {"name": "Armani Exchange", "slug": "armani-exchange"},
+    {"name": "Boss", "slug": "boss"},
+    {"name": "Levi's", "slug": "levis"},
+    {"name": "Diesel", "slug": "diesel"},
+    {"name": "Lacoste", "slug": "lacoste"},
+    {"name": "Mango", "slug": "mango"},
+    {"name": "Victoria's Secret", "slug": "victorias-secret"},
+    {"name": "Michael Kors", "slug": "michael-kors"},
+]
+
+# === TEAM MEMBERS ===
+DEFAULT_TEAM = [
+    {"name": "Марк", "role": "Засновник", "photo": ""},
+    {"name": "Анна", "role": "Менеджер", "photo": ""},
+]
+
+def get_team_members():
+    """Get team members from env var or use default."""
+    raw = os.environ.get('TEAM_MEMBERS')
+    if raw:
+        try:
+            return json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    return DEFAULT_TEAM
+
+# === SEO META DESCRIPTIONS ===
+def get_catalog_meta_description(gender):
+    """Generate unique meta description for catalog pages.
+
+    Returns a string ≤160 chars containing store name,
+    gender-specific keywords, brand names, and CTA.
+    """
+    if gender == 'men':
+        return "Чоловічий одяг від Calvin Klein, Tommy Hilfiger, Boss, Massimo Dutti. Clever Shop — 100% оригінал з Європи. Доставка 1-2 дні. Замовляйте зараз!"
+    elif gender == 'women':
+        return "Жіночий одяг від Calvin Klein, Mango, Michael Kors, Victoria's Secret. Clever Shop — оригінал з Європи та США. Доставка 1-2 дні. Замовляйте!"
+    else:
+        return "Оригінальний брендовий одяг для чоловіків та жінок. Clever Shop — Calvin Klein, Tommy Hilfiger, Boss та інші. Доставка по Україні 1-2 дні."
+
 # === ROUTES ===
 @app.route('/')
 def index():
@@ -398,7 +557,10 @@ def index():
         total_pages=total_pages,
         total=total,
         gender=gender,
-        per_page=per_page
+        per_page=per_page,
+        catalog_meta=get_catalog_meta_description(gender),
+        hero_video_url=os.environ.get('HERO_VIDEO_URL'),
+        brands_list=BRANDS_LIST
     )
 
 @app.route('/category/<int:category_id>')
@@ -414,7 +576,7 @@ def brands():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', team_members=get_team_members())
 
 @app.route('/contacts')
 def contacts():
@@ -432,14 +594,32 @@ def product(slug_or_id):
         # No slug, render directly
         products = Product.query.limit(8).all()
         categories = Category.query.all()
-        return render_template('product.html', product=prod, categories=categories, products=products)
+        # Query review stats for Schema.org
+        from sqlalchemy import func as sa_func
+        review_stats = db.session.query(
+            sa_func.count(Review.id),
+            sa_func.avg(Review.rating)
+        ).filter(Review.product_id == prod.id).first()
+        review_count = review_stats[0] or 0
+        avg_rating = float(review_stats[1]) if review_stats[1] else 0
+        return render_template('product.html', product=prod, categories=categories, products=products,
+                               review_count=review_count, avg_rating=avg_rating)
     except (ValueError, TypeError):
         pass
     # It's a slug - find product by slug
     prod = Product.query.filter_by(slug=slug_or_id).first_or_404()
     products = Product.query.limit(8).all()
     categories = Category.query.all()
-    return render_template('product.html', product=prod, categories=categories, products=products)
+    # Query review stats for Schema.org
+    from sqlalchemy import func as sa_func
+    review_stats = db.session.query(
+        sa_func.count(Review.id),
+        sa_func.avg(Review.rating)
+    ).filter(Review.product_id == prod.id).first()
+    review_count = review_stats[0] or 0
+    avg_rating = float(review_stats[1]) if review_stats[1] else 0
+    return render_template('product.html', product=prod, categories=categories, products=products,
+                           review_count=review_count, avg_rating=avg_rating)
 
 @app.route('/wishlist')
 def wishlist():
@@ -1512,6 +1692,28 @@ with app.app_context():
         db.session.rollback()
         print(f"Migration check: {e}")
     
+    # Migrate: create notification_subscriber table if it doesn't exist (PostgreSQL)
+    try:
+        from sqlalchemy import text as sa_text, inspect as sa_inspect
+        insp = sa_inspect(db.engine)
+        if 'notification_subscriber' not in insp.get_table_names():
+            db.session.execute(sa_text('''
+                CREATE TABLE IF NOT EXISTS notification_subscriber (
+                    id SERIAL PRIMARY KEY,
+                    product_id INTEGER NOT NULL REFERENCES product(id),
+                    size VARCHAR(20) NOT NULL,
+                    contact_type VARCHAR(10) NOT NULL,
+                    contact_value VARCHAR(200) NOT NULL,
+                    notified BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            '''))
+            db.session.commit()
+            print("✅ Created 'notification_subscriber' table")
+    except Exception as e:
+        db.session.rollback()
+        print(f"NotificationSubscriber migration check: {e}")
+    
     # Ensure all default categories exist
     default_categories = ['Одяг', 'Взуття', 'Аксесуари']
     existing = [c.name for c in Category.query.all()]
@@ -1519,6 +1721,34 @@ with app.app_context():
         if cat_name not in existing:
             db.session.add(Category(name=cat_name))
     db.session.commit()
+
+# === HEALTH CHECK ===
+@app.route('/api/health')
+@limiter.exempt
+def health_check():
+    """Health check endpoint for monitoring."""
+    try:
+        from sqlalchemy import text as sa_text
+        product_count = db.session.execute(
+            sa_text("SELECT COUNT(*) FROM product")
+        ).scalar()
+        order_count = db.session.execute(
+            sa_text('SELECT COUNT(*) FROM "order"')
+        ).scalar()
+        return jsonify({
+            "status": "ok",
+            "database": "connected",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "product_count": product_count,
+            "order_count": order_count
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }), 503
 
 # === EMAIL SUBSCRIPTION ===
 @app.route('/api/subscribe', methods=['POST'])
@@ -1540,6 +1770,44 @@ def subscribe_email():
     db.session.commit()
     
     return jsonify({'success': True, 'message': 'Дякуємо за підписку!'})
+
+# === NOTIFICATION SUBSCRIPTION ===
+@app.route('/api/notify', methods=['POST'])
+@csrf.exempt
+@limiter.limit("10 per minute")
+def subscribe_notification():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Невірний формат запиту'}), 400
+
+    product_id = data.get('product_id')
+    size = (data.get('size') or '').strip()
+    contact = (data.get('contact') or '').strip()
+
+    # Validate contact (email or phone)
+    contact_type = None
+    if re.match(r'^[^@]+@[^@]+\.[^@]+$', contact):
+        contact_type = 'email'
+    elif re.match(r'^\+380\d{9}$', contact):
+        contact_type = 'phone'
+    else:
+        return jsonify({'error': 'Невірний формат email або телефону'}), 400
+
+    # Validate product exists
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Товар не знайдено'}), 404
+
+    subscriber = NotificationSubscriber(
+        product_id=product_id,
+        size=size,
+        contact_type=contact_type,
+        contact_value=contact
+    )
+    db.session.add(subscriber)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Ми повідомимо вас, коли цей розмір з\'явиться'})
 
 # === REVIEWS ===
 @app.route('/api/products/<int:product_id>/reviews', methods=['GET', 'POST'])
