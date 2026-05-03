@@ -994,26 +994,43 @@ def api_products():
     if request.method == 'POST':
         if not session.get('admin'):
             return jsonify({'error': 'Unauthorized'}), 401
-        data = request.get_json()
-        image_urls = data.get('image_urls', [])
-        main_image = image_urls[0] if image_urls else data.get('image_url', '')
-        extra_images = ','.join(image_urls[1:]) if len(image_urls) > 1 else ''
-        product = Product(
-            name=data['name'],
-            description=data.get('description', ''),
-            price=data['price'],
-            category_id=data['category_id'],
-            image_url=main_image,
-            images=extra_images,
-            stock=data.get('stock', 0),
-            brand=data.get('brand', 'Clever'),
-            sizes=data.get('sizes', 'XS,S,M,L,XL,XXL'),
-            gender=data.get('gender', 'унісекс'),
-            type=data.get('type', 'інше')
-        )
-        db.session.add(product)
-        db.session.commit()
-        return jsonify({'id': product.id})
+        try:
+            data = request.get_json()
+            image_urls = data.get('image_urls', [])
+            main_image = image_urls[0] if image_urls else data.get('image_url', '')
+            extra_images = ','.join(image_urls[1:]) if len(image_urls) > 1 else ''
+            product = Product(
+                name=data['name'],
+                description=data.get('description', ''),
+                price=data['price'],
+                category_id=data['category_id'],
+                image_url=main_image,
+                images=extra_images,
+                stock=data.get('stock', 0),
+                brand=data.get('brand', 'Clever'),
+                sizes=data.get('sizes', 'XS,S,M,L,XL,XXL'),
+                gender=data.get('gender', 'унісекс'),
+                type=data.get('type', 'інше')
+            )
+            db.session.add(product)
+            db.session.flush()  # Get the ID before commit
+            
+            # Generate slug
+            try:
+                base_slug = product.generate_slug()
+                slug = base_slug
+                existing = Product.query.filter(Product.slug == slug, Product.id != product.id).first()
+                if existing:
+                    slug = f'{base_slug}-{product.id}'
+                product.slug = slug
+            except Exception:
+                product.slug = f'product-{product.id}'
+            
+            db.session.commit()
+            return jsonify({'id': product.id})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
     return jsonify([{'id': p.id, 'name': p.name, 'price': p.price, 'image_url': p.image_url or '', 'brand': p.brand} for p in Product.query.all()])
 
 @app.route('/api/products/<int:product_id>', methods=['PUT', 'DELETE'])
