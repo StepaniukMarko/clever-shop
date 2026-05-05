@@ -3719,20 +3719,26 @@ textarea.form-input {
 
     /* Task 1.2: Enlarged touch targets for mobile header icons */
     .hamburger {
-        min-width: 44px;
-        min-height: 44px;
+        min-width: 40px;
+        min-height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.25rem;
     }
     .header-btn {
-        min-width: 44px;
-        min-height: 44px;
-        width: 44px;
-        height: 44px;
-        font-size: 1rem;
+        min-width: 38px;
+        min-height: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
     }
-    .header-actions { gap: 8px; }
+    .header-actions { gap: 4px; }
+    
+    /* Hide CLEVER text on small screens, show only logo */
+    .logo span { display: none; }
+    .logo img { height: 40px; width: 40px; }
+    .logo { gap: 0; }
 
     /* Task 1.2: Enlarged touch targets for filter checkboxes */
     .filters label {
