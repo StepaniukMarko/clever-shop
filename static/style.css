@@ -4595,20 +4595,17 @@ textarea.form-input {
 /* ===== STOCK BADGE ===== */
 .stock-badge {
     position: absolute;
-    bottom: 0.5rem;
-    left: 0.5rem;
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    color: var(--white);
-    padding: 0.35rem 0.625rem;
-    border-radius: 50px;
-    font-size: 0.7rem;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #FEF3C7;
+    color: #92400E;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.6rem;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba(245,158,11,0.4);
     z-index: 5;
     white-space: nowrap;
-    max-width: calc(100% - 1rem);
-    overflow: hidden;
-    text-overflow: ellipsis;
+    border: 1px solid #FCD34D;
 }
 
 @keyframes pulse {
