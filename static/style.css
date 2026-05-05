@@ -1095,7 +1095,8 @@ header.scrolled {
     padding: 0.75rem;
     transition: var(--tr-slow);
 }
-.product-card:hover img:not(.hover-gallery-img) { transform: scale(1.08); }
+.product-card:hover img:not(.hover-gallery-img) { transform: none; }
+.has-hover-gallery:hover > img:first-child { opacity: 0; }
 
 /* Hover Gallery - second image on hover */
 .hover-gallery-img {
@@ -1110,7 +1111,7 @@ header.scrolled {
     transition: opacity 0.3s ease;
     pointer-events: none;
     z-index: 2;
-    background: var(--gray-50);
+    background: #FFFFFF;
 }
 .hover-gallery-img.visible {
     opacity: 1;
