@@ -550,12 +550,9 @@
     <!-- Chat Widget -->
     <div class="chat-widget" id="chat-widget">
         <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="chat-widget__button"
-           aria-label="Написати в Telegram">
+           aria-label="Написати в Telegram" title="{% if manager_online %}Менеджер онлайн{% else %}Напишіть нам{% endif %}">
             <span class="chat-widget__status {{ 'online' if manager_online else 'offline' }}"></span>
-            <span class="chat-widget__icon">✈️</span>
-            <span class="chat-widget__text">
-                {% if manager_online %}Менеджер онлайн{% else %}Напишіть нам{% endif %}
-            </span>
+            <span class="chat-widget__icon">💬</span>
         </a>
     </div>
     
