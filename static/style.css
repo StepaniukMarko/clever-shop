@@ -4596,7 +4596,7 @@ textarea.form-input {
 .stock-badge {
     position: absolute;
     top: 0.5rem;
-    right: 0.5rem;
+    left: 0.5rem;
     background: #FEF3C7;
     color: #92400E;
     padding: 0.25rem 0.5rem;
