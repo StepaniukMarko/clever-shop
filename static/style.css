@@ -1141,15 +1141,15 @@ header.scrolled {
 }
 .wishlist-btn {
     position: absolute;
-    top: 1rem; right: 1rem;
+    top: 0.5rem; right: 0.5rem;
     background: var(--white);
     border: none;
-    font-size: 1.25rem;
+    font-size: 1rem;
     cursor: pointer;
     color: var(--gray-400);
-    width: 48px; height: 48px;
+    width: 36px; height: 36px;
     border-radius: 50%;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4595,7 +4595,7 @@ textarea.form-input {
 /* ===== STOCK BADGE ===== */
 .stock-badge {
     position: absolute;
-    top: 0.5rem;
+    bottom: 0.5rem;
     left: 0.5rem;
     background: #FEF3C7;
     color: #92400E;
