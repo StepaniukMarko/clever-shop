@@ -3819,12 +3819,14 @@ textarea.form-input {
     .filters-header-desktop { display: none; }
     .filters-header-mobile { display: flex; margin-bottom: 1.5rem; }
     body.filters-open { overflow: hidden; }
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-    .product-card img { height: 180px; }
-    .product-info { padding: 0.875rem; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .product-card { overflow: hidden; }
+    .product-card:hover { transform: none; box-shadow: var(--shadow-sm); }
+    .product-card img { height: 150px; }
+    .product-info { padding: 0.75rem; }
     .product-card h3 { font-size: 0.85rem; }
     .product-card .price { font-size: 1.1rem; }
-    .card-buttons { padding: 0 0.875rem 0.875rem; }
+    .card-buttons { padding: 0 0.75rem 0.75rem; }
     .card-buttons .btn { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
     
     .brand-slider { margin: 0 0.5rem; }
@@ -4593,17 +4595,20 @@ textarea.form-input {
 /* ===== STOCK BADGE ===== */
 .stock-badge {
     position: absolute;
-    bottom: 1rem;
-    left: 1rem;
+    bottom: 0.5rem;
+    left: 0.5rem;
     background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
     color: var(--white);
-    padding: 0.5rem 0.875rem;
+    padding: 0.35rem 0.625rem;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+    box-shadow: 0 2px 8px rgba(245,158,11,0.4);
     z-index: 5;
-    animation: pulse 2s ease-in-out infinite;
+    white-space: nowrap;
+    max-width: calc(100% - 1rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @keyframes pulse {
@@ -4614,15 +4619,16 @@ textarea.form-input {
 /* ===== PRODUCT BADGES (Marketing Stickers) ===== */
 .product-badge {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
-    padding: 0.4rem 0.75rem;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.3rem 0.6rem;
     border-radius: 50px;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 700;
     z-index: 5;
     letter-spacing: 0.02em;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    white-space: nowrap;
 }
 .product-badge--top {
     background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
