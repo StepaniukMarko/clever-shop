@@ -171,19 +171,11 @@
                             <div class="fallback-image__brand">{{ product.brand }}</div>
                         </div>
                         <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
-                        {% if product.stock == 1 %}
-                        <div class="stock-badge">⚠️ Залишилась 1 шт</div>
-                        {% elif product.stock > 5 %}
-                        <div class="product-badge product-badge--top">🔥 Топ</div>
-                        {% endif %}
                     </div>
                     <div class="product-info">
                         <h3>{{ product.name }}</h3>
                         <p class="brand">{{ product.brand }}</p>
                         <p class="price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</p>
-                        <p class="stock {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
-                            {% if product.stock > 0 %}В наявності{% else %}Немає в наявності{% endif %}
-                        </p>
                         <span class="bonus-badge">🎁 +{{ (product.price // 100)|int }} бонусів</span>
                     </div>
                     <div class="card-buttons">
