@@ -164,7 +164,7 @@
                      data-images="{{ product.get_images()|join(',') }}">
                     <div class="product-image-wrap">
                         {% if product.image_url %}
-                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="{{ product.image_url|ensure_https }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         {% endif %}
                         <div class="fallback-image" style="{% if product.image_url %}display:none;{% endif %}">
                             <div class="fallback-image__icon">📷</div>
@@ -173,6 +173,8 @@
                         <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
                         {% if product.stock == 1 %}
                         <div class="stock-badge">⚠️ Залишилась 1 шт</div>
+                        {% elif product.stock > 5 %}
+                        <div class="product-badge product-badge--top">🔥 Топ</div>
                         {% endif %}
                     </div>
                     <div class="product-info">

@@ -146,6 +146,14 @@ app = Flask(__name__, template_folder='templates', static_folder='static', stati
 # Register Jinja2 template filters
 app.jinja_env.filters['render_rich_description'] = render_rich_description
 
+def ensure_https(url):
+    """Convert http:// URLs to https:// to prevent mixed content issues."""
+    if url and isinstance(url, str):
+        return url.replace('http://', 'https://')
+    return url or ''
+
+app.jinja_env.filters['ensure_https'] = ensure_https
+
 if os.environ.get('DATABASE_URL'):
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
 else:

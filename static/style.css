@@ -625,7 +625,7 @@ header.scrolled {
 /* ===== PREMIUM SECTIONS ===== */
 .section { 
     display: block;
-    padding: 5rem clamp(1rem, 3vw, 3rem);
+    padding: 6rem clamp(1rem, 3vw, 3rem);
     width: 100vw;
     max-width: 100vw;
     margin-left: calc(-50vw + 50%);
@@ -648,7 +648,7 @@ header.scrolled {
 }
 .section-header { 
     text-align: center; 
-    margin-bottom: 3.5rem;
+    margin-bottom: 4rem;
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
@@ -1061,6 +1061,8 @@ header.scrolled {
     transition: var(--tr);
     cursor: pointer;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 .product-card::before {
     content: '';
@@ -1156,7 +1158,7 @@ header.scrolled {
 }
 .wishlist-btn:hover { color: var(--danger); transform: scale(1.15); }
 .wishlist-btn.active { color: var(--danger); background: #FEE2E2; }
-.product-info { padding: 1.5rem; }
+.product-info { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.25rem; flex: 1; }
 .product-card h3 {
     font-size: 1.05rem;
     font-weight: 600;
@@ -1167,18 +1169,25 @@ header.scrolled {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.8em;
 }
 .product-card .brand { 
-    font-size: 0.875rem; 
-    color: var(--gray-500); 
+    font-size: 0.8rem; 
+    color: var(--gray-400); 
     margin-bottom: 0.625rem;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 .product-card .price { 
-    font-size: 1.5rem; 
+    font-size: 1.6rem; 
     font-weight: 800; 
     color: var(--primary-dark);
     letter-spacing: -0.5px;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--gray-200);
 }
 .product-card .stock { 
     font-size: 0.825rem; 
@@ -4593,6 +4602,32 @@ textarea.form-input {
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+}
+
+/* ===== PRODUCT BADGES (Marketing Stickers) ===== */
+.product-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 5;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.product-badge--top {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: var(--white);
+}
+.product-badge--sale {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: var(--white);
+}
+.product-badge--new {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: var(--white);
 }
 
 /* ===== URGENCY BANNER ===== */

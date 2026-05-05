@@ -57,13 +57,13 @@
             {% set images = product.get_images() %}
             {% if images %}
             <div class="main-image-wrap" onclick="openPhotoModal(document.getElementById('main-product-image').src)">
-                <img src="{{ images[0] }}" alt="{{ product.name }}" id="main-product-image">
+                <img src="{{ images[0]|ensure_https }}" alt="{{ product.name }}" id="main-product-image">
             </div>
             {% if images|length > 1 %}
             <div class="gallery-thumbs">
                 {% for img in images %}
-                <div class="gallery-thumb {% if loop.first %}active{% endif %}" onclick="changeMainImage('{{ img }}', this)">
-                    <img src="{{ img }}" alt="{{ product.name }} - фото {{ loop.index }}">
+                <div class="gallery-thumb {% if loop.first %}active{% endif %}" onclick="changeMainImage('{{ img|ensure_https }}', this)">
+                    <img src="{{ img|ensure_https }}" alt="{{ product.name }} - фото {{ loop.index }}">
                 </div>
                 {% endfor %}
             </div>
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
         name: "{{ product.name | replace('"', '\\"') }}",
         brand: "{{ product.brand | replace('"', '\\"') }}",
         price: {{ product.price }},
-        image: "{{ product.image_url or '' }}"
+        image: "{{ (product.image_url or '')|ensure_https }}"
     };
     
     if (typeof addToRecentlyViewed === 'function') {
