@@ -3815,8 +3815,13 @@ textarea.form-input {
         inset: 0;
         z-index: 1001;
         border-radius: 0;
-        overflow-y: auto;
+        overflow: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
         padding: 1.5rem;
+        padding-bottom: 6rem;
+        height: 100vh;
+        height: 100dvh;
     }
     .filters.mobile-open { display: block; }
     .filters-header-desktop { display: none; }
