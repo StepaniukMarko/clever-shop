@@ -428,6 +428,7 @@ function openPhotoModal(src) {
     img.style.transform = 'scale(1)';
     img.style.cursor = 'zoom-in';
     img.src = _photoModalImages[_photoModalIndex];
+    modal.style.display = 'flex';
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     _updatePhotoArrows();
@@ -436,7 +437,10 @@ function openPhotoModal(src) {
 function closePhotoModal() {
     const modal = document.getElementById('photo-modal');
     modal.classList.remove('active');
+    modal.style.display = 'none';
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
     _photoZoomLevel = 1;
     document.getElementById('modal-photo').style.transform = 'scale(1)';
 }
@@ -508,6 +512,17 @@ function changeMainImage(src, thumb) {
     }, 150);
     document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
     thumb.classList.add('active');
+}
+
+// Gallery arrow navigation
+var _galleryIndex = 0;
+function galleryNav(direction) {
+    var thumbs = document.querySelectorAll('.gallery-thumb');
+    if (!thumbs.length) return;
+    _galleryIndex += direction;
+    if (_galleryIndex < 0) _galleryIndex = thumbs.length - 1;
+    if (_galleryIndex >= thumbs.length) _galleryIndex = 0;
+    thumbs[_galleryIndex].click();
 }
 
 // ===== CHECKOUT FUNCTIONS =====
