@@ -6301,19 +6301,33 @@ textarea.form-input {
 @media (max-width: 767px) {
     .mobile-filter-toggle {
         position: fixed;
-        bottom: 4.5rem;
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: 7rem;
+        right: 0.75rem;
+        left: auto;
+        transform: none;
         z-index: 997;
-        width: auto;
+        width: 48px;
+        height: 48px;
         max-width: none;
         background: var(--primary);
         color: white;
-        box-shadow: 0 4px 20px rgba(16,185,129,0.4);
-        border-radius: 50px;
-        padding: 0.875rem 1.75rem;
-        font-size: 0.9rem;
+        box-shadow: 0 4px 16px rgba(16,185,129,0.35);
+        border-radius: 50%;
+        padding: 0;
+        font-size: 1.2rem;
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        text-indent: -9999px;
+    }
+
+    .mobile-filter-toggle::after {
+        content: '🔍';
+        text-indent: 0;
+        display: block;
+        font-size: 1.2rem;
     }
 
     .mobile-filter-toggle:hover {
