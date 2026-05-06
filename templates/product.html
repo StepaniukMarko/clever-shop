@@ -58,6 +58,10 @@
             {% if images %}
             <div class="main-image-wrap" onclick="openPhotoModal(document.getElementById('main-product-image').src)">
                 <img src="{{ images[0]|ensure_https }}" alt="{{ product.name }}" id="main-product-image">
+                {% if images|length > 1 %}
+                <button class="gallery-arrow gallery-arrow--left" onclick="event.stopPropagation(); galleryNav(-1)" aria-label="Попереднє фото">‹</button>
+                <button class="gallery-arrow gallery-arrow--right" onclick="event.stopPropagation(); galleryNav(1)" aria-label="Наступне фото">›</button>
+                {% endif %}
             </div>
             {% if images|length > 1 %}
             <div class="gallery-thumbs">
@@ -328,6 +332,20 @@
 
 {% block scripts %}
 <script>
+// Swipe support for gallery on mobile
+(function() {
+    var wrap = document.querySelector('.main-image-wrap');
+    if (!wrap) return;
+    var startX = 0;
+    wrap.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, {passive: true});
+    wrap.addEventListener('touchend', function(e) {
+        var diff = e.changedTouches[0].clientX - startX;
+        if (Math.abs(diff) > 50) {
+            galleryNav(diff < 0 ? 1 : -1);
+        }
+    }, {passive: true});
+})();
+
 // Save current product to recently viewed
 document.addEventListener('DOMContentLoaded', function() {
     var product = {
