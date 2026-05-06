@@ -831,48 +831,6 @@
             });
         }
         
-        document.getElementById('product-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Форма відправляється...');
-            const formData = new FormData(this);
-            const data = {};
-            formData.forEach((v, k) => data[k] = v);
-            data.price = parseFloat(data.price);
-            data.stock = parseInt(data.stock) || 0;
-            data.category_id = parseInt(data.category_id) || 1;
-            
-            // Remove image_urls string from FormData, use parsedImages array
-            delete data.image_urls;
-            if (parsedImages.length > 0) {
-                data.image_urls = parsedImages;
-            }
-            
-            fetch('/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(r => r.json())
-            .then(d => {
-                if (d.error) {
-                    alert('❌ Помилка: ' + d.error);
-                    return;
-                }
-                if (d.id) {
-                    alert('✅ Товар додано! ID: ' + d.id);
-                    document.getElementById('product-form').reset();
-                    renderSizesBuilder('XS:1,S:1,M:1,L:1,XL:1,XXL:1');
-                    document.getElementById('product-stock').value = '10';
-                    parsedImages = [];
-                    renderImages();
-                    document.getElementById('parse-url').value = '';
-                    document.getElementById('parse-status').innerHTML = '';
-                } else {
-                    alert('❌ Невідома помилка: ' + JSON.stringify(d));
-                }
-            })
-            .catch(err => alert('❌ Помилка мережі: ' + err.message));
-        });
     </script>
 
 <!-- Edit Product Modal -->
