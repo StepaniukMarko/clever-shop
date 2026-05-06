@@ -75,18 +75,17 @@
         <!-- Gallery -->
         <div class="product-gallery">
             {% set images = product.get_images() %}
-            {% set valid_images = images|select|list %}
-            {% if valid_images %}
+            {% if images and images[0] %}
             <div class="main-image-wrap" onclick="openPhotoModal(document.getElementById('main-product-image').src)">
-                <img src="{{ valid_images[0]|ensure_https }}" alt="{{ product.name }}" id="main-product-image">
-                {% if valid_images|length > 1 %}
+                <img src="{{ images[0]|ensure_https }}" alt="{{ product.name }}" id="main-product-image">
+                {% if images|length > 1 %}
                 <button class="gallery-arrow gallery-arrow--left" onclick="event.stopPropagation(); galleryNav(-1)" aria-label="Попереднє фото">‹</button>
                 <button class="gallery-arrow gallery-arrow--right" onclick="event.stopPropagation(); galleryNav(1)" aria-label="Наступне фото">›</button>
                 {% endif %}
             </div>
-            {% if valid_images|length > 1 %}
+            {% if images|length > 1 %}
             <div class="gallery-thumbs">
-                {% for img in valid_images %}
+                {% for img in images %}
                 <div class="gallery-thumb {% if loop.first %}active{% endif %}" onclick="changeMainImage('{{ img|ensure_https }}', this)">
                     <img src="{{ img|ensure_https }}" alt="{{ product.name }} - фото {{ loop.index }}">
                 </div>
