@@ -6301,7 +6301,7 @@ textarea.form-input {
 @media (max-width: 767px) {
     .mobile-filter-toggle {
         position: fixed;
-        bottom: 7rem;
+        bottom: 9rem;
         right: 0.75rem;
         left: auto;
         transform: none;
