@@ -1973,12 +1973,13 @@ footer::before {
 }
 #photo-modal.active { display: flex; }
 #photo-modal img { 
-    max-width: 90%; 
-    max-height: 80vh; 
+    max-width: 95%; 
+    max-height: 85vh; 
     object-fit: contain; 
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-2xl);
+    border-radius: 0;
+    box-shadow: none;
     transition: transform 0.2s, opacity 0.15s;
+    background: transparent;
 }
 .photo-modal-close {
     position: absolute;
@@ -2017,8 +2018,8 @@ footer::before {
     line-height: 1;
 }
 .photo-modal-arrow:hover { background: rgba(255,255,255,0.3); }
-.photo-modal-prev { left: 1.5rem; }
-.photo-modal-next { right: 1.5rem; }
+.photo-modal-prev { left: 0.5rem; }
+.photo-modal-next { right: 0.5rem; }
 .photo-modal-zoom-btns {
     position: absolute;
     bottom: 2.5rem;
