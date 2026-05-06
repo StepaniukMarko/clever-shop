@@ -163,7 +163,6 @@ header {
     transition: var(--tr);
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
 }
 header.scrolled {
     background: rgba(255,255,255,0.95);
