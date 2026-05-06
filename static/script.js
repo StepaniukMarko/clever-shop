@@ -510,6 +510,17 @@ function changeMainImage(src, thumb) {
     thumb.classList.add('active');
 }
 
+// Gallery arrow navigation
+var _galleryIndex = 0;
+function galleryNav(direction) {
+    var thumbs = document.querySelectorAll('.gallery-thumb');
+    if (!thumbs.length) return;
+    _galleryIndex += direction;
+    if (_galleryIndex < 0) _galleryIndex = thumbs.length - 1;
+    if (_galleryIndex >= thumbs.length) _galleryIndex = 0;
+    thumbs[_galleryIndex].click();
+}
+
 // ===== CHECKOUT FUNCTIONS =====
 function loadCheckoutCart() {
     const container = document.getElementById('checkout-items');
