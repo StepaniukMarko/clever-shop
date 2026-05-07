@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Clever - Магазин оригінального одягу{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Clever — магазин оригінального одягу з Європи та США. Massimo Dutti, Calvin Klein, Tommy Hilfiger. Доставка по Україні 1-2 дні.{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}одяг, магазин одягу, бренди, оригінал, Вінниця, Massimo Dutti, Calvin Klein, Tommy Hilfiger{% endblock %}">
+    <title>{% block title %}Clever Shop — оригінальний брендовий одяг з Європи | Вінниця{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Магазин оригінального одягу Premiata, Boss, Calvin Klein з доставкою 1-2 дні по Україні. Гарантія автентичності, безкоштовна доставка від 5000 грн.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}оригінальний брендовий одяг, магазин одягу Вінниця, купити брендові кросівки, Premiata, Boss, Calvin Klein, Tommy Hilfiger, оригінал з Європи{% endblock %}">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Clever Shop">
     <link rel="canonical" href="https://www.clevershop.vn.ua{% block canonical_url %}{{ request.path }}{% endblock %}">
@@ -280,7 +280,7 @@
                     <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever" style="height:40px;" loading="lazy">
                     <span>CLEVER</span>
                 </a>
-                <p>Магазин оригінального одягу для чоловіків та жінок. Замовляємо з Європи та США з 2018 року. Тільки 100% оригінальна продукція від світових брендів.</p>
+                <p>Магазин оригінального одягу для чоловіків та жінок. Замовляємо з Європи з 2018 року. Тільки 100% оригінальна продукція від світових брендів.</p>
                 <div class="payment-icons">💳 💵 📦</div>
             </div>
             <div class="footer-section">
@@ -500,9 +500,9 @@
     <div id="email-popup" class="email-popup">
         <div class="email-popup-content">
             <button class="email-popup-close" onclick="closeEmailPopup()">✕</button>
-            <div class="email-popup-icon">🎁</div>
-            <h3>Отримай знижку 10%</h3>
-            <p>Підпишись на розсилку і отримай промокод на перше замовлення</p>
+            <div class="email-popup-icon">📸</div>
+            <h3>Хочете живе фото товару?</h3>
+            <p>Напишіть нам в Telegram — надішлемо фото, відео та допоможемо з розміром</p>
             <form onsubmit="subscribeEmail(event)" id="email-form">
                 <input type="email" placeholder="Твій email" required>
                 <button type="submit" class="btn btn-primary">Отримати знижку</button>
@@ -517,7 +517,7 @@
         if (!storage.getItem('email_subscribed')) {
             document.getElementById('email-popup').classList.add('active');
         }
-    }, 10000);
+    }, 30000);
     
     function closeEmailPopup() {
         document.getElementById('email-popup').classList.remove('active');

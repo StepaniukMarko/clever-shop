@@ -1095,7 +1095,8 @@ header.scrolled {
     transition: var(--tr-slow);
 }
 .product-card:hover img:not(.hover-gallery-img) { transform: none; }
-.has-hover-gallery:hover > img:first-child { opacity: 0; }
+.has-hover-gallery:hover > img:first-child,
+.product-card:hover .has-hover-gallery > img:first-child { opacity: 0; transition: opacity 0.3s ease; }
 
 /* Hover Gallery - second image on hover */
 .hover-gallery-img {
@@ -1104,8 +1105,8 @@ header.scrolled {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    padding: 0.75rem;
+    object-fit: cover;
+    padding: 0;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -2732,8 +2733,8 @@ textarea.form-input {
     font-family: inherit;
 }
 .qty-input:focus { outline: none; }
-.product-actions { display: flex; gap: 1rem; margin-bottom: 2.5rem; }
-.product-actions .btn { flex: 1; }
+.product-actions { display: flex; gap: 1rem; margin-bottom: 2.5rem; overflow: visible; }
+.product-actions .btn { flex: 1; overflow: visible; }
 .product-features {
     padding: 2rem;
     background: var(--gray-50);
@@ -3520,8 +3521,9 @@ textarea.form-input {
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
+    overflow: visible;
 }
-.product-actions .btn { flex: 1; padding: 1.125rem 2rem; }
+.product-actions .btn { flex: 1; padding: 1.125rem 2rem; overflow: visible; }
 .add-to-cart-btn {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     box-shadow: 0 4px 20px rgba(16,185,129,0.35);
@@ -3852,6 +3854,7 @@ textarea.form-input {
         inset: 0;
         z-index: 1001;
         border-radius: 0;
+        background: var(--white);
         overflow: auto !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
@@ -3859,6 +3862,8 @@ textarea.form-input {
         padding-bottom: 6rem;
         height: 100vh;
         height: 100dvh;
+        max-height: 100vh;
+        max-height: 100dvh;
     }
     .filters.mobile-open { display: block; }
     .filters-header-desktop { display: none; }
@@ -3911,7 +3916,7 @@ textarea.form-input {
         bottom: 15px;
     }
     
-    .product-container { padding: 1.5rem 1rem; }
+    .product-container { padding: 1.5rem 1rem; padding-bottom: 6rem; }
     .product-layout { 
         grid-template-columns: 1fr; 
         gap: 1.5rem; 
@@ -3945,9 +3950,12 @@ textarea.form-input {
     .product-actions { 
         flex-direction: column;
         gap: 0.625rem;
+        overflow: visible;
     }
     .product-actions .btn {
         width: 100%;
+        min-height: 52px;
+        overflow: visible;
     }
     .product-features { 
         grid-template-columns: 1fr;
@@ -4006,11 +4014,12 @@ textarea.form-input {
     .info-content { padding: 1.5rem; }
     .contact-grid { grid-template-columns: 1fr; }
     
-    .product-container { padding: 1.5rem 1rem; }
+    .product-container { padding: 1.5rem 1rem; padding-bottom: 6rem; }
     .product-title { font-size: 1.5rem; }
     .product-price { font-size: 1.75rem; }
-    .main-image-wrap img { height: 300px; }
+    .main-image-wrap img { height: auto; }
     .product-actions { flex-direction: column; }
+    .product-actions .btn { padding: 1rem 1.5rem; font-size: 1rem; min-height: 52px; }
     .product-features { grid-template-columns: 1fr; }
     
     .brands-container { padding: 2.5rem 1rem; }
@@ -4037,8 +4046,8 @@ textarea.form-input {
     .trust-badge { padding: 1.25rem 1rem; }
     .trust-badge:nth-child(odd) { border-right: none; }
     
-    .product-grid { grid-template-columns: 1fr; }
-    .product-card img { height: 280px; padding: 0; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .product-card img { height: 180px; padding: 0; }
     
     .wishlist-grid { grid-template-columns: 1fr; }
     
@@ -4109,6 +4118,39 @@ textarea.form-input {
 
 .cart-badge-fade {
     animation: cartBadgeFade 0.3s ease;
+}
+
+/* ===== STICKY BUY BAR (Mobile Product Page) ===== */
+.sticky-buy-bar {
+    display: none;
+}
+@media (max-width: 768px) {
+    .sticky-buy-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        padding: 0.75rem 1rem;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        z-index: 998;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-top: 1px solid var(--gray-200);
+    }
+    .sticky-buy-price {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+    }
+    .sticky-buy-btn {
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        border-radius: 50px;
+        white-space: nowrap;
+    }
 }
 
 /* ===== CHAT WIDGET ===== */

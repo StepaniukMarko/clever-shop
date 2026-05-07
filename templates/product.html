@@ -347,6 +347,14 @@
     </div>
 </div>
 
+<!-- Sticky Buy Button (Mobile) -->
+{% if product.stock > 0 %}
+<div class="sticky-buy-bar">
+    <div class="sticky-buy-price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</div>
+    <button onclick="addToCart(document.querySelector('.card-buttons .btn') || this)" class="btn btn-primary sticky-buy-btn">🛒 Купити</button>
+</div>
+{% endif %}
+
 <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
 {% endblock %}
 
