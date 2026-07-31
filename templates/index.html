@@ -58,8 +58,8 @@
         <h1>Стиль, який<br>говорить за тебе</h1>
         <p class="hero-subtitle">Оригінальний одяг від Calvin Klein, Tommy Hilfiger, Boss, Massimo Dutti та ін. Доставка по Україні 1–2 дні.</p>
         <div class="hero-cta">
-            <a href="#products" class="btn btn-primary btn-lg">🛍️ Переглянути каталог</a>
-            <a href="/contacts" class="btn btn-outline btn-lg">📞 Зв'язатися з нами</a>
+            <a href="#products" class="btn btn-primary btn-lg">🛍️ Обрати товар зі знижкою</a>
+            <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="btn btn-outline btn-lg">✈️ Написати менеджеру</a>
         </div>
         <div class="hero-stats">
             <div class="hero-stat">
@@ -202,7 +202,7 @@
                                 data-pname="{{ product.name | replace('"', '&quot;') | replace("'", '&#39;') }}" 
                                 data-pprice="{{ product.price }}" 
                                 data-brand="{{ product.brand | replace('"', '&quot;') }}"
-                                class="btn btn-primary btn-sm" style="width:100%;">В кошик</button>
+                                class="btn btn-primary btn-sm" style="width:100%;">🛒 Купити · {{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</button>
                         {% else %}
                         <button class="btn btn-secondary btn-sm" style="width:100%;opacity:0.6;" disabled>Немає в наявності</button>
                         {% endif %}

@@ -247,8 +247,9 @@ function openCart() {
         itemsContainer.innerHTML = `
             <div class="cart-empty">
                 <div class="cart-empty-icon">🛒</div>
-                <p style="font-size:1.1rem;color:var(--gray-500);">Кошик порожній</p>
-                <p style="font-size:0.9rem;color:var(--gray-400);margin-top:0.5rem;">Додайте товари для оформлення замовлення</p>
+                <p style="font-size:1.1rem;color:var(--gray-500);margin-bottom:0.5rem;">Кошик порожній</p>
+                <p style="font-size:0.9rem;color:var(--gray-400);margin-bottom:1.5rem;">Додайте товари з каталогу</p>
+                <a href="/#products" onclick="closeCart()" class="btn btn-primary" style="text-decoration:none;">🛍️ Перейти до каталогу</a>
             </div>`;
         totalEl.textContent = '0';
     } else {
@@ -262,13 +263,20 @@ function openCart() {
                 <div class="cart-item" style="animation: fadeIn 0.3s ease ${index * 0.1}s both;">
                     <div class="cart-item-info">
                         <h4>${item.name}</h4>
-                        <p>${item.size ? 'Розмір: ' + item.size + ' • ' : ''}Кількість: ${item.quantity}</p>
+                        <p>${item.size ? 'Розмір: ' + item.size + ' · ' : ''}Кількість: ${item.quantity}</p>
                     </div>
                     <div class="cart-item-price">${itemTotal.toLocaleString('uk-UA')} грн</div>
                     <button class="cart-item-remove" onclick="removeFromCart(${index})" aria-label="Видалити">✕</button>
                 </div>
             `;
         });
+        
+        // Free shipping hint
+        if (total < 5000) {
+            html += '<div style="padding:0.75rem 1rem;background:var(--primary-50,#ECFDF5);border-radius:8px;margin-top:0.75rem;font-size:0.85rem;color:var(--primary-dark,#059669);text-align:center;">🚚 До безкоштовної доставки залишилось <strong>' + (5000 - total).toLocaleString('uk-UA') + ' грн</strong></div>';
+        } else {
+            html += '<div style="padding:0.75rem 1rem;background:var(--primary-50,#ECFDF5);border-radius:8px;margin-top:0.75rem;font-size:0.85rem;color:var(--primary-dark,#059669);text-align:center;">✅ Безкоштовна доставка!</div>';
+        }
         
         itemsContainer.innerHTML = html;
         totalEl.textContent = total.toLocaleString('uk-UA');

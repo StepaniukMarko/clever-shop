@@ -166,14 +166,21 @@
             <div class="product-actions">
                 <button onclick="addToCartWithSize()" class="btn btn-primary btn-lg add-to-cart-btn" 
                         data-id="{{ product.id }}" data-pname="{{ product.name }}" data-pprice="{{ product.price }}">
-                    🛒 Додати в кошик
+                    🛒 Додати в кошик · {{ "{:,.0f}".format(product.price).replace(",", " ") }} грн
                 </button>
                 <button onclick="buyNow()" class="btn btn-dark btn-lg buy-now-btn">
-                    ⚡ Купити зараз
+                    ⚡ Купити в 1 клік
                 </button>
             </div>
 
             <!-- Quick Order Form -->
+            <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-200);">
+                <span style="font-size:0.8rem;color:var(--gray-500);display:flex;align-items:center;gap:0.3rem;">✅ Оригінал 100%</span>
+                <span style="font-size:0.8rem;color:var(--gray-500);display:flex;align-items:center;gap:0.3rem;">🚚 Доставка 1-2 дні</span>
+                <span style="font-size:0.8rem;color:var(--gray-500);display:flex;align-items:center;gap:0.3rem;">↩️ Обмін 14 днів</span>
+                <span style="font-size:0.8rem;color:var(--gray-500);display:flex;align-items:center;gap:0.3rem;">📸 Фото перед відправкою</span>
+            </div>
+            
             <div class="quick-order-section" style="margin-top:1.5rem;padding:1.5rem;background:var(--gray-50);border-radius:var(--radius-lg);border:2px solid var(--gray-200);">
                 <h3 style="margin-bottom:1rem;font-size:1.1rem;">⚡ Швидке замовлення</h3>
                 <p style="font-size:0.9rem;color:var(--gray-600);margin-bottom:1rem;">Залиште контакти — ми зателефонуємо для підтвердження</p>
@@ -350,8 +357,11 @@
 <!-- Sticky Buy Button (Mobile) -->
 {% if product.stock > 0 %}
 <div class="sticky-buy-bar">
-    <div class="sticky-buy-price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</div>
-    <button onclick="addToCart(document.querySelector('.card-buttons .btn') || this)" class="btn btn-primary sticky-buy-btn">🛒 Купити</button>
+    <div class="sticky-buy-price">
+        <span style="font-size:0.75rem;color:var(--gray-500);display:block;">{{ product.brand }}</span>
+        {{ "{:,.0f}".format(product.price).replace(",", " ") }} грн
+    </div>
+    <button onclick="addToCartWithSize()" class="btn btn-primary sticky-buy-btn">🛒 Купити</button>
 </div>
 {% endif %}
 
