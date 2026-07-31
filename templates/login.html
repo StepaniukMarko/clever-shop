@@ -23,16 +23,23 @@
         </div>
         {% endif %}
         
-        <form method="POST" class="auth-form">
-            <div class="form-group">
+        <form method="POST" class="auth-form" novalidate>
+            <div class="form-group" id="fg-login-email">
                 <label>Email</label>
-                <input type="email" name="email" required placeholder="email@example.com">
+                <div class="input-with-toggle">
+                    <input type="email" name="email" required placeholder="email@example.com" autocomplete="email">
+                </div>
+                <span class="field-error" id="err-login-email"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="fg-login-pass">
                 <label>Пароль</label>
-                <input type="password" name="password" required placeholder="••••••••">
+                <div class="input-with-toggle">
+                    <input type="password" id="login-password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="toggle-pwd-btn" onclick="togglePwd('login-password', this)" aria-label="Показати пароль">👁️</button>
+                </div>
+                <span class="field-error" id="err-login-pass"></span>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg">Увійти</button>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Увійти</button>
         </form>
         
         <div class="auth-footer">
@@ -40,4 +47,12 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePwd(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁️'; }
+}
+</script>
 {% endblock %}

@@ -17,24 +17,37 @@
         </div>
         {% endif %}
         
-        <form method="POST" class="auth-form">
-            <div class="form-group">
+        <form method="POST" class="auth-form" id="register-form" novalidate>
+            <div class="form-group" id="fg-reg-name">
                 <label>Ім'я</label>
-                <input type="text" name="name" required placeholder="Іван Петренко">
+                <input type="text" name="name" required placeholder="Іван Петренко" autocomplete="name"
+                       oninput="regValidate(this, 'name')" onblur="regValidate(this, 'name', true)">
+                <span class="field-error" id="err-reg-name"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="fg-reg-email">
                 <label>Email</label>
-                <input type="email" name="email" required placeholder="email@example.com">
+                <input type="email" name="email" required placeholder="email@example.com" autocomplete="email"
+                       oninput="regValidate(this, 'email')" onblur="regValidate(this, 'email', true)">
+                <span class="field-error" id="err-reg-email"></span>
             </div>
             <div class="form-group">
-                <label>Телефон</label>
-                <input type="tel" name="phone" placeholder="+380 XX XXX XX XX">
+                <label>Телефон <span style="color:var(--gray-400);font-weight:normal;">(необов'язково)</span></label>
+                <input type="tel" name="phone" placeholder="+380 XX XXX XX XX" autocomplete="tel">
             </div>
-            <div class="form-group">
+            <div class="form-group" id="fg-reg-pass">
                 <label>Пароль</label>
-                <input type="password" name="password" required placeholder="Мінімум 6 символів" minlength="6">
+                <div class="input-with-toggle">
+                    <input type="password" id="reg-password" name="password" required placeholder="Мінімум 6 символів" minlength="6" autocomplete="new-password"
+                           oninput="regValidate(this, 'password')" onblur="regValidate(this, 'password', true)">
+                    <button type="button" class="toggle-pwd-btn" onclick="togglePwd('reg-password', this)" aria-label="Показати пароль">👁️</button>
+                </div>
+                <div class="password-strength" id="pwd-strength" style="display:none;">
+                    <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+                    <span class="strength-label" id="strength-label"></span>
+                </div>
+                <span class="field-error" id="err-reg-pass"></span>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg">Зареєструватися</button>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Зареєструватися</button>
         </form>
         
         <div class="auth-footer">
@@ -42,4 +55,60 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePwd(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁️'; }
+}
+
+function regValidate(input, field, blur) {
+    var val = input.value.trim();
+    var groupId = 'fg-reg-' + (field === 'password' ? 'pass' : field);
+    var errId = 'err-reg-' + (field === 'password' ? 'pass' : field);
+    var errEl = document.getElementById(errId);
+    var group = document.getElementById(groupId);
+    if (!group || !errEl) return true;
+
+    group.classList.remove('field-valid', 'field-error');
+
+    if (field === 'name') {
+        if (!val && blur) { group.classList.add('field-error'); errEl.textContent = "Вкажіть ім'я"; return false; }
+        if (val.length >= 2) { group.classList.add('field-valid'); errEl.textContent = ''; return true; }
+        if (blur && val.length < 2) { group.classList.add('field-error'); errEl.textContent = 'Мінімум 2 символи'; return false; }
+    } else if (field === 'email') {
+        if (!val && blur) { group.classList.add('field-error'); errEl.textContent = 'Вкажіть email'; return false; }
+        var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        if (ok) { group.classList.add('field-valid'); errEl.textContent = ''; return true; }
+        if (blur && !ok) { group.classList.add('field-error'); errEl.textContent = 'Невірний формат email'; return false; }
+    } else if (field === 'password') {
+        var strengthDiv = document.getElementById('pwd-strength');
+        var fill = document.getElementById('strength-fill');
+        var label = document.getElementById('strength-label');
+        if (val) {
+            strengthDiv.style.display = 'flex';
+            var score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            var levels = ['','Слабкий','Слабкий','Нормальний','Сильний','Відмінний'];
+            var colors = ['','#EF4444','#F97316','#F59E0B','#22C55E','#10B981'];
+            fill.style.width = (score * 20) + '%';
+            fill.style.background = colors[score] || '#E5E7EB';
+            label.textContent = levels[score] || '';
+            label.style.color = colors[score] || '';
+        } else {
+            strengthDiv.style.display = 'none';
+        }
+        if (!val && blur) { group.classList.add('field-error'); errEl.textContent = 'Вкажіть пароль'; return false; }
+        if (val && val.length < 6) { group.classList.add('field-error'); errEl.textContent = 'Мінімум 6 символів'; return false; }
+        if (val && val.length >= 6) { group.classList.add('field-valid'); errEl.textContent = ''; return true; }
+    }
+    errEl.textContent = '';
+    return true;
+}
+</script>
 {% endblock %}

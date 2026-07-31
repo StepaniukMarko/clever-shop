@@ -88,8 +88,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=33" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=33"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=35" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=35"></noscript>
     
     <!-- Critical CSS inlined for fast first paint -->
     <style>
@@ -547,6 +547,30 @@
     }
     </script>
     
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" aria-label="Мобільна навігація">
+        <a href="/" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🏠</span>
+            <span>Головна</span>
+        </a>
+        <a href="/#products" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🛍️</span>
+            <span>Каталог</span>
+        </a>
+        <button onclick="openCart()" class="mobile-nav-item" aria-label="Кошик">
+            <span class="mobile-nav-icon">🛒<span id="mobile-cart-badge" class="header-badge" style="display:none;">0</span></span>
+            <span>Кошик</span>
+        </button>
+        <a href="/wishlist" class="mobile-nav-item">
+            <span class="mobile-nav-icon">♡</span>
+            <span>Обране</span>
+        </a>
+        <a href="/account" class="mobile-nav-item">
+            <span class="mobile-nav-icon">👤</span>
+            <span>Акаунт</span>
+        </a>
+    </nav>
+
     <!-- Chat Widget -->
     <div class="chat-widget" id="chat-widget">
         <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="chat-widget__button"

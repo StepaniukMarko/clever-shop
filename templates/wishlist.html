@@ -23,10 +23,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    loadWishlist();
+    loadWishlistPage();
 });
 
-function loadWishlist() {
+function loadWishlistPage() {
     var wishlist = JSON.parse(storage.getItem('wishlist') || '[]');
     var grid = document.getElementById('wishlist-grid');
     var empty = document.getElementById('wishlist-empty');
@@ -37,11 +37,10 @@ function loadWishlist() {
         return;
     }
     
-    // Fetch products
     fetch('/api/products')
-        .then(r => r.json())
-        .then(products => {
-            var wishlistProducts = products.filter(p => wishlist.includes(p.id));
+        .then(function(r) { return r.json(); })
+        .then(function(products) {
+            var wishlistProducts = products.filter(function(p) { return wishlist.includes(p.id); });
             
             if (wishlistProducts.length === 0) {
                 grid.style.display = 'none';
@@ -49,42 +48,48 @@ function loadWishlist() {
                 return;
             }
             
-            grid.innerHTML = wishlistProducts.map(p => `
-                <div class="product-card" onclick="if(!event.target.closest('button')) window.location='/product/${p.id}'">
-                    <div class="product-image-wrap">
-                        ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy">` : '<div class="no-image">📷</div>'}
-                        <button class="wishlist-btn active" onclick="event.stopPropagation(); removeFromWishlist(${p.id}, this)">♥</button>
-                    </div>
-                    <div class="product-info">
-                        <h3>${p.name}</h3>
-                        <p class="brand">${p.brand}</p>
-                        <p class="price">${p.price.toLocaleString('uk-UA')} грн</p>
-                    </div>
-                    <div class="card-buttons">
-                        <button onclick="event.stopPropagation(); quickAddToCart(${p.id}, '${p.name}', ${p.price})" class="btn btn-primary btn-sm">🛒 В кошик</button>
-                    </div>
-                </div>
-            `).join('');
+            grid.innerHTML = wishlistProducts.map(function(p) {
+                var imgHtml = p.image_url 
+                    ? '<img src="' + p.image_url + '" alt="' + p.name + '" loading="lazy">'
+                    : '<div class="no-image">📷</div>';
+                return '<div class="product-card" onclick="if(!event.target.closest(\'button\')) window.location=\'/product/' + p.id + '\'">' +
+                    '<div class="product-image-wrap">' + imgHtml +
+                    '<button class="wishlist-btn active" onclick="event.stopPropagation(); removeFromWishlistPage(' + p.id + ')">♥</button>' +
+                    '</div>' +
+                    '<div class="product-info">' +
+                    '<h3>' + p.name + '</h3>' +
+                    '<p class="brand">' + (p.brand || '') + '</p>' +
+                    '<p class="price">' + p.price.toLocaleString('uk-UA') + ' грн</p>' +
+                    '</div>' +
+                    '<div class="card-buttons">' +
+                    '<button onclick="event.stopPropagation(); quickAddFromWishlist(' + p.id + ', \'' + p.name.replace(/'/g, "\\'") + '\', ' + p.price + ')" class="btn btn-primary btn-sm" style="width:100%;">🛒 В кошик</button>' +
+                    '</div></div>';
+            }).join('');
             
             grid.style.display = 'grid';
             empty.style.display = 'none';
+        })
+        .catch(function() {
+            grid.style.display = 'none';
+            empty.style.display = 'block';
         });
 }
 
-function removeFromWishlist(id, btn) {
+function removeFromWishlistPage(id) {
     var wishlist = JSON.parse(storage.getItem('wishlist') || '[]');
     var index = wishlist.indexOf(id);
     if (index > -1) {
         wishlist.splice(index, 1);
         storage.setItem('wishlist', JSON.stringify(wishlist));
         updateWishlistCount();
-        loadWishlist();
+        loadWishlistPage();
+        if (typeof showToast === 'function') showToast('Видалено зі списку', 'info');
     }
 }
 
-function quickAddToCart(id, name, price) {
+function quickAddFromWishlist(id, name, price) {
     var cart = JSON.parse(storage.getItem('cart') || '[]');
-    var existing = cart.find(c => c.id == id);
+    var existing = cart.find(function(c) { return c.id == id; });
     if (existing) {
         existing.quantity++;
     } else {
@@ -92,12 +97,7 @@ function quickAddToCart(id, name, price) {
     }
     storage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
-    
-    if (typeof showToast === 'function') {
-        showToast('Товар додано в кошик', 'success');
-    } else {
-        alert('Товар додано в кошик!');
-    }
+    if (typeof showToast === 'function') showToast('Товар додано в кошик', 'success');
 }
 </script>
 {% endblock %}
