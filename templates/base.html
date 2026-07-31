@@ -88,8 +88,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=35" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=35"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=36" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=36"></noscript>
     
     <!-- Critical CSS inlined for fast first paint -->
     <style>
@@ -143,22 +143,9 @@
     </style>
     
     <!-- Deferred Google Analytics & Facebook Pixel -->
+    <!-- Analytics: Replace placeholder IDs with real ones when ready -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Load Google Analytics
-        var gaScript = document.createElement('script');
-        gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX';
-        gaScript.async = true;
-        document.head.appendChild(gaScript);
-        
-        gaScript.onload = function() {
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            window.gtag = gtag;
-            gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX');
-        };
-        
         // Enhanced ecommerce events (available globally)
         window.trackPurchase = function(orderId, value, items) {
             if (window.gtag) {
@@ -204,19 +191,7 @@
             }
         };
         
-        // Load Facebook Pixel
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', 'YOUR_PIXEL_ID');
-        fbq('track', 'PageView');
-        
-        // FB enhanced events
+        // FB enhanced events (no-op until real pixel is configured)
         window.trackFBPurchase = function(value, currency) {
             if (window.fbq) fbq('track', 'Purchase', {value: value, currency: currency || 'UAH'});
         };
@@ -228,13 +203,11 @@
         };
     });
     </script>
-    <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
-    /></noscript>
     
     {% block head %}{% endblock %}
 </head>
 <body>
+    <a href="#main-content" class="skip-to-content">Перейти до контенту</a>
     <div class="page-loader" id="page-loader">
         <div class="loader-spinner"></div>
     </div>
@@ -268,7 +241,7 @@
         </ul>
     </header>
 
-    <main class="container">
+    <main id="main-content" class="container">
         {% block content %}{% endblock %}
     </main>
 
@@ -355,7 +328,7 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=11"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=12"></script>
     
     <!-- PWA Service Worker (deferred) -->
     <script>

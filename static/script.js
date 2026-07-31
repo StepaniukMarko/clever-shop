@@ -47,8 +47,14 @@ const storage = {
 };
 
 // Cart & Wishlist State
-let cart = JSON.parse(storage.getItem('cart')) || [];
-let wishlist = JSON.parse(storage.getItem('wishlist')) || [];
+let cart = [];
+let wishlist = [];
+try {
+    cart = JSON.parse(storage.getItem('cart')) || [];
+} catch(e) { cart = []; storage.removeItem('cart'); }
+try {
+    wishlist = JSON.parse(storage.getItem('wishlist')) || [];
+} catch(e) { wishlist = []; storage.removeItem('wishlist'); }
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {

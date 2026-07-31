@@ -2,5 +2,10 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /thank-you/
+Disallow: /static/
 
 Sitemap: https://www.clevershop.vn.ua/sitemap.xml

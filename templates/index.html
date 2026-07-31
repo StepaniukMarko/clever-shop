@@ -54,10 +54,9 @@
     <div class="hero-overlay"></div>
     {% endif %}
     <div class="hero-content">
-        <span class="hero-badge">✨ Преміум бренди з Європи</span>
-        <img src="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}" alt="Clever Shop - магазин оригінального брендового одягу" class="hero-logo">
-        <h1>Стиль, який говорить за тебе</h1>
-        <p class="hero-subtitle">Оригінальний одяг від світових брендів з гарантією якості. Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss та інші — з доставкою по всій Україні.</p>
+        <span class="hero-badge">✨ Преміум бренди з Європи · 100% Оригінал</span>
+        <h1>Стиль, який<br>говорить за тебе</h1>
+        <p class="hero-subtitle">Оригінальний одяг від Calvin Klein, Tommy Hilfiger, Boss, Massimo Dutti та ін. Доставка по Україні 1–2 дні.</p>
         <div class="hero-cta">
             <a href="#products" class="btn btn-primary btn-lg">🛍️ Переглянути каталог</a>
             <a href="/contacts" class="btn btn-outline btn-lg">📞 Зв'язатися з нами</a>
@@ -155,7 +154,9 @@
         <div>
             <div class="product-grid" id="products-container">
                 {% for product in products %}
-                <div class="product-card" onclick="if(!event.target.closest('button')) window.location='/product/{{ product.id }}'" 
+                <div class="product-card" onclick="if(!event.target.closest('button')) window.location='/product/{{ product.id }}'"
+                     tabindex="0" role="article" aria-label="{{ product.name }} - {{ product.brand }} - {{ product.price }} грн"
+                     onkeydown="if(event.key==='Enter'&&!event.target.closest('button')) window.location='/product/{{ product.id }}'"
                      data-brand="{{ product.brand | replace('"', '&quot;') }}" 
                      data-sizes="{{ product.sizes | replace('"', '&quot;') }}" 
                      data-type="{{ product.type | replace('"', '&quot;') }}" 
@@ -171,12 +172,28 @@
                             <div class="fallback-image__brand">{{ product.brand }}</div>
                         </div>
                         <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
+                        {% if product.stock and product.stock <= 5 and product.stock > 0 %}
+                        <div class="product-badge"><span class="badge-hot">Мало</span></div>
+                        {% elif loop.index <= 4 %}
+                        <div class="product-badge"><span class="badge-new">New</span></div>
+                        {% endif %}
+                        {% if product.stock > 0 %}
+                        <div class="quick-add-overlay">
+                            <button onclick="event.stopPropagation(); addToCart(this)" 
+                                    data-id="{{ product.id }}" 
+                                    data-pname="{{ product.name | replace('"', '&quot;') | replace("'", '&#39;') }}" 
+                                    data-pprice="{{ product.price }}" 
+                                    data-brand="{{ product.brand | replace('"', '&quot;') }}"
+                                    class="btn btn-primary">🛒 В кошик</button>
+                            <button onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})" class="btn btn-wishlist-ov" title="До вподобаного">♡</button>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="product-info">
-                        <h3>{{ product.name }}</h3>
                         <p class="brand">{{ product.brand }}</p>
+                        <h3>{{ product.name }}</h3>
                         <p class="price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</p>
-                        <span class="bonus-badge">🎁 +{{ (product.price // 100)|int }} бонусів</span>
+                        <span class="bonus-badge">+{{ (product.price // 100)|int }} бонусів</span>
                     </div>
                     <div class="card-buttons">
                         {% if product.stock > 0 %}
@@ -185,7 +202,9 @@
                                 data-pname="{{ product.name | replace('"', '&quot;') | replace("'", '&#39;') }}" 
                                 data-pprice="{{ product.price }}" 
                                 data-brand="{{ product.brand | replace('"', '&quot;') }}"
-                                class="btn btn-primary btn-sm">🛒 В кошик</button>
+                                class="btn btn-primary btn-sm" style="width:100%;">В кошик</button>
+                        {% else %}
+                        <button class="btn btn-secondary btn-sm" style="width:100%;opacity:0.6;" disabled>Немає в наявності</button>
                         {% endif %}
                     </div>
                 </div>

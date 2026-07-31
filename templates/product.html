@@ -87,7 +87,7 @@
             <div class="gallery-thumbs">
                 {% for img in images %}
                 <div class="gallery-thumb {% if loop.first %}active{% endif %}" onclick="changeMainImage('{{ img|ensure_https }}', this)">
-                    <img src="{{ img|ensure_https }}" alt="{{ product.name }} - фото {{ loop.index }}">
+                    <img src="{{ img|ensure_https }}" alt="{{ product.name }} - фото {{ loop.index }}" loading="lazy">
                 </div>
                 {% endfor %}
             </div>
@@ -156,9 +156,9 @@
             <div class="product-section">
                 <h3>Кількість</h3>
                 <div class="quantity-selector">
-                    <button type="button" class="qty-btn" onclick="changeQuantity(-1)">−</button>
-                    <input type="number" id="qty-input" class="qty-input" value="1" min="1" max="10">
-                    <button type="button" class="qty-btn" onclick="changeQuantity(1)">+</button>
+                    <button type="button" class="qty-btn" onclick="changeQuantity(-1)" aria-label="Зменшити кількість">−</button>
+                    <input type="number" id="qty-input" class="qty-input" value="1" min="1" max="10" aria-label="Кількість">
+                    <button type="button" class="qty-btn" onclick="changeQuantity(1)" aria-label="Збільшити кількість">+</button>
                 </div>
             </div>
             

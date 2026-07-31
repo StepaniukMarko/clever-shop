@@ -462,6 +462,9 @@ def add_security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    # Cache-Control for static assets
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=2592000'  # 30 days
     # CSP - дозволяємо тільки наші ресурси та необхідні зовнішні
     csp = (
         "default-src 'self'; "
