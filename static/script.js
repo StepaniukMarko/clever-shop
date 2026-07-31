@@ -84,8 +84,10 @@ function addToCart(btn) {
     const price = parseFloat(btn.dataset.pprice);
     const brand = btn.dataset.brand || '';
 
-    // Get sizes from the product card
+    // Get image from card
     const card = btn.closest('.product-card');
+    const imagesRaw = card ? card.dataset.images : '';
+    const image = imagesRaw ? imagesRaw.split(',')[0] : '';
     const sizesRaw = card ? card.dataset.sizes : '';
 
     // Parse sizes (supports "XS,S,M" and "XS:1,S:0,M:1" formats)
@@ -102,16 +104,16 @@ function addToCart(btn) {
 
     // If no sizes defined or only one available — add directly
     if (availableSizes.length === 0) {
-        _doAddToCart({ id, name, price, size: '', quantity: 1 }, btn, brand);
+        _doAddToCart({ id, name, price, size: '', quantity: 1, image }, btn, brand);
         return;
     }
     if (availableSizes.length === 1) {
-        _doAddToCart({ id, name, price, size: availableSizes[0].size, quantity: 1 }, btn, brand);
+        _doAddToCart({ id, name, price, size: availableSizes[0].size, quantity: 1, image }, btn, brand);
         return;
     }
 
     // Open size picker modal
-    openSizePicker({ id, name, price, brand }, sizes, btn);
+    openSizePicker({ id, name, price, brand, image }, sizes, btn);
 }
 
 let _sizePickerData = null;
@@ -249,7 +251,7 @@ function openCart() {
                 <div class="cart-empty-icon">🛒</div>
                 <p style="font-size:1.1rem;color:var(--gray-500);margin-bottom:0.5rem;">Кошик порожній</p>
                 <p style="font-size:0.9rem;color:var(--gray-400);margin-bottom:1.5rem;">Додайте товари з каталогу</p>
-                <a href="/#products" onclick="closeCart()" class="btn btn-primary" style="text-decoration:none;">🛍️ Перейти до каталогу</a>
+                <a href="/#products" onclick="closeCart()" class="btn btn-primary" style="text-decoration:none;">Перейти до каталогу</a>
             </div>`;
         totalEl.textContent = '0';
     } else {
@@ -259,23 +261,29 @@ function openCart() {
         cart.forEach((item, index) => {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
+            const imgHtml = item.image 
+                ? '<img src="' + item.image + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;background:var(--gray-100);flex-shrink:0;">'
+                : '<div style="width:56px;height:56px;background:var(--gray-100);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">📷</div>';
             html += `
-                <div class="cart-item" style="animation: fadeIn 0.3s ease ${index * 0.1}s both;">
-                    <div class="cart-item-info">
-                        <h4>${item.name}</h4>
-                        <p>${item.size ? 'Розмір: ' + item.size + ' · ' : ''}Кількість: ${item.quantity}</p>
+                <div class="cart-item" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--gray-100);">
+                    ${imgHtml}
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+                        <div style="font-size:0.8rem;color:var(--gray-500);margin-top:2px;">${item.size ? item.size + ' · ' : ''}${item.quantity} шт</div>
                     </div>
-                    <div class="cart-item-price">${itemTotal.toLocaleString('uk-UA')} грн</div>
-                    <button class="cart-item-remove" onclick="removeFromCart(${index})" aria-label="Видалити">✕</button>
+                    <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-weight:700;font-size:0.95rem;">${itemTotal.toLocaleString('uk-UA')} ₴</div>
+                        <button onclick="removeFromCart(${index})" aria-label="Видалити" style="background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:0.75rem;margin-top:2px;padding:2px 4px;">Видалити</button>
+                    </div>
                 </div>
             `;
         });
         
         // Free shipping hint
         if (total < 5000) {
-            html += '<div style="padding:0.75rem 1rem;background:var(--primary-50,#ECFDF5);border-radius:8px;margin-top:0.75rem;font-size:0.85rem;color:var(--primary-dark,#059669);text-align:center;">🚚 До безкоштовної доставки залишилось <strong>' + (5000 - total).toLocaleString('uk-UA') + ' грн</strong></div>';
+            html += '<div style="padding:0.6rem 0.75rem;background:var(--primary-50,#ECFDF5);border-radius:8px;margin-top:0.75rem;font-size:0.8rem;color:var(--primary-dark,#059669);text-align:center;">🚚 До безкоштовної доставки: <strong>' + (5000 - total).toLocaleString('uk-UA') + ' ₴</strong></div>';
         } else {
-            html += '<div style="padding:0.75rem 1rem;background:var(--primary-50,#ECFDF5);border-radius:8px;margin-top:0.75rem;font-size:0.85rem;color:var(--primary-dark,#059669);text-align:center;">✅ Безкоштовна доставка!</div>';
+            html += '<div style="padding:0.6rem 0.75rem;background:var(--primary-50,#ECFDF5);border-radius:8px;margin-top:0.75rem;font-size:0.8rem;color:var(--primary-dark,#059669);text-align:center;">✓ Безкоштовна доставка</div>';
         }
         
         itemsContainer.innerHTML = html;

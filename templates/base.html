@@ -88,8 +88,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=36" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=36"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=37" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=37"></noscript>
     
     <!-- Critical CSS inlined for fast first paint -->
     <style>
@@ -231,13 +231,13 @@
             <div id="search-results"></div>
         </div>
         <ul class="nav-links" id="nav-menu">
-            <li><a href="/">🏠 Головна</a></li>
-            <li><a href="/?gender=men#products" class="nav-men">👔 Чоловікам</a></li>
-            <li><a href="/?gender=women#products" class="nav-women">👗 Жінкам</a></li>
-            <li><a href="/brands">🏷️ Бренди</a></li>
-            <li><a href="/about">ℹ️ Про нас</a></li>
-            <li><a href="/delivery">🚚 Доставка</a></li>
-            <li><a href="/contacts">📞 Контакти</a></li>
+            <li><a href="/">Головна</a></li>
+            <li><a href="/?gender=men#products" class="nav-men">Чоловікам</a></li>
+            <li><a href="/?gender=women#products" class="nav-women">Жінкам</a></li>
+            <li><a href="/brands">Бренди</a></li>
+            <li><a href="/about">Про нас</a></li>
+            <li><a href="/delivery">Доставка</a></li>
+            <li><a href="/contacts">Контакти</a></li>
         </ul>
     </header>
 
@@ -298,7 +298,7 @@
                 <span>Всього:</span>
                 <span><span id="cart-total">0</span> грн</span>
             </div>
-            <button onclick="goToCheckout()" class="btn btn-primary btn-lg" style="width:100%;">🔒 Оформити замовлення →</button>
+            <button onclick="goToCheckout()" class="btn btn-primary btn-lg" style="width:100%;">Оформити замовлення</button>
             <p style="text-align:center;font-size:0.75rem;color:var(--gray-400);margin-top:0.5rem;">Безпечна оплата · Доставка 1-2 дні</p>
         </div>
     </div>
@@ -329,7 +329,7 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=12"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=13"></script>
     
     <!-- PWA Service Worker (deferred) -->
     <script>
