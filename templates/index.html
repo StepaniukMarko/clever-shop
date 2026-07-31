@@ -58,8 +58,8 @@
         <h1>Стиль, який<br>говорить за тебе</h1>
         <p class="hero-subtitle">Оригінальний одяг від Calvin Klein, Tommy Hilfiger, Boss, Massimo Dutti та ін. Доставка по Україні 1–2 дні.</p>
         <div class="hero-cta">
-            <a href="#products" class="btn btn-primary btn-lg">🛍️ Обрати товар зі знижкою</a>
-            <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="btn btn-outline btn-lg">✈️ Написати менеджеру</a>
+            <a href="#products" class="btn btn-primary btn-lg">Перейти до каталогу</a>
+            <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="btn btn-outline btn-lg">Написати менеджеру</a>
         </div>
         <div class="hero-stats">
             <div class="hero-stat">
@@ -81,17 +81,16 @@
 <!-- CATALOG -->
 <section class="section section-light" id="products">
     <div class="section-header">
-        <span class="section-badge">🛍️ Каталог</span>
-        <h2 class="section-title">Наші товари</h2>
+        <h2 class="section-title">Каталог</h2>
         <p class="section-subtitle">Оригінальний одяг від найкращих світових брендів</p>
     </div>
     
     <div class="category-section">
         <div class="category-toggle">
             <a href="/?gender={% if gender == 'men' %}{% else %}men{% endif %}#products" 
-               id="btn-men-top" class="cat-btn {% if gender == 'men' %}active{% endif %}">👔 Чоловікам</a>
+               id="btn-men-top" class="cat-btn {% if gender == 'men' %}active{% endif %}">Чоловікам</a>
             <a href="/?gender={% if gender == 'women' %}{% else %}women{% endif %}#products" 
-               id="btn-women-top" class="cat-btn {% if gender == 'women' %}active{% endif %}">👗 Жінкам</a>
+               id="btn-women-top" class="cat-btn {% if gender == 'women' %}active{% endif %}">Жінкам</a>
             {% if gender %}
             <a href="/#products" class="cat-btn-clear">✕ Всі товари</a>
             {% endif %}
