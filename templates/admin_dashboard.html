@@ -22,6 +22,7 @@
                     <li><a href="#" onclick="showTab('orders', this)">📦 Замовлення</a></li>
                     <li><a href="#" onclick="showTab('products', this)">🏷️ Товари</a></li>
                     <li><a href="#" onclick="showTab('add-product', this)">➕ Додати товар</a></li>
+                    <li><a href="#" onclick="showTab('import-products', this)">📥 Імпорт товарів</a></li>
                     <li><a href="#" onclick="showTab('promo-codes', this)">🎁 Промокоди</a></li>
                     <li style="margin-top:auto;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.1);">
                         <a href="/">🏠 На сайт</a>
@@ -604,6 +605,71 @@
         
         // submit handler is below in main script block
     </script>
+
+            <!-- Import Products -->
+            <div id="import-products" class="admin-section">
+                <div class="admin-form">
+                    <h3>📥 Масовий імпорт товарів</h3>
+                    <p style="color:var(--gray-600);margin-bottom:1.5rem;">Завантажте Excel або CSV файл для масового додавання або оновлення товарів</p>
+
+                    <!-- Step 1: Download template -->
+                    <div style="background:var(--primary-50,#ECFDF5);padding:1.25rem;border-radius:12px;margin-bottom:1.5rem;border:2px solid var(--primary-100,#D1FAE5);">
+                        <h4 style="margin-bottom:0.5rem;color:var(--primary-dark,#059669);">📋 Крок 1: Завантажте шаблон</h4>
+                        <p style="font-size:0.9rem;color:var(--gray-600);margin-bottom:0.75rem;">Шаблон містить правильні заголовки, приклад та випадаючі списки для зручного заповнення</p>
+                        <a href="/api/import/template" class="btn btn-primary" style="text-decoration:none;display:inline-block;">⬇️ Завантажити шаблон Excel</a>
+                    </div>
+
+                    <!-- Step 2: Upload file -->
+                    <div style="background:var(--gray-50,#F9FAFB);padding:1.25rem;border-radius:12px;margin-bottom:1.5rem;border:2px dashed var(--gray-300,#D1D5DB);" id="import-drop-zone">
+                        <h4 style="margin-bottom:0.5rem;">📁 Крок 2: Завантажте заповнений файл</h4>
+                        <p style="font-size:0.9rem;color:var(--gray-500);margin-bottom:1rem;">Підтримуються формати: .xlsx, .csv</p>
+                        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                            <label style="cursor:pointer;background:var(--white,#fff);border:2px solid var(--gray-300,#D1D5DB);padding:0.75rem 1.5rem;border-radius:8px;font-weight:600;transition:all 0.2s;">
+                                📂 Обрати файл
+                                <input type="file" id="import-file-input" accept=".xlsx,.csv" style="display:none;" onchange="handleImportFile(this)">
+                            </label>
+                            <span id="import-file-name" style="color:var(--gray-500);font-size:0.9rem;">Файл не обрано</span>
+                        </div>
+                    </div>
+
+                    <!-- Preview button -->
+                    <div style="margin-bottom:1.5rem;" id="import-preview-actions" style="display:none;">
+                        <button onclick="previewImport()" class="btn btn-secondary" id="preview-btn" style="display:none;">👁️ Попередній перегляд</button>
+                    </div>
+
+                    <!-- Preview table -->
+                    <div id="import-preview-container" style="display:none;margin-bottom:1.5rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                            <h4 id="import-preview-title">Попередній перегляд</h4>
+                            <span id="import-preview-count" style="font-size:0.85rem;color:var(--gray-500);"></span>
+                        </div>
+                        <div style="overflow-x:auto;border:1px solid var(--gray-200);border-radius:8px;">
+                            <table class="admin-table" id="import-preview-table" style="font-size:0.85rem;">
+                                <thead><tr id="import-preview-thead"></tr></thead>
+                                <tbody id="import-preview-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div id="import-preview-errors" style="margin-top:0.75rem;"></div>
+                    </div>
+
+                    <!-- Execute button -->
+                    <div id="import-execute-section" style="display:none;margin-bottom:1.5rem;">
+                        <div style="background:#FEF3C7;padding:1rem;border-radius:8px;margin-bottom:1rem;border:1px solid #FDE68A;">
+                            <p style="margin:0;font-size:0.9rem;color:#92400E;">⚠️ Товари з однаковою назвою будуть <strong>оновлені</strong>. Нові товари будуть <strong>створені</strong>.</p>
+                        </div>
+                        <button onclick="executeImport()" class="btn btn-primary" id="execute-btn" style="font-size:1rem;padding:0.75rem 2rem;">
+                            🚀 Імпортувати товари
+                        </button>
+                    </div>
+
+                    <!-- Report -->
+                    <div id="import-report" style="display:none;margin-top:1.5rem;">
+                        <h4 style="margin-bottom:0.75rem;">📊 Звіт імпорту</h4>
+                        <div id="import-report-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.75rem;margin-bottom:1rem;"></div>
+                        <div id="import-report-details" style="max-height:300px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:8px;"></div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Promo Codes -->
             <div id="promo-codes" class="admin-section">
@@ -1232,4 +1298,146 @@ function submitEditForm(e) {
 document.getElementById('edit-modal').addEventListener('click', function(e) {
     if (e.target === this) closeEditModal();
 });
+
+// ============================================================
+// IMPORT FUNCTIONALITY
+// ============================================================
+var importFile = null;
+
+function handleImportFile(input) {
+    var file = input.files[0];
+    if (!file) return;
+    importFile = file;
+    document.getElementById('import-file-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+    document.getElementById('preview-btn').style.display = 'inline-block';
+    // Reset previous state
+    document.getElementById('import-preview-container').style.display = 'none';
+    document.getElementById('import-execute-section').style.display = 'none';
+    document.getElementById('import-report').style.display = 'none';
+}
+
+function previewImport() {
+    if (!importFile) { alert('Оберіть файл'); return; }
+    var btn = document.getElementById('preview-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Зчитування...';
+
+    var formData = new FormData();
+    formData.append('file', importFile);
+
+    fetch('/api/import/preview', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.disabled = false;
+        btn.textContent = '👁️ Попередній перегляд';
+
+        if (data.error) { alert(data.error); return; }
+
+        // Show preview
+        var container = document.getElementById('import-preview-container');
+        container.style.display = 'block';
+        document.getElementById('import-preview-title').textContent = 'Попередній перегляд';
+        document.getElementById('import-preview-count').textContent = 'Знайдено ' + data.total + ' товарів' + (data.total > 50 ? ' (показано перші 50)' : '');
+
+        // Build table
+        var thead = document.getElementById('import-preview-thead');
+        thead.innerHTML = '<th>#</th><th>Назва</th><th>Бренд</th><th>Ціна</th><th>Категорія</th><th>Розміри</th><th>Кількість</th>';
+
+        var tbody = document.getElementById('import-preview-tbody');
+        tbody.innerHTML = data.rows.map(function(row, i) {
+            return '<tr>' +
+                '<td>' + (row.row_num || (i+2)) + '</td>' +
+                '<td><strong>' + escapeHtml(row.name || '') + '</strong></td>' +
+                '<td>' + escapeHtml(row.brand || '') + '</td>' +
+                '<td>' + (row.price || 0) + ' грн</td>' +
+                '<td>' + escapeHtml(row.category || '-') + '</td>' +
+                '<td style="font-size:0.8rem;">' + escapeHtml(row.sizes || '') + '</td>' +
+                '<td>' + (row.stock || 0) + '</td>' +
+                '</tr>';
+        }).join('');
+
+        // Show errors
+        var errorsDiv = document.getElementById('import-preview-errors');
+        if (data.errors && data.errors.length > 0) {
+            errorsDiv.innerHTML = '<div style="background:#FEF2F2;padding:0.75rem;border-radius:8px;border:1px solid #FECACA;">' +
+                '<strong style="color:#DC2626;">⚠️ Попередження (' + data.errors.length + '):</strong>' +
+                '<ul style="margin:0.5rem 0 0 1.25rem;font-size:0.85rem;color:#7F1D1D;">' +
+                data.errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') +
+                '</ul></div>';
+        } else {
+            errorsDiv.innerHTML = '<p style="color:var(--primary-dark,#059669);font-size:0.9rem;">✅ Помилок не знайдено</p>';
+        }
+
+        // Show execute button
+        if (data.total > 0) {
+            document.getElementById('import-execute-section').style.display = 'block';
+            document.getElementById('execute-btn').textContent = '🚀 Імпортувати ' + data.total + ' товарів';
+        }
+    })
+    .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = '👁️ Попередній перегляд';
+        alert('Помилка: ' + err.message);
+    });
+}
+
+function executeImport() {
+    if (!importFile) { alert('Оберіть файл'); return; }
+    var btn = document.getElementById('execute-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Імпорт...';
+
+    var formData = new FormData();
+    formData.append('file', importFile);
+
+    fetch('/api/import/execute', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.disabled = false;
+        btn.textContent = '🚀 Імпортувати товари';
+        document.getElementById('import-execute-section').style.display = 'none';
+
+        if (data.error) { alert(data.error); return; }
+
+        // Show report
+        var reportDiv = document.getElementById('import-report');
+        reportDiv.style.display = 'block';
+
+        var report = data.report || {};
+        var summaryDiv = document.getElementById('import-report-summary');
+        summaryDiv.innerHTML =
+            '<div style="background:#ECFDF5;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#059669;">' + (report.created || 0) + '</div><div style="font-size:0.8rem;color:#065F46;">Створено</div></div>' +
+            '<div style="background:#DBEAFE;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#1D4ED8;">' + (report.updated || 0) + '</div><div style="font-size:0.8rem;color:#1E3A5F;">Оновлено</div></div>' +
+            '<div style="background:#FEF2F2;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#DC2626;">' + (report.errors || 0) + '</div><div style="font-size:0.8rem;color:#7F1D1D;">Помилок</div></div>';
+
+        // Details table
+        var details = report.details || [];
+        var detailsDiv = document.getElementById('import-report-details');
+        if (details.length > 0) {
+            detailsDiv.innerHTML = '<table style="width:100%;font-size:0.8rem;border-collapse:collapse;">' +
+                '<thead><tr style="background:var(--gray-100,#F3F4F6);"><th style="padding:0.5rem;text-align:left;">Рядок</th><th style="padding:0.5rem;text-align:left;">Назва</th><th style="padding:0.5rem;text-align:left;">Дія</th><th style="padding:0.5rem;text-align:left;">Деталі</th></tr></thead>' +
+                '<tbody>' + details.map(function(d) {
+                    var color = d.action === 'created' ? '#059669' : d.action === 'updated' ? '#1D4ED8' : '#DC2626';
+                    var icon = d.action === 'created' ? '✅' : d.action === 'updated' ? '🔄' : '❌';
+                    return '<tr style="border-bottom:1px solid #F3F4F6;"><td style="padding:0.4rem 0.5rem;">' + d.row + '</td><td style="padding:0.4rem 0.5rem;">' + escapeHtml(d.name || '') + '</td><td style="padding:0.4rem 0.5rem;color:' + color + ';">' + icon + ' ' + d.action + '</td><td style="padding:0.4rem 0.5rem;color:#6B7280;">' + escapeHtml(d.message || '') + '</td></tr>';
+                }).join('') + '</tbody></table>';
+        }
+
+        // Show parse errors
+        if (data.parse_errors && data.parse_errors.length > 0) {
+            detailsDiv.innerHTML += '<div style="margin-top:0.75rem;padding:0.75rem;background:#FEF3C7;border-radius:8px;font-size:0.8rem;"><strong>Попередження парсера:</strong><ul style="margin:0.25rem 0 0 1rem;">' +
+                data.parse_errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul></div>';
+        }
+    })
+    .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = '🚀 Імпортувати товари';
+        alert('Помилка: ' + err.message);
+    });
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>

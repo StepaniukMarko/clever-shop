@@ -1758,6 +1758,84 @@ with app.app_context():
             db.session.add(Category(name=cat_name))
     db.session.commit()
 
+# === PRODUCT IMPORT ===
+from product_import import generate_import_template, parse_import_file, execute_import
+
+@app.route('/api/import/template')
+def import_template():
+    """Download Excel import template with validation."""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    categories = [c.name for c in Category.query.all()]
+    template_bytes = generate_import_template(categories)
+    return app.response_class(
+        template_bytes,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': 'attachment; filename=clever_import_template.xlsx'}
+    )
+
+@app.route('/api/import/preview', methods=['POST'])
+@csrf.exempt
+def import_preview():
+    """Parse uploaded file and return preview JSON."""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if 'file' not in request.files:
+        return jsonify({'error': 'Файл не обрано'}), 400
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'Файл не обрано'}), 400
+
+    result = parse_import_file(file, file.filename)
+    # Return first 50 rows for preview, plus stats
+    preview_rows = result['rows'][:50]
+    return jsonify({
+        'rows': preview_rows,
+        'total': result['total'],
+        'preview_count': len(preview_rows),
+        'errors': result['errors'],
+    })
+
+@app.route('/api/import/execute', methods=['POST'])
+@csrf.exempt
+def import_execute():
+    """Execute the import from uploaded file."""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if 'file' not in request.files:
+        return jsonify({'error': 'Файл не обрано'}), 400
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'Файл не обрано'}), 400
+
+    # Parse
+    result = parse_import_file(file, file.filename)
+    if not result['rows']:
+        return jsonify({
+            'success': False,
+            'report': {'created': 0, 'updated': 0, 'errors': 1, 'skipped': 0,
+                       'details': [{'row': '-', 'name': '-', 'action': 'error',
+                                    'message': 'Файл порожній або невірний формат'}]},
+            'parse_errors': result['errors']
+        })
+
+    # Execute import
+    # image_resolver=None for now — can be replaced with API-based resolver in future
+    report = execute_import(
+        rows=result['rows'],
+        db_session=db.session,
+        product_model=Product,
+        category_model=Category,
+        image_resolver=None,
+        slug_generator=transliterate_to_slug
+    )
+
+    return jsonify({
+        'success': True,
+        'report': report,
+        'parse_errors': result['errors']
+    })
+
 # === HEALTH CHECK ===
 @app.route('/api/health')
 @limiter.exempt
