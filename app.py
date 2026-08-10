@@ -209,6 +209,7 @@ class Category(db.Model):
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
+    sku = db.Column(db.String(100), nullable=True, index=True)
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
@@ -219,6 +220,9 @@ class Product(db.Model):
     sizes = db.Column(db.String(200), default='XS,S,M,L,XL,XXL')
     gender = db.Column(db.String(20), default='унісекс')
     type = db.Column(db.String(50), default='інше')
+    color = db.Column(db.String(100), default='')
+    material = db.Column(db.String(200), default='')
+    country = db.Column(db.String(100), default='')
     slug = db.Column(db.String(300), unique=True, nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -423,6 +427,23 @@ def _run_fix_once():
     if not _shoe_sizes_fixed:
         _shoe_sizes_fixed = True
         fix_shoe_sizes()
+        # Auto-add new columns if they don't exist (safe migration)
+        try:
+            from sqlalchemy import text
+            with db.engine.connect() as conn:
+                for col_name, col_type in [('sku', 'VARCHAR(100)'), ('color', 'VARCHAR(100)'), ('material', 'VARCHAR(200)'), ('country', 'VARCHAR(100)')]:
+                    try:
+                        conn.execute(text(f"SELECT {col_name} FROM product LIMIT 1"))
+                    except Exception:
+                        try:
+                            conn.execute(text(f"ALTER TABLE product ADD COLUMN {col_name} {col_type} DEFAULT ''"))
+                            conn.commit()
+                            print(f"  Added column: {col_name}")
+                        except Exception as e2:
+                            print(f"  Column {col_name} skip: {e2}")
+                            conn.rollback()
+        except Exception as e:
+            print(f"Migration check: {e}")
     if not _slugs_generated:
         _slugs_generated = True
         try:
@@ -1835,6 +1856,64 @@ def import_execute():
         'report': report,
         'parse_errors': result['errors']
     })
+
+@app.route('/api/import/photo-search', methods=['POST'])
+@csrf.exempt
+def import_photo_search():
+    """Generate photo search URLs for products without images."""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    from product_import import generate_photo_search_query, get_products_without_photos
+
+    data = request.get_json() or {}
+    product_id = data.get('product_id')
+
+    if product_id:
+        # Single product
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({'error': 'Товар не знайдено'}), 404
+        query = generate_photo_search_query(product)
+        return jsonify({
+            'product_id': product.id,
+            'query': query,
+            'search_url': f'https://www.google.com/search?q={query.replace(" ", "+")}&tbm=isch',
+        })
+    else:
+        # All products without photos
+        products = get_products_without_photos(Product)
+        results = []
+        for p in products[:100]:  # Limit to 100 at a time
+            query = generate_photo_search_query(p)
+            results.append({
+                'product_id': p.id,
+                'name': p.name,
+                'sku': p.sku or '',
+                'query': query,
+                'search_url': f'https://www.google.com/search?q={query.replace(" ", "+")}&tbm=isch',
+            })
+        return jsonify({
+            'total_without_photos': len(products),
+            'results': results,
+        })
+
+@app.route('/api/import/update-photo', methods=['POST'])
+@csrf.exempt
+def import_update_photo():
+    """Set photo URL for a product (after admin finds it)."""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    data = request.get_json()
+    product_id = data.get('product_id')
+    image_url = data.get('image_url', '').strip()
+    if not product_id or not image_url:
+        return jsonify({'error': 'product_id та image_url обов\'язкові'}), 400
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Товар не знайдено'}), 404
+    product.image_url = image_url
+    db.session.commit()
+    return jsonify({'success': True, 'product_id': product_id})
 
 # === HEALTH CHECK ===
 @app.route('/api/health')

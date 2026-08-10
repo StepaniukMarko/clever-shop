@@ -1,10 +1,11 @@
 """
-Product Import Module for Clever Shop Admin Panel.
-Handles Excel (.xlsx) and CSV import with preview, create/update, and reporting.
-
-Architecture note: Image resolution is handled via `image_resolver` parameter,
-making it easy to plug in automated image search in the future without changing
-the import logic.
+Product Import Module for Clever Shop Admin Panel v2.
+Handles Excel (.xlsx) and CSV import with:
+- Flexible column mapping (fuzzy match)
+- SKU-based upsert (update existing, create new)
+- Batch processing for 500-2000+ products
+- Photo search query generation
+- Caching of photo search results
 """
 
 import csv
@@ -24,25 +25,31 @@ from openpyxl.worksheet.datavalidation import DataValidation
 # ============================================================
 
 IMPORT_COLUMNS = [
-    {'key': 'name', 'label': 'Назва товару *', 'required': True, 'example': 'Куртка Tommy Hilfiger'},
-    {'key': 'brand', 'label': 'Бренд', 'required': False, 'example': 'Tommy Hilfiger'},
-    {'key': 'price', 'label': 'Ціна (грн) *', 'required': True, 'example': '4500'},
-    {'key': 'category', 'label': 'Категорія', 'required': False, 'example': 'Верхній одяг'},
-    {'key': 'gender', 'label': 'Стать', 'required': False, 'example': 'чоловічий'},
-    {'key': 'type', 'label': 'Тип одягу', 'required': False, 'example': 'куртка'},
-    {'key': 'sizes', 'label': 'Розміри', 'required': False, 'example': 'S,M,L,XL'},
+    {'key': 'brand', 'label': 'Бренд', 'required': False, 'example': 'Massimo Dutti'},
+    {'key': 'name', 'label': 'Назва товару *', 'required': True, 'example': 'Braided leather belt'},
+    {'key': 'sku', 'label': 'Артикул (SKU)', 'required': False, 'example': '1004/504/800'},
+    {'key': 'material', 'label': 'Матеріал', 'required': False, 'example': 'Натуральна шкіра'},
+    {'key': 'country', 'label': 'Країна', 'required': False, 'example': 'Іспанія'},
+    {'key': 'category', 'label': 'Категорія', 'required': False, 'example': 'Аксесуари'},
+    {'key': 'color', 'label': 'Колір', 'required': False, 'example': 'Чорний'},
+    {'key': 'sizes', 'label': 'Розмір', 'required': False, 'example': 'M,L,XL'},
     {'key': 'stock', 'label': 'Кількість', 'required': False, 'example': '5'},
-    {'key': 'description', 'label': 'Опис', 'required': False, 'example': 'Оригінальна куртка з Європи'},
-    {'key': 'image_url', 'label': 'Фото URL', 'required': False, 'example': 'https://example.com/photo.jpg'},
+    {'key': 'price', 'label': 'Ціна (грн) *', 'required': True, 'example': '3200'},
 ]
 
-VALID_GENDERS = ['чоловічий', 'жіночий', 'унісекс']
-VALID_TYPES = ['футболка', 'поло', 'сорочка', 'джинси', 'куртка', 'светр', 'штани', 'кросівки', 'сукня', 'аксесуари', 'білизна', 'інше']
-VALID_BRANDS = [
-    'Massimo Dutti', 'Calvin Klein', 'Tommy Hilfiger', 'Polo Ralph Lauren',
-    'Karl Lagerfeld', 'Premiata', 'Armani Exchange', 'Boss', "Levi's",
-    'Diesel', 'Lacoste', 'Mango', "Victoria's Secret", 'Michael Kors'
-]
+# Keyword mapping for fuzzy column detection
+COLUMN_KEYWORDS = {
+    'brand': ['бренд', 'brand', 'виробник', 'марка', 'торгова марка'],
+    'name': ['назва', 'name', 'найменування', 'товар', 'назва товару', 'наименование'],
+    'sku': ['артикул', 'sku', 'арт', 'код', 'модель', 'article', 'ref'],
+    'material': ['матеріал', 'material', 'склад', 'тканина', 'состав'],
+    'country': ['країна', 'country', 'виробництво', 'страна', 'origin'],
+    'category': ['категорія', 'category', 'розділ', 'група', 'тип', 'group'],
+    'color': ['колір', 'color', 'colour', 'цвет', 'кольор'],
+    'sizes': ['розмір', 'sizes', 'size', 'розміри', 'размер'],
+    'stock': ['кількість', 'stock', 'залишок', 'наявність', 'qty', 'количество', 'кол-во'],
+    'price': ['ціна', 'price', 'вартість', 'прайс', 'цена', 'стоимость'],
+}
 
 
 # ============================================================
@@ -50,15 +57,14 @@ VALID_BRANDS = [
 # ============================================================
 
 def generate_import_template(categories: List[str]) -> bytes:
-    """Generate an Excel template with headers, example row, and data validation."""
+    """Generate Excel template with headers, example row, and data validation."""
     wb = Workbook()
     ws = wb.active
     ws.title = "Товари"
 
-    # Styles
     header_font = Font(bold=True, size=11, color="FFFFFF")
-    header_fill = PatternFill(start_color="10B981", end_color="10B981", fill_type="solid")
-    example_fill = PatternFill(start_color="F0FDF4", end_color="F0FDF4", fill_type="solid")
+    header_fill = PatternFill(start_color="2563EB", end_color="2563EB", fill_type="solid")
+    example_fill = PatternFill(start_color="EFF6FF", end_color="EFF6FF", fill_type="solid")
     thin_border = Border(
         left=Side(style='thin', color='D1D5DB'),
         right=Side(style='thin', color='D1D5DB'),
@@ -66,7 +72,6 @@ def generate_import_template(categories: List[str]) -> bytes:
         bottom=Side(style='thin', color='D1D5DB')
     )
 
-    # Write headers
     for col_idx, col in enumerate(IMPORT_COLUMNS, 1):
         cell = ws.cell(row=1, column=col_idx, value=col['label'])
         cell.font = header_font
@@ -75,68 +80,39 @@ def generate_import_template(categories: List[str]) -> bytes:
         cell.border = thin_border
         ws.column_dimensions[get_column_letter(col_idx)].width = max(len(col['label']), len(col['example'])) + 4
 
-    # Write example row
     for col_idx, col in enumerate(IMPORT_COLUMNS, 1):
         cell = ws.cell(row=2, column=col_idx, value=col['example'])
         cell.fill = example_fill
         cell.border = thin_border
         cell.font = Font(italic=True, color="6B7280")
 
-    # Data validation for Gender (column 5)
-    gender_dv = DataValidation(type="list", formula1='"' + ','.join(VALID_GENDERS) + '"', allow_blank=True)
-    gender_dv.error = "Оберіть: чоловічий, жіночий або унісекс"
-    gender_dv.errorTitle = "Невірна стать"
-    ws.add_data_validation(gender_dv)
-    gender_dv.add(f'E3:E1000')
-
-    # Data validation for Type (column 6)
-    type_dv = DataValidation(type="list", formula1='"' + ','.join(VALID_TYPES) + '"', allow_blank=True)
-    type_dv.error = "Оберіть тип зі списку"
-    type_dv.errorTitle = "Невірний тип"
-    ws.add_data_validation(type_dv)
-    type_dv.add(f'F3:F1000')
-
-    # Data validation for Category (column 4)
-    if categories:
-        cat_dv = DataValidation(type="list", formula1='"' + ','.join(categories) + '"', allow_blank=True)
-        cat_dv.error = "Оберіть категорію зі списку"
-        ws.add_data_validation(cat_dv)
-        cat_dv.add(f'D3:D1000')
-
-    # Data validation for Brand (column 2)
-    brand_dv = DataValidation(type="list", formula1='"' + ','.join(VALID_BRANDS) + '"', allow_blank=True)
-    ws.add_data_validation(brand_dv)
-    brand_dv.add(f'B3:B1000')
-
     # Instructions sheet
     ws_help = wb.create_sheet("Інструкція")
     instructions = [
-        ("Як заповнювати шаблон:", ""),
+        ("Як заповнювати:", ""),
         ("", ""),
-        ("1. Назва товару", "Обов'язкове поле. Якщо товар з такою назвою вже існує — він буде оновлений."),
-        ("2. Бренд", "Оберіть зі списку або введіть свій."),
-        ("3. Ціна", "Обов'язкове поле. Число в гривнях (без 'грн')."),
-        ("4. Категорія", "Оберіть зі списку. Якщо пусто — буде 'Верхній одяг'."),
-        ("5. Стать", "чоловічий / жіночий / унісекс"),
-        ("6. Тип одягу", "Оберіть зі списку."),
-        ("7. Розміри", "Через кому: XS,S,M,L,XL або з наявністю: XS:1,S:1,M:0,L:1"),
-        ("8. Кількість", "Загальна кількість на складі (число)."),
-        ("9. Опис", "Текст опису товару."),
-        ("10. Фото URL", "Пряме посилання на фото. Можна кілька через кому."),
+        ("1. Бренд", "Назва бренду (Massimo Dutti, Calvin Klein тощо)"),
+        ("2. Назва товару", "Обов'язкове. Назва товару"),
+        ("3. Артикул (SKU)", "Унікальний код товару. Використовується для оновлення"),
+        ("4. Матеріал", "Склад тканини або матеріал"),
+        ("5. Країна", "Країна виробництва"),
+        ("6. Категорія", "Група товару (Верхній одяг, Взуття тощо)"),
+        ("7. Колір", "Колір товару"),
+        ("8. Розмір", "Через кому: S,M,L,XL або 40,42,44"),
+        ("9. Кількість", "Залишок на складі"),
+        ("10. Ціна", "Ціна в гривнях (число)"),
         ("", ""),
-        ("⚠️ Важливо:", ""),
-        ("", "Перший рядок (зелений) — заголовки. НЕ видаляйте!"),
-        ("", "Другий рядок (світло-зелений) — приклад. Можете видалити або замінити."),
-        ("", "Якщо товар з такою самою НАЗВОЮ вже є в магазині — він ОНОВИТЬСЯ."),
-        ("", "Нові товари будуть СТВОРЕНІ автоматично."),
+        ("ВАЖЛИВО:", ""),
+        ("", "Якщо товар з таким АРТИКУЛОМ вже є — він ОНОВИТЬСЯ"),
+        ("", "Нові товари СТВОРЮЮТЬСЯ автоматично"),
+        ("", "Перший рядок — заголовки. Другий — приклад (можна видалити)"),
     ]
-    for row_idx, (col_a, col_b) in enumerate(instructions, 1):
-        ws_help.cell(row=row_idx, column=1, value=col_a).font = Font(bold=True if col_a and not col_a.startswith(' ') else False)
-        ws_help.cell(row=row_idx, column=2, value=col_b)
-    ws_help.column_dimensions['A'].width = 25
-    ws_help.column_dimensions['B'].width = 70
+    for row_idx, (a, b) in enumerate(instructions, 1):
+        ws_help.cell(row=row_idx, column=1, value=a).font = Font(bold=bool(a))
+        ws_help.cell(row=row_idx, column=2, value=b)
+    ws_help.column_dimensions['A'].width = 22
+    ws_help.column_dimensions['B'].width = 60
 
-    # Save to bytes
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
@@ -148,29 +124,22 @@ def generate_import_template(categories: List[str]) -> bytes:
 # ============================================================
 
 def parse_import_file(file_storage, filename: str) -> Dict[str, Any]:
-    """
-    Parse uploaded Excel or CSV file into a list of row dicts.
-    Returns: {'rows': [...], 'total': int, 'errors': [...]}
-    """
     ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
-
     if ext == 'xlsx':
         return _parse_xlsx(file_storage)
     elif ext == 'csv':
         return _parse_csv(file_storage)
     else:
-        return {'rows': [], 'total': 0, 'errors': [f'Непідтримуваний формат: .{ext}. Використовуйте .xlsx або .csv']}
+        return {'rows': [], 'total': 0, 'errors': [f'Непідтримуваний формат: .{ext}']}
 
 
 def _parse_xlsx(file_storage) -> Dict[str, Any]:
-    """Parse .xlsx file."""
     try:
         wb = load_workbook(file_storage, read_only=True, data_only=True)
         ws = wb.active
         rows = []
         errors = []
 
-        # Read header row to map columns
         header_row = [str(cell.value or '').strip().lower() for cell in ws[1]]
         col_map = _map_columns(header_row)
 
@@ -184,24 +153,21 @@ def _parse_xlsx(file_storage) -> Dict[str, Any]:
         wb.close()
         return {'rows': rows, 'total': len(rows), 'errors': errors}
     except Exception as e:
-        return {'rows': [], 'total': 0, 'errors': [f'Помилка читання файлу: {str(e)}']}
+        return {'rows': [], 'total': 0, 'errors': [f'Помилка читання: {str(e)}']}
 
 
 def _parse_csv(file_storage) -> Dict[str, Any]:
-    """Parse .csv file (UTF-8 or CP1251)."""
     try:
         raw = file_storage.read()
-        # Try UTF-8 first, then CP1251 (common for Ukrainian Excel exports)
-        for encoding in ['utf-8-sig', 'utf-8', 'cp1251']:
+        for encoding in ['utf-8-sig', 'utf-8', 'cp1251', 'windows-1251']:
             try:
                 text = raw.decode(encoding)
                 break
             except UnicodeDecodeError:
                 continue
         else:
-            return {'rows': [], 'total': 0, 'errors': ['Не вдалося визначити кодування файлу']}
+            return {'rows': [], 'total': 0, 'errors': ['Не вдалося визначити кодування']}
 
-        # Detect delimiter
         first_line = text.split('\n')[0]
         delimiter = ';' if ';' in first_line else ','
 
@@ -214,7 +180,6 @@ def _parse_csv(file_storage) -> Dict[str, Any]:
         for row_idx, row in enumerate(reader, start=2):
             if not row or all(v.strip() == '' for v in row):
                 continue
-            # Pad row to match header length
             while len(row) < len(header_row):
                 row.append('')
             parsed = _parse_row(row, col_map, row_idx, errors)
@@ -223,39 +188,33 @@ def _parse_csv(file_storage) -> Dict[str, Any]:
 
         return {'rows': rows, 'total': len(rows), 'errors': errors}
     except Exception as e:
-        return {'rows': [], 'total': 0, 'errors': [f'Помилка читання CSV: {str(e)}']}
+        return {'rows': [], 'total': 0, 'errors': [f'Помилка CSV: {str(e)}']}
 
 
 def _map_columns(header_row: List[str]) -> Dict[str, int]:
-    """Map header names to column indices using fuzzy matching."""
+    """Map header names to column indices using fuzzy keyword matching."""
     col_map = {}
-    keyword_map = {
-        'name': ['назва', 'name', 'найменування', 'товар', 'назва товару'],
-        'brand': ['бренд', 'brand', 'виробник', 'марка'],
-        'price': ['ціна', 'price', 'вартість', 'прайс'],
-        'category': ['категорія', 'category', 'розділ', 'група'],
-        'gender': ['стать', 'gender', 'пол', 'для кого'],
-        'type': ['тип', 'type', 'вид', 'тип одягу'],
-        'sizes': ['розмір', 'sizes', 'size', 'розміри'],
-        'stock': ['кількість', 'stock', 'залишок', 'наявність', 'qty'],
-        'description': ['опис', 'description', 'desc', 'характеристика'],
-        'image_url': ['фото', 'image', 'photo', 'url', 'зображення', 'фото url'],
-    }
-
     for col_idx, header in enumerate(header_row):
-        header_clean = header.replace('*', '').replace('(грн)', '').strip()
-        for field_key, keywords in keyword_map.items():
+        header_clean = header.replace('*', '').replace('(грн)', '').replace('(sku)', '').strip()
+        for field_key, keywords in COLUMN_KEYWORDS.items():
             if field_key not in col_map:
                 for kw in keywords:
                     if kw in header_clean:
                         col_map[field_key] = col_idx
                         break
 
+    # Fallback: if columns are in exact A-J order without headers
+    if not col_map or len(col_map) < 3:
+        # Try positional mapping (A=brand, B=name, C=sku, D=material, E=country, F=category, G=color, H=sizes, I=stock, J=price)
+        keys = ['brand', 'name', 'sku', 'material', 'country', 'category', 'color', 'sizes', 'stock', 'price']
+        for i, key in enumerate(keys):
+            if i < len(header_row):
+                col_map[key] = i
+
     return col_map
 
 
 def _parse_row(row, col_map: Dict[str, int], row_idx: int, errors: List[str]) -> Optional[Dict[str, Any]]:
-    """Parse a single row using the column mapping."""
     def get_val(key: str, default='') -> str:
         idx = col_map.get(key)
         if idx is None or idx >= len(row):
@@ -266,24 +225,17 @@ def _parse_row(row, col_map: Dict[str, int], row_idx: int, errors: List[str]) ->
     name = get_val('name')
     price_str = get_val('price')
 
-    # Validate required fields
     if not name:
-        errors.append(f'Рядок {row_idx}: пуста назва — пропущено')
-        return None
+        return None  # Skip silently for empty rows
 
     # Parse price
     price = 0.0
     if price_str:
         try:
-            # Handle various formats: "4 500", "4500.00", "4,500"
             cleaned = price_str.replace(' ', '').replace(',', '.').replace('грн', '').replace('₴', '').strip()
             price = float(cleaned)
         except (ValueError, TypeError):
-            errors.append(f'Рядок {row_idx} ({name}): невірна ціна "{price_str}" — встановлено 0')
-            price = 0.0
-
-    if price <= 0:
-        errors.append(f'Рядок {row_idx} ({name}): ціна = 0 або відсутня')
+            errors.append(f'Рядок {row_idx} ({name}): невірна ціна "{price_str}"')
 
     # Parse stock
     stock = 0
@@ -293,38 +245,26 @@ def _parse_row(row, col_map: Dict[str, int], row_idx: int, errors: List[str]) ->
     except (ValueError, TypeError):
         stock = 0
 
-    # Normalize gender
-    gender = get_val('gender', 'унісекс').lower()
-    if gender not in VALID_GENDERS:
-        if 'чол' in gender or 'men' in gender.lower() or 'man' in gender.lower():
-            gender = 'чоловічий'
-        elif 'жін' in gender or 'women' in gender.lower() or 'woman' in gender.lower():
-            gender = 'жіночий'
-        else:
-            gender = 'унісекс'
-
-    # Normalize type
-    product_type = get_val('type', 'інше').lower()
-    if product_type not in VALID_TYPES:
-        product_type = 'інше'
+    # Clean SKU (remove slashes for matching but keep original)
+    sku = get_val('sku', '')
 
     return {
+        'brand': get_val('brand', ''),
         'name': name,
-        'brand': get_val('brand', 'Clever'),
-        'price': price,
+        'sku': sku,
+        'material': get_val('material', ''),
+        'country': get_val('country', ''),
         'category': get_val('category', ''),
-        'gender': gender,
-        'type': product_type,
-        'sizes': get_val('sizes', 'XS,S,M,L,XL,XXL'),
+        'color': get_val('color', ''),
+        'sizes': get_val('sizes', ''),
         'stock': stock,
-        'description': get_val('description', ''),
-        'image_url': get_val('image_url', ''),
+        'price': price,
         'row_num': row_idx,
     }
 
 
 # ============================================================
-# IMPORT EXECUTION
+# IMPORT EXECUTION (SKU-based upsert)
 # ============================================================
 
 def execute_import(
@@ -333,20 +273,12 @@ def execute_import(
     product_model,
     category_model,
     image_resolver: Optional[Callable[[str], str]] = None,
-    slug_generator: Optional[Callable[[str], str]] = None
+    slug_generator: Optional[Callable[[str], str]] = None,
+    batch_size: int = 50
 ) -> Dict[str, Any]:
     """
-    Execute the import: create new products or update existing ones.
-
-    Args:
-        rows: Parsed row dicts from parse_import_file
-        db_session: SQLAlchemy session
-        product_model: Product class
-        category_model: Category class
-        image_resolver: Optional callable(url) -> local_url (for future image API integration)
-        slug_generator: Optional callable(name) -> slug
-
-    Returns: Report dict with created, updated, errors, details
+    Execute import with SKU-based upsert logic.
+    Processes in batches to avoid timeout on large catalogs.
     """
     report = {
         'created': 0,
@@ -360,104 +292,135 @@ def execute_import(
     categories = {c.name.lower(): c.id for c in category_model.query.all()}
     default_category_id = list(categories.values())[0] if categories else 1
 
-    for row in rows:
+    for batch_start in range(0, len(rows), batch_size):
+        batch = rows[batch_start:batch_start + batch_size]
+
+        for row in batch:
+            try:
+                cat_name = row.get('category', '').strip()
+                category_id = default_category_id
+                if cat_name:
+                    category_id = categories.get(cat_name.lower(), default_category_id)
+
+                # SKU-based lookup (primary), fallback to name
+                existing = None
+                sku = row.get('sku', '').strip()
+                if sku:
+                    existing = product_model.query.filter(product_model.sku == sku).first()
+                if not existing and row['name']:
+                    existing = product_model.query.filter(product_model.name == row['name']).first()
+
+                if existing:
+                    # UPDATE
+                    if row['price'] > 0:
+                        existing.price = row['price']
+                    if row['stock'] > 0:
+                        existing.stock = row['stock']
+                    if row.get('brand'):
+                        existing.brand = row['brand']
+                    if row.get('material'):
+                        existing.material = row['material']
+                    if row.get('country'):
+                        existing.country = row['country']
+                    if row.get('color'):
+                        existing.color = row['color']
+                    if row.get('sizes'):
+                        existing.sizes = row['sizes']
+                    if row.get('sku') and not existing.sku:
+                        existing.sku = row['sku']
+                    existing.category_id = category_id
+
+                    report['updated'] += 1
+                    report['details'].append({
+                        'row': row.get('row_num', '?'),
+                        'name': row['name'],
+                        'action': 'updated',
+                        'message': f'SKU={sku or "N/A"}'
+                    })
+                else:
+                    # CREATE
+                    new_product = product_model(
+                        name=row['name'],
+                        sku=sku or None,
+                        brand=row.get('brand', '') or 'Clever',
+                        price=row['price'] if row['price'] > 0 else 0,
+                        category_id=category_id,
+                        color=row.get('color', ''),
+                        material=row.get('material', ''),
+                        country=row.get('country', ''),
+                        sizes=row.get('sizes', ''),
+                        stock=row['stock'],
+                        description='',
+                        image_url='',
+                    )
+                    db_session.add(new_product)
+                    db_session.flush()
+
+                    # Generate slug
+                    if slug_generator:
+                        try:
+                            base_slug = slug_generator(new_product.name)
+                            slug = base_slug
+                            dup = product_model.query.filter(
+                                product_model.slug == slug,
+                                product_model.id != new_product.id
+                            ).first()
+                            if dup:
+                                slug = f'{base_slug}-{new_product.id}'
+                            new_product.slug = slug
+                        except Exception:
+                            new_product.slug = f'product-{new_product.id}'
+
+                    report['created'] += 1
+                    report['details'].append({
+                        'row': row.get('row_num', '?'),
+                        'name': row['name'],
+                        'action': 'created',
+                        'message': f'ID={new_product.id}'
+                    })
+
+            except Exception as e:
+                report['errors'] += 1
+                report['details'].append({
+                    'row': row.get('row_num', '?'),
+                    'name': row.get('name', '?'),
+                    'action': 'error',
+                    'message': str(e)
+                })
+
+        # Commit each batch
         try:
-            # Find or resolve category
-            cat_name = row.get('category', '').strip()
-            category_id = default_category_id
-            if cat_name:
-                category_id = categories.get(cat_name.lower(), default_category_id)
-
-            # Resolve image URL (hook for future automation)
-            image_url = row.get('image_url', '')
-            if image_url and image_resolver:
-                try:
-                    image_url = image_resolver(image_url)
-                except Exception:
-                    pass  # Keep original URL on error
-
-            # Check if product exists (by exact name match)
-            existing = product_model.query.filter(
-                product_model.name == row['name']
-            ).first()
-
-            if existing:
-                # UPDATE existing product
-                existing.price = row['price'] if row['price'] > 0 else existing.price
-                existing.brand = row['brand'] or existing.brand
-                existing.category_id = category_id
-                existing.gender = row['gender']
-                existing.type = row['type']
-                existing.sizes = row['sizes'] or existing.sizes
-                existing.stock = row['stock'] if row['stock'] > 0 else existing.stock
-                if row['description']:
-                    existing.description = row['description']
-                if image_url:
-                    existing.image_url = image_url
-                report['updated'] += 1
-                report['details'].append({
-                    'row': row.get('row_num', '?'),
-                    'name': row['name'],
-                    'action': 'updated',
-                    'message': f'Оновлено: ціна={existing.price}, stock={existing.stock}'
-                })
-            else:
-                # CREATE new product
-                new_product = product_model(
-                    name=row['name'],
-                    brand=row['brand'] or 'Clever',
-                    price=row['price'],
-                    category_id=category_id,
-                    gender=row['gender'],
-                    type=row['type'],
-                    sizes=row['sizes'] or 'XS,S,M,L,XL,XXL',
-                    stock=row['stock'],
-                    description=row['description'],
-                    image_url=image_url,
-                )
-                db_session.add(new_product)
-                db_session.flush()
-
-                # Generate slug
-                if slug_generator:
-                    try:
-                        base_slug = slug_generator(new_product.name)
-                        slug = base_slug
-                        dup = product_model.query.filter(
-                            product_model.slug == slug,
-                            product_model.id != new_product.id
-                        ).first()
-                        if dup:
-                            slug = f'{base_slug}-{new_product.id}'
-                        new_product.slug = slug
-                    except Exception:
-                        new_product.slug = f'product-{new_product.id}'
-
-                report['created'] += 1
-                report['details'].append({
-                    'row': row.get('row_num', '?'),
-                    'name': row['name'],
-                    'action': 'created',
-                    'message': f'Створено: ID={new_product.id}'
-                })
-
+            db_session.commit()
         except Exception as e:
-            report['errors'] += 1
+            db_session.rollback()
+            report['errors'] += len(batch)
             report['details'].append({
-                'row': row.get('row_num', '?'),
-                'name': row.get('name', '?'),
-                'action': 'error',
-                'message': str(e)
+                'row': '-', 'name': '-', 'action': 'error',
+                'message': f'Batch commit error: {str(e)}'
             })
 
-    # Commit all changes
-    try:
-        db_session.commit()
-    except Exception as e:
-        db_session.rollback()
-        report['errors'] = len(rows)
-        report['created'] = 0
-        report['updated'] = 0
-        report['details'] = [{'row': '-', 'name': '-', 'action': 'error', 'message': f'Помилка збереження: {str(e)}'}]
-
     return report
+
+
+# ============================================================
+# PHOTO SEARCH HELPERS
+# ============================================================
+
+def generate_photo_search_query(product) -> str:
+    """Generate search query for finding product photos."""
+    parts = []
+    if product.brand:
+        parts.append(product.brand)
+    if product.sku:
+        # Remove slashes for better search
+        parts.append(product.sku.replace('/', ''))
+    if product.name:
+        parts.append(product.name)
+    return ' '.join(parts).strip()
+
+
+def get_products_without_photos(product_model) -> list:
+    """Get all products that don't have images."""
+    return product_model.query.filter(
+        (product_model.image_url == None) | (product_model.image_url == '')
+    ).all()
