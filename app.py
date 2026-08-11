@@ -1863,7 +1863,7 @@ def import_execute():
 @app.route('/api/import/photo-search', methods=['POST'])
 @csrf.exempt
 def import_photo_search():
-    """Generate photo search URLs for products without images."""
+    """Generate photo search queries for products. Supports single + bulk."""
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
     from product_import import generate_photo_search_query, get_products_without_photos
@@ -1872,51 +1872,107 @@ def import_photo_search():
     product_id = data.get('product_id')
 
     if product_id:
-        # Single product
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Товар не знайдено'}), 404
-        query = generate_photo_search_query(product)
+        query1 = f"{product.brand} {(product.sku or '').replace('/', '')}"
+        query2 = f"{product.brand} {product.original_name or product.name}"
+        query3 = product.sku or product.name
         return jsonify({
             'product_id': product.id,
-            'query': query,
-            'search_url': f'https://www.google.com/search?q={query.replace(" ", "+")}&tbm=isch',
+            'name': product.name,
+            'queries': [query1.strip(), query2.strip(), query3.strip()],
+            'search_urls': [
+                f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'
+                for q in [query1.strip(), query2.strip(), query3.strip()]
+            ],
         })
     else:
-        # All products without photos
         products = get_products_without_photos(Product)
         results = []
-        for p in products[:100]:  # Limit to 100 at a time
-            query = generate_photo_search_query(p)
+        for p in products[:200]:
+            q = generate_photo_search_query(p)
             results.append({
                 'product_id': p.id,
                 'name': p.name,
                 'sku': p.sku or '',
-                'query': query,
-                'search_url': f'https://www.google.com/search?q={query.replace(" ", "+")}&tbm=isch',
+                'brand': p.brand or '',
+                'query': q,
+                'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch',
             })
         return jsonify({
             'total_without_photos': len(products),
             'results': results,
         })
 
-@app.route('/api/import/update-photo', methods=['POST'])
+@app.route('/api/import/photo-stats')
 @csrf.exempt
-def import_update_photo():
-    """Set photo URL for a product (after admin finds it)."""
+def import_photo_stats():
+    """Get photo statistics for all products."""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    total = Product.query.count()
+    with_photo = Product.query.filter(
+        Product.image_url != None, Product.image_url != ''
+    ).count()
+    without_photo = total - with_photo
+    return jsonify({
+        'total': total,
+        'with_photo': with_photo,
+        'without_photo': without_photo,
+    })
+
+@app.route('/api/import/set-photo', methods=['POST'])
+@csrf.exempt
+def import_set_photo():
+    """Download image from URL, save locally, attach to product."""
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     product_id = data.get('product_id')
-    image_url = data.get('image_url', '').strip()
+    image_url = (data.get('image_url') or '').strip()
     if not product_id or not image_url:
         return jsonify({'error': 'product_id та image_url обов\'язкові'}), 400
     product = Product.query.get(product_id)
     if not product:
         return jsonify({'error': 'Товар не знайдено'}), 404
-    product.image_url = image_url
-    db.session.commit()
-    return jsonify({'success': True, 'product_id': product_id})
+
+    # If URL is already local — just save
+    if image_url.startswith('/static/'):
+        product.image_url = image_url
+        db.session.commit()
+        return jsonify({'success': True, 'url': image_url})
+
+    # Download and save locally via proxy
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'image/*',
+        }
+        resp = requests.get(image_url, headers=headers, timeout=15, stream=True, allow_redirects=True)
+        if resp.status_code != 200:
+            return jsonify({'error': f'Не вдалося завантажити (HTTP {resp.status_code})'}), 400
+
+        content_type = resp.headers.get('content-type', 'image/jpeg').lower()
+        ext = 'webp' if 'webp' in content_type else 'png' if 'png' in content_type else 'jpg'
+        filename = f"{int(datetime.utcnow().timestamp())}_{product.id}.{ext}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        with open(filepath, 'wb') as f:
+            for chunk in resp.iter_content(8192):
+                if chunk:
+                    f.write(chunk)
+
+        if os.path.getsize(filepath) < 500:
+            os.remove(filepath)
+            return jsonify({'error': 'Файл занадто малий'}), 400
+
+        local_url = url_for('static', filename='uploads/' + filename)
+        product.image_url = local_url
+        db.session.commit()
+        return jsonify({'success': True, 'url': local_url})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # === HEALTH CHECK ===
 @app.route('/api/health')
