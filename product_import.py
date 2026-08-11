@@ -140,10 +140,29 @@ def _parse_xlsx(file_storage) -> Dict[str, Any]:
         rows = []
         errors = []
 
-        header_row = [str(cell.value or '').strip().lower() for cell in ws[1]]
-        col_map = _map_columns(header_row)
+        # Read first row and determine if it's a header or data
+        first_row = [str(cell.value or '').strip() for cell in ws[1]]
+        first_row_lower = [v.lower() for v in first_row]
+        
+        # Check if first row looks like headers (contains keywords)
+        header_keywords = ['бренд', 'brand', 'назва', 'name', 'артикул', 'sku', 'ціна', 'price', 'категорія', 'category', 'колір', 'color', 'розмір', 'size', 'кількість', 'stock', 'матеріал', 'material']
+        is_header = any(kw in ' '.join(first_row_lower) for kw in header_keywords)
+        
+        if is_header:
+            # First row is header — use it for mapping, start data from row 2
+            col_map = _map_columns(first_row_lower)
+            start_row = 2
+        else:
+            # First row is DATA (no headers) — use positional mapping
+            # A=brand, B=name, C=sku, D=material, E=country, F=category, G=color, H=sizes, I=stock, J=price
+            col_map = {}
+            keys = ['brand', 'name', 'sku', 'material', 'country', 'category', 'color', 'sizes', 'stock', 'price']
+            for i, key in enumerate(keys):
+                if i < len(first_row):
+                    col_map[key] = i
+            start_row = 1  # Include first row as data
 
-        for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        for row_idx, row in enumerate(ws.iter_rows(min_row=start_row, values_only=True), start=start_row):
             if not row or all(v is None or str(v).strip() == '' for v in row):
                 continue
             parsed = _parse_row(row, col_map, row_idx, errors)
