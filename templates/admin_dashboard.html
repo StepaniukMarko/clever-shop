@@ -1341,13 +1341,14 @@ function previewImport() {
 
         // Build table
         var thead = document.getElementById('import-preview-thead');
-        thead.innerHTML = '<th>#</th><th>Назва</th><th>Бренд</th><th>Ціна</th><th>Категорія</th><th>Розміри</th><th>Кількість</th>';
+        thead.innerHTML = '<th>#</th><th>Назва (UA)</th><th>Оригінал</th><th>Бренд</th><th>Ціна</th><th>Категорія</th><th>Розміри</th><th>Кількість</th>';
 
         var tbody = document.getElementById('import-preview-tbody');
         tbody.innerHTML = data.rows.map(function(row, i) {
             return '<tr>' +
                 '<td>' + (row.row_num || (i+2)) + '</td>' +
-                '<td><strong>' + escapeHtml(row.name || '') + '</strong></td>' +
+                '<td><strong>' + escapeHtml(row.normalized_name || row.name || '') + '</strong></td>' +
+                '<td style="font-size:0.75rem;color:var(--gray-400);">' + escapeHtml(row.name || '').substring(0,30) + '</td>' +
                 '<td>' + escapeHtml(row.brand || '') + '</td>' +
                 '<td>' + (row.price || 0) + ' грн</td>' +
                 '<td>' + escapeHtml(row.category || '-') + '</td>' +

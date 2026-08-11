@@ -1801,7 +1801,7 @@ def import_template():
 @app.route('/api/import/preview', methods=['POST'])
 @csrf.exempt
 def import_preview():
-    """Parse uploaded file and return preview JSON."""
+    """Parse uploaded file and return preview JSON with normalized names."""
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
     if 'file' not in request.files:
@@ -1810,8 +1810,18 @@ def import_preview():
     if not file.filename:
         return jsonify({'error': 'Файл не обрано'}), 400
 
+    from product_import import normalize_product_name
     result = parse_import_file(file, file.filename)
-    # Return first 50 rows for preview, plus stats
+
+    # Add normalized_name to each row for preview
+    for row in result['rows']:
+        row['normalized_name'] = normalize_product_name(
+            original_name=row.get('name', ''),
+            brand=row.get('brand', ''),
+            category=row.get('category', ''),
+            material=row.get('material', '')
+        )
+
     preview_rows = result['rows'][:50]
     return jsonify({
         'rows': preview_rows,
