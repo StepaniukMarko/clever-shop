@@ -1873,47 +1873,94 @@ def import_execute():
 @app.route('/api/import/photo-search', methods=['POST'])
 @csrf.exempt
 def import_photo_search():
-    """Generate photo search queries for products. Supports single + bulk."""
+    """Search photos via Google CSE or generate manual links. Supports batch mode."""
     if not session.get('admin'):
         return jsonify({'error': 'Unauthorized'}), 401
-    from product_import import generate_photo_search_query, get_products_without_photos
+    from product_import import get_products_without_photos
 
     data = request.get_json() or {}
     product_id = data.get('product_id')
+    skip_ids = data.get('skip_ids', [])
 
     if product_id:
+        # Single product
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Товар не знайдено'}), 404
-        query1 = f"{product.brand} {(product.sku or '').replace('/', '')}"
-        query2 = f"{product.brand} {product.original_name or product.name}"
-        query3 = product.sku or product.name
+        queries = _build_photo_queries(product)
+        results = _search_photos(queries)
         return jsonify({
-            'product_id': product.id,
-            'name': product.name,
-            'queries': [query1.strip(), query2.strip(), query3.strip()],
-            'search_urls': [
-                f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'
-                for q in [query1.strip(), query2.strip(), query3.strip()]
-            ],
+            'product_id': product.id, 'name': product.name,
+            'sku': product.sku or '', 'brand': product.brand or '',
+            'original_name': product.original_name or '',
+            'queries': queries, 'results': results,
+            'mode': 'api' if os.environ.get('GOOGLE_CSE_API_KEY') else 'manual',
         })
     else:
+        # Batch: next product without photo
         products = get_products_without_photos(Product)
-        results = []
-        for p in products[:200]:
-            q = generate_photo_search_query(p)
-            results.append({
-                'product_id': p.id,
-                'name': p.name,
-                'sku': p.sku or '',
-                'brand': p.brand or '',
-                'query': q,
-                'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch',
-            })
+        if skip_ids:
+            products = [p for p in products if p.id not in skip_ids]
+        if not products:
+            return jsonify({'done': True, 'remaining': 0, 'message': 'Всі товари оброблені'})
+        product = products[0]
+        queries = _build_photo_queries(product)
+        results = _search_photos(queries)
         return jsonify({
-            'total_without_photos': len(products),
-            'results': results,
+            'product_id': product.id, 'name': product.name,
+            'sku': product.sku or '', 'brand': product.brand or '',
+            'original_name': product.original_name or '',
+            'queries': queries, 'results': results,
+            'remaining': len(products) - 1,
+            'mode': 'api' if os.environ.get('GOOGLE_CSE_API_KEY') else 'manual',
         })
+
+
+def _build_photo_queries(product) -> list:
+    """Build optimized search queries for a product."""
+    queries = []
+    brand = product.brand or ''
+    sku = (product.sku or '').replace('/', ' ').strip()
+    orig = product.original_name or product.name
+    if brand and sku:
+        queries.append(f"{brand} {sku}")
+    if brand and orig:
+        queries.append(f"{brand} {orig}")
+    if sku:
+        queries.append(sku)
+    return queries[:3]
+
+
+def _search_photos(queries: list) -> list:
+    """Use Google CSE if configured, else return manual search links."""
+    api_key = os.environ.get('GOOGLE_CSE_API_KEY', '')
+    cx = os.environ.get('GOOGLE_CSE_CX', '')
+
+    if api_key and cx:
+        results = []
+        for query in queries[:1]:
+            try:
+                resp = requests.get('https://www.googleapis.com/customsearch/v1', params={
+                    'key': api_key, 'cx': cx, 'q': query,
+                    'searchType': 'image', 'num': 5, 'imgSize': 'large', 'safe': 'active',
+                }, timeout=10)
+                if resp.status_code == 200:
+                    for item in resp.json().get('items', [])[:5]:
+                        results.append({
+                            'url': item.get('link', ''),
+                            'thumbnail': item.get('image', {}).get('thumbnailLink', ''),
+                            'title': item.get('title', ''),
+                            'source': item.get('displayLink', ''),
+                        })
+                if results:
+                    break
+            except Exception:
+                continue
+        return results if results else [{'url': '', 'thumbnail': '', 'title': 'API помилка', 'source': 'manual',
+            'search_url': f'https://www.google.com/search?q={queries[0].replace(" ", "+")}&tbm=isch'}]
+    else:
+        return [{'url': '', 'thumbnail': '', 'title': 'Google Images',
+            'source': 'manual', 'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'} for q in queries]
 
 @app.route('/api/import/photo-stats')
 @csrf.exempt
