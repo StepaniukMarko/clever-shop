@@ -264,6 +264,90 @@ def _parse_row(row, col_map: Dict[str, int], row_idx: int, errors: List[str]) ->
 
 
 # ============================================================
+# NAME NORMALIZATION (supplier names → Ukrainian product names)
+# ============================================================
+
+def normalize_product_name(original_name: str, brand: str, category: str, material: str) -> str:
+    """
+    Convert raw supplier product names to clean Ukrainian names.
+    
+    Logic:
+    1. Determine if material is leather → prefix "Шкіряний/Шкіряна"
+    2. Map category to Ukrainian noun
+    3. For shoes: detect type from original name
+    4. Format: "{prefix} {category_ua} {brand}"
+    """
+    cat_lower = category.lower().strip()
+    mat_lower = material.lower().strip()
+    name_lower = original_name.lower().strip()
+    
+    # Check if leather material
+    is_leather = any(kw in mat_lower for kw in ['натуральна шкіра', 'шкіра', 'nappa', 'napa', 'piel', 'leather', 'cuero', 'couro'])
+    
+    # Category mapping with gender (for prefix agreement)
+    # Format: (base_name, is_feminine)
+    CATEGORY_MAP = {
+        'ремінь': ('ремінь', False),
+        'гаманець': ('гаманець', False),
+        'сумка': ('сумка', True),
+        'рюкзак': ('рюкзак', False),
+        'рукавиці': ('рукавиці', True),  # plural feminine
+        'кардхолдер': ('кардхолдер', False),
+    }
+    
+    # Check for shoe category
+    if cat_lower == 'взуття' or 'взутт' in cat_lower:
+        shoe_type = _detect_shoe_type(name_lower)
+        if brand:
+            return f'{shoe_type} {brand}'
+        return shoe_type
+    
+    # Non-shoe categories
+    cat_info = CATEGORY_MAP.get(cat_lower)
+    if cat_info:
+        base_name, is_feminine = cat_info
+        if is_leather:
+            prefix = 'Шкіряна' if is_feminine else 'Шкіряний'
+            # Special case for plural
+            if cat_lower == 'рукавиці':
+                prefix = 'Шкіряні'
+            result = f'{prefix} {base_name}'
+        else:
+            result = base_name.capitalize()
+        
+        if brand:
+            result += f' {brand}'
+        return result
+    
+    # Fallback: capitalize category + brand
+    if category and brand:
+        return f'{category} {brand}'
+    elif brand:
+        return f'{brand} {original_name[:50]}'
+    
+    return original_name[:100]
+
+
+def _detect_shoe_type(name_lower: str) -> str:
+    """Detect shoe type from original supplier name."""
+    SHOE_KEYWORDS = {
+        'Черевики': ['boot', 'bota', 'botin', 'botín', 'ankle'],
+        'Кросівки': ['trainer', 'sneaker', 'deportiv', 'running', 'sport', 'zapatilla'],
+        'Лофери': ['loafer', 'mocasín', 'mocasin'],
+        'Мокасини': ['moccasin', 'mocassin', 'driving'],
+        'Сандалі': ['sandal', 'sandalia'],
+        'Туфлі': ['oxford', 'derby', 'zapato', 'shoe', 'sapato'],
+        'Кеди': ['canvas', 'vulc', 'plimsoll'],
+    }
+    
+    for ua_type, keywords in SHOE_KEYWORDS.items():
+        if any(kw in name_lower for kw in keywords):
+            return ua_type
+    
+    return 'Взуття'  # default fallback
+
+
+# ============================================================
 # IMPORT EXECUTION (SKU-based upsert)
 # ============================================================
 
@@ -339,8 +423,18 @@ def execute_import(
                     })
                 else:
                     # CREATE
+                    # Normalize name from supplier language to Ukrainian
+                    original_name = row['name']
+                    normalized_name = normalize_product_name(
+                        original_name=original_name,
+                        brand=row.get('brand', ''),
+                        category=row.get('category', ''),
+                        material=row.get('material', '')
+                    )
+                    
                     new_product = product_model(
-                        name=row['name'],
+                        name=normalized_name,
+                        original_name=original_name,
                         sku=sku or None,
                         brand=row.get('brand', '') or 'Clever',
                         price=row['price'] if row['price'] > 0 else 0,

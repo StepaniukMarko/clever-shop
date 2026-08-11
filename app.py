@@ -210,6 +210,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     sku = db.Column(db.String(100), nullable=True, index=True)
+    original_name = db.Column(db.String(500), default='')
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
@@ -430,7 +431,7 @@ def _run_fix_once():
         # Auto-add new columns if they don't exist (safe migration)
         try:
             from sqlalchemy import text
-            for col_name, col_type in [('sku', 'VARCHAR(100)'), ('color', 'VARCHAR(100)'), ('material', 'VARCHAR(200)'), ('country', 'VARCHAR(100)')]:
+            for col_name, col_type in [('sku', 'VARCHAR(100)'), ('color', 'VARCHAR(100)'), ('material', 'VARCHAR(200)'), ('country', 'VARCHAR(100)'), ('original_name', 'VARCHAR(500)')]:
                 try:
                     db.session.execute(text(f"SELECT {col_name} FROM product LIMIT 1"))
                     db.session.rollback()
