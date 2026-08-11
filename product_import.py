@@ -395,11 +395,23 @@ def execute_import(
                     existing = product_model.query.filter(product_model.name == row['name']).first()
 
                 if existing:
-                    # UPDATE
+                    # UPDATE — merge sizes, update price/stock
                     if row['price'] > 0:
                         existing.price = row['price']
+                    # Merge sizes (add new size if not already present)
+                    new_size = row.get('sizes', '').strip()
+                    if new_size and existing.sizes:
+                        current_sizes = [s.strip() for s in existing.sizes.split(',') if s.strip()]
+                        new_sizes_list = [s.strip() for s in new_size.split(',') if s.strip()]
+                        for ns in new_sizes_list:
+                            if ns not in current_sizes:
+                                current_sizes.append(ns)
+                        existing.sizes = ','.join(current_sizes)
+                    elif new_size and not existing.sizes:
+                        existing.sizes = new_size
+                    # Accumulate stock (add new stock to existing)
                     if row['stock'] > 0:
-                        existing.stock = row['stock']
+                        existing.stock = (existing.stock or 0) + row['stock']
                     if row.get('brand'):
                         existing.brand = row['brand']
                     if row.get('material'):
@@ -408,8 +420,6 @@ def execute_import(
                         existing.country = row['country']
                     if row.get('color'):
                         existing.color = row['color']
-                    if row.get('sizes'):
-                        existing.sizes = row['sizes']
                     if row.get('sku') and not existing.sku:
                         existing.sku = row['sku']
                     existing.category_id = category_id
@@ -419,7 +429,7 @@ def execute_import(
                         'row': row.get('row_num', '?'),
                         'name': row['name'],
                         'action': 'updated',
-                        'message': f'SKU={sku or "N/A"}'
+                        'message': f'SKU={sku or "N/A"}, sizes={existing.sizes}'
                     })
                 else:
                     # CREATE
