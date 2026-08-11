@@ -430,19 +430,21 @@ def _run_fix_once():
         # Auto-add new columns if they don't exist (safe migration)
         try:
             from sqlalchemy import text
-            with db.engine.connect() as conn:
-                for col_name, col_type in [('sku', 'VARCHAR(100)'), ('color', 'VARCHAR(100)'), ('material', 'VARCHAR(200)'), ('country', 'VARCHAR(100)')]:
+            for col_name, col_type in [('sku', 'VARCHAR(100)'), ('color', 'VARCHAR(100)'), ('material', 'VARCHAR(200)'), ('country', 'VARCHAR(100)')]:
+                try:
+                    db.session.execute(text(f"SELECT {col_name} FROM product LIMIT 1"))
+                    db.session.rollback()
+                except Exception:
+                    db.session.rollback()
                     try:
-                        conn.execute(text(f"SELECT {col_name} FROM product LIMIT 1"))
-                    except Exception:
-                        try:
-                            conn.execute(text(f"ALTER TABLE product ADD COLUMN {col_name} {col_type} DEFAULT ''"))
-                            conn.commit()
-                            print(f"  Added column: {col_name}")
-                        except Exception as e2:
-                            print(f"  Column {col_name} skip: {e2}")
-                            conn.rollback()
+                        db.session.execute(text(f"ALTER TABLE product ADD COLUMN {col_name} {col_type} DEFAULT ''"))
+                        db.session.commit()
+                        print(f"  Added column: {col_name}")
+                    except Exception as e2:
+                        db.session.rollback()
+                        print(f"  Column {col_name} skip: {e2}")
         except Exception as e:
+            db.session.rollback()
             print(f"Migration check: {e}")
     if not _slugs_generated:
         _slugs_generated = True
