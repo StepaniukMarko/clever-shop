@@ -23,6 +23,7 @@
                     <li><a href="#" onclick="showTab('products', this)">🏷️ Товари</a></li>
                     <li><a href="#" onclick="showTab('add-product', this)">➕ Додати товар</a></li>
                     <li><a href="#" onclick="showTab('import-products', this)">📥 Імпорт товарів</a></li>
+                    <li><a href="#" onclick="showTab('photo-finder', this)">📷 Фото товарів</a></li>
                     <li><a href="#" onclick="showTab('promo-codes', this)">🎁 Промокоди</a></li>
                     <li style="margin-top:auto;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.1);">
                         <a href="/">🏠 На сайт</a>
@@ -668,6 +669,67 @@
                         <div id="import-report-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.75rem;margin-bottom:1rem;"></div>
                         <div id="import-report-details" style="max-height:300px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:8px;"></div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Photo Finder -->
+            <div id="photo-finder" class="admin-section">
+                <div class="admin-form">
+                    <h3>📷 Пошук фото для товарів</h3>
+                    
+                    <!-- Stats -->
+                    <div id="photo-stats" style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+                        <div style="padding:1rem;background:var(--gray-100);border-radius:8px;flex:1;text-align:center;">
+                            <div style="font-size:1.5rem;font-weight:700;" id="ps-total">—</div>
+                            <div style="font-size:0.8rem;color:var(--gray-500);">Всього товарів</div>
+                        </div>
+                        <div style="padding:1rem;background:#ECFDF5;border-radius:8px;flex:1;text-align:center;">
+                            <div style="font-size:1.5rem;font-weight:700;color:#059669;" id="ps-with">—</div>
+                            <div style="font-size:0.8rem;color:var(--gray-500);">З фото</div>
+                        </div>
+                        <div style="padding:1rem;background:#FEF2F2;border-radius:8px;flex:1;text-align:center;">
+                            <div style="font-size:1.5rem;font-weight:700;color:#DC2626;" id="ps-without">—</div>
+                            <div style="font-size:0.8rem;color:var(--gray-500);">Без фото</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls -->
+                    <div style="margin-bottom:1.5rem;">
+                        <button onclick="loadPhotoStats()" class="btn btn-secondary" style="margin-right:0.5rem;">Оновити статистику</button>
+                        <button onclick="startPhotoSearch()" class="btn btn-primary" id="pf-start-btn">Знайти фото (наступний товар)</button>
+                    </div>
+                    
+                    <!-- Current product -->
+                    <div id="pf-product" style="display:none;padding:1.5rem;background:var(--white);border:2px solid var(--gray-200);border-radius:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                            <div>
+                                <h4 id="pf-name" style="margin-bottom:0.25rem;"></h4>
+                                <div style="font-size:0.8rem;color:var(--gray-500);">
+                                    <span id="pf-brand"></span> · SKU: <span id="pf-sku"></span>
+                                </div>
+                                <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.25rem;" id="pf-original"></div>
+                            </div>
+                            <div style="font-size:0.85rem;color:var(--gray-500);" id="pf-remaining"></div>
+                        </div>
+                        
+                        <!-- Results grid -->
+                        <div id="pf-results" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.5rem;margin-bottom:1rem;"></div>
+                        
+                        <!-- Actions -->
+                        <div style="display:flex;gap:0.5rem;">
+                            <button onclick="skipPhoto()" class="btn btn-secondary" style="flex:1;">Пропустити</button>
+                            <button onclick="startPhotoSearch()" class="btn btn-primary" style="flex:1;">Наступний</button>
+                        </div>
+                        
+                        <!-- Manual URL input -->
+                        <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+                            <input type="text" id="pf-manual-url" placeholder="Або вставте URL фото вручну..." style="flex:1;padding:0.6rem;border:1px solid var(--gray-200);border-radius:6px;font-size:0.85rem;">
+                            <button onclick="setManualPhoto()" class="btn btn-secondary">Зберегти</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Status log -->
+                    <div id="pf-log" style="margin-top:1rem;max-height:200px;overflow-y:auto;font-size:0.8rem;color:var(--gray-500);"></div>
                 </div>
             </div>
 
@@ -1441,4 +1503,66 @@ function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// ============================================================
+// PHOTO FINDER
+// ============================================================
+var pfSkipIds = [];
+var pfCurrentProductId = null;
+
+function loadPhotoStats() {
+    fetch('/api/import/photo-stats').then(function(r){return r.json()}).then(function(d){
+        var t=document.getElementById('ps-total');if(t)t.textContent=d.total||0;
+        var w=document.getElementById('ps-with');if(w)w.textContent=d.with_photo||0;
+        var wo=document.getElementById('ps-without');if(wo)wo.textContent=d.without_photo||0;
+    }).catch(function(){});
+}
+
+function startPhotoSearch() {
+    var btn=document.getElementById('pf-start-btn');
+    if(btn){btn.disabled=true;btn.textContent='Пошук...';}
+    fetch('/api/import/photo-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skip_ids:pfSkipIds})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(btn){btn.disabled=false;btn.textContent='Знайти фото (наступний товар)';}
+        if(d.done){document.getElementById('pf-product').style.display='none';pfLog('Всі товари оброблені!');return;}
+        pfCurrentProductId=d.product_id;
+        document.getElementById('pf-product').style.display='block';
+        document.getElementById('pf-name').textContent=d.name||'';
+        document.getElementById('pf-brand').textContent=d.brand||'';
+        document.getElementById('pf-sku').textContent=d.sku||'';
+        document.getElementById('pf-original').textContent=d.original_name||'';
+        document.getElementById('pf-remaining').textContent='Залишилось: '+(d.remaining||0);
+        var grid=document.getElementById('pf-results');
+        if(d.results&&d.results.length>0&&d.results[0].url){
+            grid.innerHTML=d.results.map(function(r){
+                return '<div style="cursor:pointer;border:2px solid transparent;border-radius:8px;overflow:hidden;transition:border-color 0.2s;" onclick="pfSelect(\''+r.url.replace(/'/g,"\\'")+'\')" onmouseover="this.style.borderColor=\'#10B981\'" onmouseout="this.style.borderColor=\'transparent\'"><img src="'+(r.thumbnail||r.url)+'" style="width:100%;height:80px;object-fit:cover;" onerror="this.parentElement.style.display=\'none\'"><div style="font-size:0.55rem;color:#999;padding:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.source||'')+'</div></div>';
+            }).join('');
+        } else if(d.results&&d.results[0]&&d.results[0].search_url){
+            grid.innerHTML='<div style="grid-column:span 5;text-align:center;padding:1rem;"><p style="color:#666;margin-bottom:0.5rem;">API не знайшов. Спробуйте вручну:</p>'+d.results.map(function(r){return '<a href="'+r.search_url+'" target="_blank" style="display:inline-block;margin:0.25rem;padding:0.3rem 0.7rem;background:#f3f4f6;border-radius:4px;font-size:0.7rem;color:#3b82f6;">Google</a>';}).join('')+'</div>';
+        } else {
+            grid.innerHTML='<div style="grid-column:span 5;text-align:center;color:#999;padding:1rem;">Не знайдено</div>';
+        }
+        pfLog('Пошук: '+(d.name||'')+' ['+d.mode+']');
+    })
+    .catch(function(e){if(btn){btn.disabled=false;btn.textContent='Знайти фото';}pfLog('Помилка: '+e.message);});
+}
+
+function pfSelect(url){
+    if(!pfCurrentProductId||!url)return;
+    pfLog('Зберігаю фото ID='+pfCurrentProductId+'...');
+    fetch('/api/import/set-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pfCurrentProductId,image_url:url})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){pfLog('OK! Фото збережено');loadPhotoStats();startPhotoSearch();}
+        else pfLog('Помилка: '+(d.error||''));
+    });
+}
+
+function skipPhoto(){if(pfCurrentProductId){pfSkipIds.push(pfCurrentProductId);pfLog('Пропущено ID='+pfCurrentProductId);}startPhotoSearch();}
+
+function setManualPhoto(){var url=document.getElementById('pf-manual-url').value.trim();if(!url||!pfCurrentProductId)return;pfSelect(url);document.getElementById('pf-manual-url').value='';}
+
+function pfLog(msg){var l=document.getElementById('pf-log');if(l)l.innerHTML='<div>'+new Date().toLocaleTimeString()+' — '+msg+'</div>'+l.innerHTML;}
+
+setTimeout(loadPhotoStats, 1000);
 </script>
