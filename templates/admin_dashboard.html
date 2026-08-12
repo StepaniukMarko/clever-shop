@@ -410,9 +410,10 @@
         
         function showTab(tab) {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
-            event.target.classList.add('active');
+            document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+            var section = document.getElementById(tab);
+            if (section) section.classList.add('active');
+            if (event && event.target) event.target.classList.add('active');
         }
         
         function updateStatus(orderId, status) {
