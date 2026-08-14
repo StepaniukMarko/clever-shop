@@ -1894,7 +1894,7 @@ def import_photo_search():
             'sku': product.sku or '', 'brand': product.brand or '',
             'original_name': product.original_name or '',
             'queries': queries, 'results': results,
-            'mode': 'api' if os.environ.get('GOOGLE_CSE_API_KEY') else 'manual',
+            'mode': 'serpapi' if os.environ.get('SERPAPI_API_KEY') else 'manual',
         })
     else:
         # Batch: next product without photo
@@ -1912,7 +1912,7 @@ def import_photo_search():
             'original_name': product.original_name or '',
             'queries': queries, 'results': results,
             'remaining': len(products) - 1,
-            'mode': 'api' if os.environ.get('GOOGLE_CSE_API_KEY') else 'manual',
+            'mode': 'serpapi' if os.environ.get('SERPAPI_API_KEY') else 'manual',
         })
 
 
@@ -1932,35 +1932,43 @@ def _build_photo_queries(product) -> list:
 
 
 def _search_photos(queries: list) -> list:
-    """Use Google CSE if configured, else return manual search links."""
-    api_key = os.environ.get('GOOGLE_CSE_API_KEY', '')
-    cx = os.environ.get('GOOGLE_CSE_CX', '')
+    """Use SerpAPI for Google Images search. Fallback to manual links if no key."""
+    api_key = os.environ.get('SERPAPI_API_KEY', '')
 
-    if api_key and cx:
+    if api_key:
+        # SerpAPI Google Images
         results = []
-        for query in queries[:1]:
+        for query in queries[:2]:  # Try up to 2 queries
             try:
-                resp = requests.get('https://www.googleapis.com/customsearch/v1', params={
-                    'key': api_key, 'cx': cx, 'q': query,
-                    'searchType': 'image', 'num': 5, 'imgSize': 'large', 'safe': 'active',
-                }, timeout=10)
+                resp = requests.get('https://serpapi.com/search.json', params={
+                    'api_key': api_key,
+                    'engine': 'google_images',
+                    'q': query,
+                    'num': 5,
+                    'safe': 'active',
+                }, timeout=12)
                 if resp.status_code == 200:
-                    for item in resp.json().get('items', [])[:5]:
+                    data = resp.json()
+                    for item in data.get('images_results', [])[:5]:
                         results.append({
-                            'url': item.get('link', ''),
-                            'thumbnail': item.get('image', {}).get('thumbnailLink', ''),
+                            'url': item.get('original', ''),
+                            'thumbnail': item.get('thumbnail', ''),
                             'title': item.get('title', ''),
-                            'source': item.get('displayLink', ''),
+                            'source': item.get('source', ''),
                         })
                 if results:
                     break
             except Exception:
                 continue
-        return results if results else [{'url': '', 'thumbnail': '', 'title': 'API помилка', 'source': 'manual',
+        if results:
+            return results
+        # API returned nothing
+        return [{'url': '', 'thumbnail': '', 'title': 'SerpAPI: нічого не знайдено', 'source': 'manual',
             'search_url': f'https://www.google.com/search?q={queries[0].replace(" ", "+")}&tbm=isch'}]
     else:
-        return [{'url': '', 'thumbnail': '', 'title': 'Google Images',
-            'source': 'manual', 'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'} for q in queries]
+        # No API key — show error + manual links
+        return [{'url': '', 'thumbnail': '', 'title': 'SERPAPI_API_KEY не налаштований', 'source': 'error',
+            'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'} for q in queries]
 
 @app.route('/api/import/photo-stats')
 @csrf.exempt
@@ -1977,6 +1985,7 @@ def import_photo_stats():
         'total': total,
         'with_photo': with_photo,
         'without_photo': without_photo,
+        'serpapi_configured': bool(os.environ.get('SERPAPI_API_KEY')),
     })
 
 @app.route('/api/import/set-photo', methods=['POST'])
