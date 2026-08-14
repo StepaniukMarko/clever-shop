@@ -1938,6 +1938,7 @@ def _search_photos(queries: list) -> list:
     if api_key:
         # SerpAPI Google Images
         results = []
+        last_error = ''
         for query in queries[:2]:  # Try up to 2 queries
             try:
                 resp = requests.get('https://serpapi.com/search.json', params={
@@ -1956,18 +1957,21 @@ def _search_photos(queries: list) -> list:
                             'title': item.get('title', ''),
                             'source': item.get('source', ''),
                         })
+                else:
+                    last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
                 if results:
                     break
-            except Exception:
+            except Exception as e:
+                last_error = f'SerpAPI error: {str(e)}'
                 continue
         if results:
             return results
         # API returned nothing
-        return [{'url': '', 'thumbnail': '', 'title': 'SerpAPI: нічого не знайдено', 'source': 'manual',
+        return [{'url': '', 'thumbnail': '', 'title': last_error or 'Нічого не знайдено', 'source': 'error',
             'search_url': f'https://www.google.com/search?q={queries[0].replace(" ", "+")}&tbm=isch'}]
     else:
-        # No API key — show error + manual links
-        return [{'url': '', 'thumbnail': '', 'title': 'SERPAPI_API_KEY не налаштований', 'source': 'error',
+        # No API key
+        return [{'url': '', 'thumbnail': '', 'title': 'SERPAPI_API_KEY не налаштований в Railway Environment Variables', 'source': 'error',
             'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'} for q in queries]
 
 @app.route('/api/import/photo-stats')
