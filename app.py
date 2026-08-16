@@ -1961,13 +1961,23 @@ def _search_photos(queries: list) -> list:
                 }, timeout=12)
                 if resp.status_code == 200:
                     data = resp.json()
-                    for item in data.get('images_results', [])[:5]:
-                        results.append({
-                            'url': item.get('original', ''),
-                            'thumbnail': item.get('thumbnail', ''),
-                            'title': item.get('title', ''),
-                            'source': item.get('source', ''),
-                        })
+                    sku = queries[0].split()[-1].replace('/', '')
+
+for item in data.get('images_results', []):
+    title = (item.get('title') or '').lower()
+
+    if sku and sku not in title.replace('/', ''):
+        continue
+
+    results.append({
+        'url': item.get('original', ''),
+        'thumbnail': item.get('thumbnail', ''),
+        'title': item.get('title', ''),
+        'source': item.get('source', ''),
+    })
+
+    if len(results) >= 5:
+        break
                 else:
                     last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
                 if results:
