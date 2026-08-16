@@ -1917,18 +1917,26 @@ def import_photo_search():
 
 
 def _build_photo_queries(product) -> list:
-    """Build optimized search queries for a product."""
     queries = []
-    brand = product.brand or ''
-    sku = (product.sku or '').replace('/', ' ').strip()
-    orig = product.original_name or product.name
-    if brand and sku:
-        queries.append(f"{brand} {sku}")
-    if brand and orig:
-        queries.append(f"{brand} {orig}")
-    if sku:
-        queries.append(sku)
-    return queries[:3]
+
+    brand = (product.brand or '').strip()
+    sku_raw = (product.sku or '').strip()
+    sku_spaces = sku_raw.replace('/', ' ')
+    orig = (product.original_name or product.name or '').strip()
+
+    candidates = [
+        f"{brand} {sku_raw}" if brand and sku_raw else "",
+        f"{brand} {sku_spaces}" if brand and sku_spaces else "",
+        f"{orig} {sku_raw}" if orig and sku_raw else "",
+        f"{brand} {orig}" if brand and orig else "",
+        sku_raw,
+    ]
+
+    for q in candidates:
+        if q and q not in queries:
+            queries.append(q)
+
+    return queries[:5]
 
 
 def _search_photos(queries: list) -> list:
