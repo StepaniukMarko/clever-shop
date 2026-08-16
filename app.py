@@ -1922,21 +1922,24 @@ def _build_photo_queries(product) -> list:
     brand = (product.brand or '').strip()
     sku_raw = (product.sku or '').strip()
     sku_spaces = sku_raw.replace('/', ' ')
+    sku_compact = sku_raw.replace('/', '')
     orig = (product.original_name or product.name or '').strip()
 
     candidates = [
         f"{brand} {sku_raw}" if brand and sku_raw else "",
+        f"{brand} {sku_compact}" if brand and sku_compact else "",
         f"{brand} {sku_spaces}" if brand and sku_spaces else "",
         f"{orig} {sku_raw}" if orig and sku_raw else "",
         f"{brand} {orig}" if brand and orig else "",
         sku_raw,
+        sku_compact,
     ]
 
     for q in candidates:
         if q and q not in queries:
             queries.append(q)
 
-    return queries[:5]
+    return queries[:7]
 
 
 def _search_photos(queries: list) -> list:
