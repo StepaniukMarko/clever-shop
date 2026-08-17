@@ -1947,11 +1947,10 @@ def _search_photos(queries: list) -> list:
     api_key = os.environ.get('SERPAPI_API_KEY', '')
 
     if api_key:
-        # SerpAPI Google Images
         results = []
         last_error = ''
-        for query in queries[:2]:  # Try up to 2 queries
-                       try:
+        for query in queries[:2]:
+            try:
                 resp = requests.get(
                     'https://serpapi.com/search.json',
                     params={
@@ -1963,43 +1962,27 @@ def _search_photos(queries: list) -> list:
                     },
                     timeout=12
                 )
-
                 if resp.status_code == 200:
                     data = resp.json()
-                    sku = queries[0].split()[-1].replace('/', '')
-
-                    for item in data.get('images_results', []):
-                        title = (item.get('title') or '').lower()
-
-                        if sku and sku not in title.replace('/', ''):
-                            continue
-
+                    for item in data.get('images_results', [])[:5]:
                         results.append({
                             'url': item.get('original', ''),
                             'thumbnail': item.get('thumbnail', ''),
                             'title': item.get('title', ''),
                             'source': item.get('source', ''),
                         })
-
-                        if len(results) >= 5:
-                            break
-
                 else:
                     last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
-
                 if results:
                     break
-
             except Exception as e:
                 last_error = f'SerpAPI error: {str(e)}'
                 continue
         if results:
             return results
-        # API returned nothing
         return [{'url': '', 'thumbnail': '', 'title': last_error or 'Нічого не знайдено', 'source': 'error',
             'search_url': f'https://www.google.com/search?q={queries[0].replace(" ", "+")}&tbm=isch'}]
     else:
-        # No API key
         return [{'url': '', 'thumbnail': '', 'title': 'SERPAPI_API_KEY не налаштований в Railway Environment Variables', 'source': 'error',
             'search_url': f'https://www.google.com/search?q={q.replace(" ", "+")}&tbm=isch'} for q in queries]
 
