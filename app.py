@@ -1959,29 +1959,30 @@ def _search_photos(queries: list) -> list:
                     'num': 5,
                     'safe': 'active',
                 }, timeout=12)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    sku = queries[0].split()[-1].replace('/', '')
+              if resp.status_code == 200:
+    data = resp.json()
+    sku = queries[0].split()[-1].replace('/', '')
 
-for item in data.get('images_results', []):
-    title = (item.get('title') or '').lower()
+    for item in data.get('images_results', []):
+        title = (item.get('title') or '').lower()
 
-    if sku and sku not in title.replace('/', ''):
-        continue
+        if sku and sku not in title.replace('/', ''):
+            continue
 
-    results.append({
-        'url': item.get('original', ''),
-        'thumbnail': item.get('thumbnail', ''),
-        'title': item.get('title', ''),
-        'source': item.get('source', ''),
-    })
+        results.append({
+            'url': item.get('original', ''),
+            'thumbnail': item.get('thumbnail', ''),
+            'title': item.get('title', ''),
+            'source': item.get('source', ''),
+        })
 
-    if len(results) >= 5:
-        break
-                else:
-                    last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
-                if results:
-                    break
+        if len(results) >= 5:
+            break
+else:
+    last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
+
+if results:
+    break
             except Exception as e:
                 last_error = f'SerpAPI error: {str(e)}'
                 continue
