@@ -1951,38 +1951,45 @@ def _search_photos(queries: list) -> list:
         results = []
         last_error = ''
         for query in queries[:2]:  # Try up to 2 queries
-            try:
-                resp = requests.get('https://serpapi.com/search.json', params={
-                    'api_key': api_key,
-                    'engine': 'google_images',
-                    'q': query,
-                    'num': 5,
-                    'safe': 'active',
-                }, timeout=12)
-              if resp.status_code == 200:
-    data = resp.json()
-    sku = queries[0].split()[-1].replace('/', '')
+                       try:
+                resp = requests.get(
+                    'https://serpapi.com/search.json',
+                    params={
+                        'api_key': api_key,
+                        'engine': 'google_images',
+                        'q': query,
+                        'num': 5,
+                        'safe': 'active',
+                    },
+                    timeout=12
+                )
 
-    for item in data.get('images_results', []):
-        title = (item.get('title') or '').lower()
+                if resp.status_code == 200:
+                    data = resp.json()
+                    sku = queries[0].split()[-1].replace('/', '')
 
-        if sku and sku not in title.replace('/', ''):
-            continue
+                    for item in data.get('images_results', []):
+                        title = (item.get('title') or '').lower()
 
-        results.append({
-            'url': item.get('original', ''),
-            'thumbnail': item.get('thumbnail', ''),
-            'title': item.get('title', ''),
-            'source': item.get('source', ''),
-        })
+                        if sku and sku not in title.replace('/', ''):
+                            continue
 
-        if len(results) >= 5:
-            break
-else:
-    last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
+                        results.append({
+                            'url': item.get('original', ''),
+                            'thumbnail': item.get('thumbnail', ''),
+                            'title': item.get('title', ''),
+                            'source': item.get('source', ''),
+                        })
 
-if results:
-    break
+                        if len(results) >= 5:
+                            break
+
+                else:
+                    last_error = f'SerpAPI HTTP {resp.status_code}: {resp.text[:200]}'
+
+                if results:
+                    break
+
             except Exception as e:
                 last_error = f'SerpAPI error: {str(e)}'
                 continue
