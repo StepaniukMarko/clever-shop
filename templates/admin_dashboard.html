@@ -7,7 +7,8 @@
     <title>Адмін панель - Clever</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=33">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=34">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 </head>
 <body style="background:var(--gray-50);">
     <style>.admin-section{display:none}.admin-section.active{display:block}</style>
@@ -19,13 +20,13 @@
             </div>
             <nav>
                 <ul class="admin-nav">
-                    <li><a href="#" class="active" onclick="showTab('dashboard', this)">📊 Дашборд</a></li>
-                    <li><a href="#" onclick="showTab('orders', this)">📦 Замовлення</a></li>
-                    <li><a href="#" onclick="showTab('products', this)">🏷️ Товари</a></li>
-                    <li><a href="#" onclick="showTab('add-product', this)">➕ Додати товар</a></li>
-                    <li><a href="#" onclick="showTab('import-products', this)">📥 Імпорт товарів</a></li>
-                    <li><a href="#" onclick="showTab('photo-finder', this)">📷 Фото товарів</a></li>
-                    <li><a href="#" onclick="showTab('promo-codes', this)">🎁 Промокоди</a></li>
+                    <li><a href="#" class="active" onclick="showTab('dashboard', this); return false;">📊 Дашборд</a></li>
+                    <li><a href="#" onclick="showTab('orders', this); return false;">📦 Замовлення</a></li>
+                    <li><a href="#" onclick="showTab('products', this); return false;">🏷️ Товари</a></li>
+                    <li><a href="#" onclick="showTab('add-product', this); return false;">➕ Додати товар</a></li>
+                    <li><a href="#" onclick="showTab('import-products', this); return false;">📥 Імпорт товарів</a></li>
+                    <li><a href="#" onclick="showTab('photo-finder', this); return false;">📷 Фото товарів</a></li>
+                    <li><a href="#" onclick="showTab('promo-codes', this); return false;">🎁 Промокоди</a></li>
                     <li style="margin-top:auto;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.1);">
                         <a href="/">🏠 На сайт</a>
                     </li>
@@ -40,7 +41,6 @@
                 <div class="admin-header">
                     <h1>📊 Дашборд</h1>
                 </div>
-                
                 <div class="admin-stats">
                     <div class="stat-card">
                         <div class="stat-card-icon">📦</div>
@@ -63,7 +63,6 @@
                         <div class="stat-value">{{ orders|selectattr('status', 'equalto', 'нове')|list|length }}</div>
                     </div>
                 </div>
-                
                 <div class="admin-table-container">
                     <div class="admin-table-header">
                         <h2>Останні замовлення</h2>
@@ -92,13 +91,12 @@
                     </table>
                 </div>
             </div>
-            
+
             <!-- Orders -->
             <div id="orders" class="admin-section">
                 <div class="admin-header">
                     <h1>📦 Замовлення</h1>
                 </div>
-                
                 <div class="admin-table-container">
                     <table class="admin-table">
                         <thead>
@@ -135,480 +133,173 @@
                 </div>
             </div>
 
-        <!-- Products -->
-        <div id="products" class="admin-section">
-            <div class="admin-header">
-                <h1>🏷️ Товари</h1>
-            </div>
-            <div class="admin-table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Фото</th>
-                            <th>Назва</th>
-                            <th>Бренд</th>
-                            <th>Ціна</th>
-                            <th>Наявність</th>
-                            <th>Дії</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in products %}
-                        <tr>
-                            <td>
-                                {% if product.image_url %}
-                                <img src="{{ product.image_url }}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
-                                {% else %}
-                                <div style="width:60px;height:60px;background:var(--gray-100);border-radius:8px;display:flex;align-items:center;justify-content:center;">📷</div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <strong>{{ product.name[:50] }}{% if product.name|length > 50 %}...{% endif %}</strong>
-                                <br><small style="color:var(--gray-500);">{{ product.type }} · {{ product.gender }}</small>
-                            </td>
-                            <td>{{ product.brand }}</td>
-                            <td><strong>{{ "{:,.0f}".format(product.price) }} грн</strong></td>
-                            <td>
-                                {% if product.stock > 0 %}
-                                <span style="color:#10B981;font-weight:600;">{{ product.stock }} шт</span>
-                                {% else %}
-                                <span style="color:#ef4444;">Немає</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <button onclick="editProduct({{ product.id }}, '{{ product.name | replace("'", "\\'") }}', {{ product.price }}, {{ product.stock }}, '{{ product.brand }}', '{{ product.sizes }}', '{{ product.gender }}', '{{ product.type }}', {{ product.category_id }})" class="btn btn-sm" style="background:#3B82F6;color:#fff;padding:0.4rem 0.8rem;border:none;border-radius:6px;cursor:pointer;margin-right:4px;">✏️ Редагувати</button>
-                                <button onclick="deleteProduct({{ product.id }})" class="btn btn-sm" style="background:#ef4444;color:#fff;padding:0.4rem 0.8rem;border:none;border-radius:6px;cursor:pointer;">🗑️ Видалити</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Add Product -->
-        <div id="add-product" class="admin-section">
-            <div class="admin-form">
-                <h3>➕ Додати новий товар</h3>
-                
-                <!-- URL Parser -->
-                <div class="form-group" style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px solid #10B981;">
-                    <label style="color: #10B981; font-weight: 700;">🔗 Парсити з URL (Zalando, About You, ASOS...)</label>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                        <input type="text" id="parse-url" placeholder="Вставте посилання на товар..." style="flex: 1;">
-                        <button type="button" onclick="parseUrl()" class="btn btn-primary" id="parse-btn">🔍 Парсити</button>
-                    </div>
-                    <div id="parse-status" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+            <!-- Products -->
+            <div id="products" class="admin-section">
+                <div class="admin-header">
+                    <h1>🏷️ Товари</h1>
                 </div>
-                
-                <!-- Image Preview -->
-                <div id="images-preview" style="display: none; margin-bottom: 1.5rem;">
-                    <label>📷 Фотки товару (клікни щоб видалити)</label>
-                    <div id="images-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.5rem;"></div>
-                </div>
-                
-                <!-- Manual image add -->
-                <div class="form-group" style="margin-bottom:1.5rem;">
-                    <label>🖼️ Додати фото вручну (URL або завантажити)</label>
-                    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-                        <input type="text" id="manual-img-url" placeholder="https://... або вставте посилання на фото" style="flex:1;">
-                        <button type="button" onclick="addManualImage()" class="btn btn-secondary">+ Додати</button>
-                    </div>
-                    <div style="margin-top:0.5rem;">
-                        <label style="display:inline-block;cursor:pointer;background:var(--gray-100);padding:0.5rem 1rem;border-radius:var(--radius);font-size:0.9rem;border:1px dashed var(--gray-300);">
-                            📁 Завантажити з комп'ютера
-                            <input type="file" id="manual-img-file" accept="image/*" multiple style="display:none;" onchange="uploadLocalImages(this)">
-                        </label>
-                        <span style="font-size:0.8rem;color:var(--gray-500);margin-left:0.5rem;">до 8 фото</span>
-                    </div>
-                </div>
-                
-                <form id="product-form">
-                    <input type="hidden" name="image_urls" id="image-urls-input">
-                    <div class="form-group">
-                        <label>Назва *</label>
-                        <input type="text" name="name" id="product-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Бренд</label>
-                        <select name="brand" id="product-brand">
-                            <option value="">-- Виберіть бренд --</option>
-                            <option value="Massimo Dutti">Massimo Dutti</option>
-                            <option value="Calvin Klein">Calvin Klein</option>
-                            <option value="Tommy Hilfiger">Tommy Hilfiger</option>
-                            <option value="Polo Ralph Lauren">Polo Ralph Lauren</option>
-                            <option value="Karl Lagerfeld">Karl Lagerfeld</option>
-                            <option value="Premiata">Premiata</option>
-                            <option value="Armani Exchange">Armani Exchange</option>
-                            <option value="Boss">Boss</option>
-                            <option value="Levi's">Levi's</option>
-                            <option value="Diesel">Diesel</option>
-                            <option value="Lacoste">Lacoste</option>
-                            <option value="Mango">Mango</option>
-                            <option value="Victoria's Secret">Victoria's Secret</option>
-                            <option value="Michael Kors">Michael Kors</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Ціна (грн) *</label>
-                        <input type="number" name="price" id="product-price" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Категорія</label>
-                        <select name="category_id">
-                            {% for cat in categories %}
-                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Фото</th>
+                                <th>Назва</th>
+                                <th>Бренд</th>
+                                <th>Ціна</th>
+                                <th>Наявність</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>
+                                    {% if product.image_url %}
+                                    <img src="{{ product.image_url }}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+                                    {% else %}
+                                    <div style="width:60px;height:60px;background:var(--gray-100);border-radius:8px;display:flex;align-items:center;justify-content:center;">📷</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ product.name[:50] }}{% if product.name|length > 50 %}...{% endif %}</strong>
+                                    <br><small style="color:var(--gray-500);">{{ product.type }} · {{ product.gender }}</small>
+                                </td>
+                                <td>{{ product.brand }}</td>
+                                <td><strong>{{ "{:,.0f}".format(product.price) }} грн</strong></td>
+                                <td>
+                                    {% if product.stock > 0 %}
+                                    <span style="color:#10B981;font-weight:600;">{{ product.stock }} шт</span>
+                                    {% else %}
+                                    <span style="color:#ef4444;">Немає</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button onclick="editProduct({{ product.id }}, '{{ product.name | replace("'", "\\'") }}', {{ product.price }}, {{ product.stock }}, '{{ product.brand }}', '{{ product.sizes }}', '{{ product.gender }}', '{{ product.type }}', {{ product.category_id }})" class="btn btn-sm" style="background:#3B82F6;color:#fff;padding:0.4rem 0.8rem;border:none;border-radius:6px;cursor:pointer;margin-right:4px;">✏️</button>
+                                    <button onclick="deleteProduct({{ product.id }})" class="btn btn-sm" style="background:#ef4444;color:#fff;padding:0.4rem 0.8rem;border:none;border-radius:6px;cursor:pointer;">🗑️</button>
+                                </td>
+                            </tr>
                             {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Стать</label>
-                        <select name="gender" id="product-gender" onchange="updateDefaultSizes()">
-                            <option value="унісекс">Унісекс</option>
-                            <option value="чоловічий">Чоловічий</option>
-                            <option value="жіночий">Жіночий</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Тип одягу</label>
-                        <select name="type" id="product-type" onchange="updateDefaultSizes()">
-                            <option value="інше">Інше</option>
-                            <option value="футболка">Футболка</option>
-                            <option value="сорочка">Сорочка</option>
-                            <option value="джинси">Джинси</option>
-                            <option value="куртка">Куртка</option>
-                            <option value="светр">Светр</option>
-                            <option value="штани">Штани</option>
-                            <option value="кросівки">Кросівки</option>
-                            <option value="сукня">Сукня</option>
-                            <option value="аксесуари">Аксесуари</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Розміри та наявність</label>
-                        <div id="sizes-builder" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;"></div>
-                        <input type="hidden" name="sizes" id="product-sizes" value="XS,S,M,L,XL,XXL">
-                        <p style="font-size:0.8rem;color:var(--gray-500);margin-top:0.25rem;">Зелений = є в наявності, сірий = немає. Клікніть щоб змінити.</p>
-                    </div>
-                    <div class="form-group">
-                        <label>Кількість в наявності</label>
-                        <input type="number" name="stock" id="product-stock" value="10" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Опис</label>
-                        <textarea name="description" id="product-description" rows="3" placeholder="Опис товару..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;padding:1rem;font-size:1.1rem;">✅ Додати товар</button>
-                </form>
-                <script>
-                document.getElementById('product-form').onsubmit = function(e) {
-                    e.preventDefault();
-                    var formData = new FormData(this);
-                    var data = {};
-                    formData.forEach(function(v, k) { data[k] = v; });
-                    data.price = parseFloat(data.price);
-                    data.stock = parseInt(data.stock) || 0;
-                    data.category_id = parseInt(data.category_id) || 1;
-                    delete data.image_urls;
-                    if (typeof parsedImages !== 'undefined' && parsedImages.length > 0) {
-                        data.image_urls = parsedImages;
-                    }
-                    var btn = this.querySelector('button[type="submit"]');
-                    btn.disabled = true;
-                    btn.textContent = '⏳ Додаємо...';
-                    fetch('/api/products', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    })
-                    .then(function(r) { return r.json(); })
-                    .then(function(d) {
-                        btn.disabled = false;
-                        btn.textContent = '✅ Додати товар';
-                        if (d.error) {
-                            alert('Помилка: ' + d.error);
-                        } else if (d.id) {
-                            alert('Товар додано! ID: ' + d.id);
-                            location.reload();
-                        } else {
-                            alert('Невідома відповідь: ' + JSON.stringify(d));
-                        }
-                    })
-                    .catch(function(err) {
-                        btn.disabled = false;
-                        btn.textContent = '✅ Додати товар';
-                        alert('Помилка мережі: ' + err.message);
-                    });
-                    return false;
-                };
-                </script>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        
-<script>
-        let parsedImages = [];
 
-        function updateDefaultSizes() {
-            const type = document.getElementById('product-type').value;
-            const gender = document.getElementById('product-gender').value;
-            let sizes;
-            if (type === 'кросівки') {
-                if (gender === 'жіночий') sizes = '36,37,38,39,40,41';
-                else if (gender === 'чоловічий') sizes = '40,41,42,43,44,45,46';
-                else sizes = '36,37,38,39,40,41,42,43,44,45,46';
-            } else if (type === 'джинси' || type === 'штани') {
-                sizes = '28,29,30,31,32,33,34,36,38';
-            } else {
-                sizes = 'XS,S,M,L,XL,XXL';
-            }
-            // Build sizes with all in stock by default
-            const sizesWithStock = sizes.split(',').map(s => s + ':1').join(',');
-            renderSizesBuilder(sizesWithStock);
-        }
-
-        // sizesData format: "40:1,41:0,42:1" or "XS,S,M" (legacy)
-        function renderSizesBuilder(sizesData) {
-            const builder = document.getElementById('sizes-builder');
-            const hidden = document.getElementById('product-sizes');
-            if (!builder) return;
-
-            // Parse
-            const items = sizesData.split(',').map(s => {
-                s = s.trim();
-                if (s.includes(':')) {
-                    const [size, stock] = s.split(':');
-                    return { size: size.trim(), inStock: stock.trim() === '1' };
-                }
-                return { size: s, inStock: true };
-            }).filter(i => i.size);
-
-            function updateHidden() {
-                hidden.value = items.map(i => i.size + ':' + (i.inStock ? '1' : '0')).join(',');
-            }
-
-            function render() {
-                builder.innerHTML = '';
-                items.forEach((item, idx) => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.textContent = item.size;
-                    btn.style.cssText = `padding:0.5rem 1rem;border-radius:8px;border:2px solid;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;` +
-                        (item.inStock
-                            ? 'background:#d1fae5;border-color:#10b981;color:#065f46;'
-                            : 'background:#f3f4f6;border-color:#d1d5db;color:#9ca3af;text-decoration:line-through;');
-                    btn.title = item.inStock ? 'В наявності (клік = немає)' : 'Немає (клік = є)';
-                    btn.onclick = () => {
-                        items[idx].inStock = !items[idx].inStock;
-                        updateHidden();
-                        render();
-                    };
-                    builder.appendChild(btn);
-                });
-                updateHidden();
-            }
-            render();
-        }
-        
-        function showTab(tab, clickedEl) {
-            document.querySelectorAll('.admin-section').forEach(function(s) { s.classList.remove('active'); });
-            document.querySelectorAll('.admin-nav a').forEach(function(a) { a.classList.remove('active'); });
-            var section = document.getElementById(tab);
-            if (section) section.classList.add('active');
-            var link = clickedEl || (event && event.target && event.target.closest('a'));
-            if (link) link.classList.add('active');
-        }
-        
-        function updateStatus(orderId, status) {
-            fetch('/api/orders/' + orderId + '/status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: status })
-            });
-        }
-        
-        function deleteProduct(id) {
-            if (confirm('Видалити товар?')) {
-                fetch('/api/products/' + id, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else if (data.error === 'Unauthorized') {
-                        alert('Сесія закінчилась. Увійдіть знову.');
-                        window.location.href = '/admin/login';
-                    } else {
-                        alert('Помилка: ' + (data.error || 'невідома'));
-                    }
-                })
-                .catch(err => alert('Помилка: ' + err.message));
-            }
-        }
-        
-        function parseUrl() {
-            const url = document.getElementById('parse-url').value.trim();
-            if (!url) {
-                alert('Вставте URL товару');
-                return;
-            }
-            
-            const btn = document.getElementById('parse-btn');
-            const status = document.getElementById('parse-status');
-            btn.disabled = true;
-            btn.textContent = '⏳ Парсимо...';
-            status.innerHTML = '<span style="color: #666;">Завантаження даних...</span>';
-            
-            fetch('/api/parse-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url })
-            })
-            .then(r => r.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.textContent = '🔍 Парсити';
-                
-                if (data.error) {
-                    status.innerHTML = '<span style="color: #ef4444;">❌ ' + data.error + '</span>';
-                    return;
-                }
-                
-                // Fill form
-                if (data.name) document.getElementById('product-name').value = data.name;
-                if (data.description) document.getElementById('product-description').value = data.description;
-                if (data.brand) document.getElementById('product-brand').value = data.brand;
-                if (data.price > 0) document.getElementById('product-price').value = Math.round(data.price);
-                
-                // Auto-detect gender and type from name
-                const nameLower = (data.name || '').toLowerCase();
-                const genderEl = document.getElementById('product-gender');
-                const typeEl = document.getElementById('product-type');
-                if (genderEl) {
-                    if (nameLower.includes('жін') || nameLower.includes('woman') || nameLower.includes('women') || nameLower.includes('female') || nameLower.includes('girl')) {
-                        genderEl.value = 'жіночий';
-                    } else if (nameLower.includes('чол') || nameLower.includes('man') || nameLower.includes('men') || nameLower.includes('male') || nameLower.includes('boy')) {
-                        genderEl.value = 'чоловічий';
-                    }
-                }
-                if (typeEl) {
-                    if (nameLower.includes('футбол') || nameLower.includes('t-shirt') || nameLower.includes('tshirt') || nameLower.includes('tee') || nameLower.includes('crew')) typeEl.value = 'футболка';
-                    else if (nameLower.includes('сорочк') || nameLower.includes('shirt') || nameLower.includes('блуз')) typeEl.value = 'сорочка';
-                    else if (nameLower.includes('джинс') || nameLower.includes('jeans') || nameLower.includes('denim')) typeEl.value = 'джинси';
-                    else if (nameLower.includes('куртк') || nameLower.includes('jacket') || nameLower.includes('coat') || nameLower.includes('пальт') || nameLower.includes('вітровк')) typeEl.value = 'куртка';
-                    else if (nameLower.includes('светр') || nameLower.includes('sweater') || nameLower.includes('knit') || nameLower.includes('hoodie') || nameLower.includes('худі') || nameLower.includes('sweatshirt')) typeEl.value = 'светр';
-                    else if (nameLower.includes('штан') || nameLower.includes('trousers') || nameLower.includes('pants') || nameLower.includes('chino') || nameLower.includes('jogger')) typeEl.value = 'штани';
-                    else if (nameLower.includes('кросівк') || nameLower.includes('sneaker') || nameLower.includes('shoe') || nameLower.includes('взутт') || nameLower.includes('boot')) typeEl.value = 'кросівки';
-                    else if (nameLower.includes('сукн') || nameLower.includes('dress') || nameLower.includes('skirt') || nameLower.includes('спідниц')) typeEl.value = 'сукня';
-                }
-                
-                // Автозаповнення статі з опису якщо ще не визначено
-                if (genderEl && genderEl.value === 'унісекс') {
-                    const descLower = (data.description || '').toLowerCase();
-                    const combined = nameLower + ' ' + descLower;
-                    if (combined.includes('жіноч') || combined.includes('women') || combined.includes('woman') || combined.includes('female') || combined.includes('ladies')) {
-                        genderEl.value = 'жіночий';
-                    } else if (combined.includes('чолові') || combined.includes("men's") || combined.includes('male') || combined.includes('чоловіч')) {
-                        genderEl.value = 'чоловічий';
-                    }
-                }
-                
-                // Show images напряму — без proxy
-                const rawImages = data.images || [];
-                if (data.image_url && !rawImages.includes(data.image_url)) {
-                    rawImages.unshift(data.image_url);
-                }
-                parsedImages = rawImages.slice(0, 8);
-                renderImages();
-                // Update sizes builder based on detected type/gender
-                updateDefaultSizes();
-                status.innerHTML = '<span style="color:#10B981;">✅ ' + (data.name || 'товар') + ' | ' + parsedImages.length + ' фото</span>';
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.textContent = '🔍 Парсити';
-                status.innerHTML = '<span style="color: #ef4444;">❌ Помилка: ' + err.message + '</span>';
-            });
-        }
-        
-        function renderImages() {
-            const grid = document.getElementById('images-grid');
-            const preview = document.getElementById('images-preview');
-            
-            if (parsedImages.length === 0) {
-                preview.style.display = 'none';
-                return;
-            }
-            
-            preview.style.display = 'block';
-            grid.innerHTML = parsedImages.map((img, i) => 
-                '<div style="position: relative;">' +
-                '<img src="' + img + '" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid ' + (i === 0 ? '#10B981' : '#ddd') + ';" onerror="this.style.opacity=0.3">' +
-                '<span onclick="removeImage(' + i + ')" style="position: absolute; top: 2px; right: 2px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor:pointer; z-index:2; line-height:1;">×</span>' +
-                '<span onclick="proxyAndCrop(' + i + ')" style="position: absolute; bottom: 2px; right: 2px; background: #3b82f6; color: white; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor:pointer; z-index:2;">✂️</span>' +
-                (i === 0 ? '<span style="position: absolute; bottom: 2px; left: 2px; background: #10B981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; pointer-events:none;">Головна</span>' : '') +
-                '</div>'
-            ).join('');
-            
-            document.getElementById('image-urls-input').value = JSON.stringify(parsedImages);
-        }
-        
-        function removeImage(index) {
-            parsedImages.splice(index, 1);
-            renderImages();
-        }
-        
-        function proxyAndCrop(index) {
-            openCropper(parsedImages[index], index);
-        }
-        
-        function addManualImage() {
-            const url = document.getElementById('manual-img-url').value.trim();
-            if (!url) return;
-            if (!url.startsWith('http')) {
-                alert('Введіть коректне посилання на фото (починається з http)');
-                return;
-            }
-            parsedImages.push(url);
-            renderImages();
-            document.getElementById('manual-img-url').value = '';
-        }
-        
-        function uploadLocalImages(input) {
-            const files = Array.from(input.files);
-            if (!files.length) return;
-            
-            const formData = new FormData();
-            files.forEach(f => formData.append('images', f));
-            
-            fetch('/api/upload-multiple', { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.urls) {
-                        parsedImages.push(...data.urls);
-                        renderImages();
-                    }
-                })
-                .catch(() => alert('Помилка завантаження файлів'));
-            
-            input.value = '';
-        }
-        
-        // Allow Enter key in manual URL input
-        document.addEventListener('DOMContentLoaded', function() {
-            const manualInput = document.getElementById('manual-img-url');
-            if (manualInput) {
-                manualInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') { e.preventDefault(); addManualImage(); }
-                });
-            }
-            // Init sizes builder
-            renderSizesBuilder('XS:1,S:1,M:1,L:1,XL:1,XXL:1');
-        });
-        
-        // submit handler is below in main script block
-    </script>
+            <!-- Add Product -->
+            <div id="add-product" class="admin-section">
+                <div class="admin-form">
+                    <h3>➕ Додати новий товар</h3>
+                    
+                    <!-- URL Parser -->
+                    <div class="form-group" style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px solid #10B981;">
+                        <label style="color: #10B981; font-weight: 700;">🔗 Парсити з URL (Zalando, About You, ASOS...)</label>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <input type="text" id="parse-url" placeholder="Вставте посилання на товар..." style="flex: 1;">
+                            <button type="button" onclick="parseUrl()" class="btn btn-primary" id="parse-btn">🔍 Парсити</button>
+                        </div>
+                        <div id="parse-status" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div id="images-preview" style="display: none; margin-bottom: 1.5rem;">
+                        <label>📷 Фотки товару (клікни щоб видалити)</label>
+                        <div id="images-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.5rem;"></div>
+                    </div>
+                    
+                    <!-- Manual image add -->
+                    <div class="form-group" style="margin-bottom:1.5rem;">
+                        <label>🖼️ Додати фото вручну (URL або завантажити)</label>
+                        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                            <input type="text" id="manual-img-url" placeholder="https://... або вставте посилання на фото" style="flex:1;">
+                            <button type="button" onclick="addManualImage()" class="btn btn-secondary">+ Додати</button>
+                        </div>
+                        <div style="margin-top:0.5rem;">
+                            <label style="display:inline-block;cursor:pointer;background:var(--gray-100);padding:0.5rem 1rem;border-radius:var(--radius);font-size:0.9rem;border:1px dashed var(--gray-300);">
+                                📁 Завантажити з комп'ютера
+                                <input type="file" id="manual-img-file" accept="image/*" multiple style="display:none;" onchange="uploadLocalImages(this)">
+                            </label>
+                            <span style="font-size:0.8rem;color:var(--gray-500);margin-left:0.5rem;">до 8 фото</span>
+                        </div>
+                    </div>
+                    
+                    <form id="product-form">
+                        <input type="hidden" name="image_urls" id="image-urls-input">
+                        <div class="form-group">
+                            <label>Назва *</label>
+                            <input type="text" name="name" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Бренд</label>
+                            <select name="brand" id="product-brand">
+                                <option value="">-- Виберіть бренд --</option>
+                                <option value="Massimo Dutti">Massimo Dutti</option>
+                                <option value="Calvin Klein">Calvin Klein</option>
+                                <option value="Tommy Hilfiger">Tommy Hilfiger</option>
+                                <option value="Polo Ralph Lauren">Polo Ralph Lauren</option>
+                                <option value="Karl Lagerfeld">Karl Lagerfeld</option>
+                                <option value="Premiata">Premiata</option>
+                                <option value="Armani Exchange">Armani Exchange</option>
+                                <option value="Boss">Boss</option>
+                                <option value="Levi's">Levi's</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Lacoste">Lacoste</option>
+                                <option value="Mango">Mango</option>
+                                <option value="Victoria's Secret">Victoria's Secret</option>
+                                <option value="Michael Kors">Michael Kors</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ціна (грн) *</label>
+                            <input type="number" name="price" id="product-price" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Категорія</label>
+                            <select name="category_id">
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Стать</label>
+                            <select name="gender" id="product-gender" onchange="updateDefaultSizes()">
+                                <option value="унісекс">Унісекс</option>
+                                <option value="чоловічий">Чоловічий</option>
+                                <option value="жіночий">Жіночий</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Тип одягу</label>
+                            <select name="type" id="product-type" onchange="updateDefaultSizes()">
+                                <option value="інше">Інше</option>
+                                <option value="футболка">Футболка</option>
+                                <option value="сорочка">Сорочка</option>
+                                <option value="джинси">Джинси</option>
+                                <option value="куртка">Куртка</option>
+                                <option value="светр">Светр</option>
+                                <option value="штани">Штани</option>
+                                <option value="кросівки">Кросівки</option>
+                                <option value="сукня">Сукня</option>
+                                <option value="аксесуари">Аксесуари</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Розміри та наявність</label>
+                            <div id="sizes-builder" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;"></div>
+                            <input type="hidden" name="sizes" id="product-sizes" value="XS,S,M,L,XL,XXL">
+                            <p style="font-size:0.8rem;color:var(--gray-500);margin-top:0.25rem;">Зелений = є в наявності, сірий = немає. Клікніть щоб змінити.</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Кількість в наявності</label>
+                            <input type="number" name="stock" id="product-stock" value="10" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Опис</label>
+                            <textarea name="description" id="product-description" rows="3" placeholder="Опис товару..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;padding:1rem;font-size:1.1rem;">✅ Додати товар</button>
+                    </form>
+                </div>
+            </div>
 
             <!-- Import Products -->
             <div id="import-products" class="admin-section">
@@ -616,15 +307,13 @@
                     <h3>📥 Масовий імпорт товарів</h3>
                     <p style="color:var(--gray-600);margin-bottom:1.5rem;">Завантажте Excel або CSV файл для масового додавання або оновлення товарів</p>
 
-                    <!-- Step 1: Download template -->
                     <div style="background:var(--primary-50,#ECFDF5);padding:1.25rem;border-radius:12px;margin-bottom:1.5rem;border:2px solid var(--primary-100,#D1FAE5);">
                         <h4 style="margin-bottom:0.5rem;color:var(--primary-dark,#059669);">📋 Крок 1: Завантажте шаблон</h4>
                         <p style="font-size:0.9rem;color:var(--gray-600);margin-bottom:0.75rem;">Шаблон містить правильні заголовки, приклад та випадаючі списки для зручного заповнення</p>
                         <a href="/api/import/template" class="btn btn-primary" style="text-decoration:none;display:inline-block;">⬇️ Завантажити шаблон Excel</a>
                     </div>
 
-                    <!-- Step 2: Upload file -->
-                    <div style="background:var(--gray-50,#F9FAFB);padding:1.25rem;border-radius:12px;margin-bottom:1.5rem;border:2px dashed var(--gray-300,#D1D5DB);" id="import-drop-zone">
+                    <div style="background:var(--gray-50,#F9FAFB);padding:1.25rem;border-radius:12px;margin-bottom:1.5rem;border:2px dashed var(--gray-300,#D1D5DB);">
                         <h4 style="margin-bottom:0.5rem;">📁 Крок 2: Завантажте заповнений файл</h4>
                         <p style="font-size:0.9rem;color:var(--gray-500);margin-bottom:1rem;">Підтримуються формати: .xlsx, .csv</p>
                         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
@@ -636,19 +325,17 @@
                         </div>
                     </div>
 
-                    <!-- Preview button -->
-                    <div style="margin-bottom:1.5rem;" id="import-preview-actions" style="display:none;">
+                    <div style="margin-bottom:1.5rem;">
                         <button onclick="previewImport()" class="btn btn-secondary" id="preview-btn" style="display:none;">👁️ Попередній перегляд</button>
                     </div>
 
-                    <!-- Preview table -->
                     <div id="import-preview-container" style="display:none;margin-bottom:1.5rem;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
                             <h4 id="import-preview-title">Попередній перегляд</h4>
                             <span id="import-preview-count" style="font-size:0.85rem;color:var(--gray-500);"></span>
                         </div>
                         <div style="overflow-x:auto;border:1px solid var(--gray-200);border-radius:8px;">
-                            <table class="admin-table" id="import-preview-table" style="font-size:0.85rem;">
+                            <table class="admin-table" style="font-size:0.85rem;">
                                 <thead><tr id="import-preview-thead"></tr></thead>
                                 <tbody id="import-preview-tbody"></tbody>
                             </table>
@@ -656,17 +343,13 @@
                         <div id="import-preview-errors" style="margin-top:0.75rem;"></div>
                     </div>
 
-                    <!-- Execute button -->
                     <div id="import-execute-section" style="display:none;margin-bottom:1.5rem;">
                         <div style="background:#FEF3C7;padding:1rem;border-radius:8px;margin-bottom:1rem;border:1px solid #FDE68A;">
                             <p style="margin:0;font-size:0.9rem;color:#92400E;">⚠️ Товари з однаковою назвою будуть <strong>оновлені</strong>. Нові товари будуть <strong>створені</strong>.</p>
                         </div>
-                        <button onclick="executeImport()" class="btn btn-primary" id="execute-btn" style="font-size:1rem;padding:0.75rem 2rem;">
-                            🚀 Імпортувати товари
-                        </button>
+                        <button onclick="executeImport()" class="btn btn-primary" id="execute-btn" style="font-size:1rem;padding:0.75rem 2rem;">🚀 Імпортувати товари</button>
                     </div>
 
-                    <!-- Report -->
                     <div id="import-report" style="display:none;margin-top:1.5rem;">
                         <h4 style="margin-bottom:0.75rem;">📊 Звіт імпорту</h4>
                         <div id="import-report-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.75rem;margin-bottom:1rem;"></div>
@@ -679,8 +362,6 @@
             <div id="photo-finder" class="admin-section">
                 <div class="admin-form">
                     <h3>📷 Пошук фото для товарів</h3>
-                    
-                    <!-- Stats -->
                     <div id="photo-stats" style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
                         <div style="padding:1rem;background:var(--gray-100);border-radius:8px;flex:1;text-align:center;">
                             <div style="font-size:1.5rem;font-weight:700;" id="ps-total">—</div>
@@ -695,14 +376,10 @@
                             <div style="font-size:0.8rem;color:var(--gray-500);">Без фото</div>
                         </div>
                     </div>
-                    
-                    <!-- Controls -->
                     <div style="margin-bottom:1.5rem;">
                         <button onclick="loadPhotoStats()" class="btn btn-secondary" style="margin-right:0.5rem;">Оновити статистику</button>
                         <button onclick="startPhotoSearch()" class="btn btn-primary" id="pf-start-btn">Знайти фото (наступний товар)</button>
                     </div>
-                    
-                    <!-- Current product -->
                     <div id="pf-product" style="display:none;padding:1.5rem;background:var(--white);border:2px solid var(--gray-200);border-radius:12px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
                             <div>
@@ -714,24 +391,16 @@
                             </div>
                             <div style="font-size:0.85rem;color:var(--gray-500);" id="pf-remaining"></div>
                         </div>
-                        
-                        <!-- Results grid -->
                         <div id="pf-results" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.5rem;margin-bottom:1rem;"></div>
-                        
-                        <!-- Actions -->
                         <div style="display:flex;gap:0.5rem;">
                             <button onclick="skipPhoto()" class="btn btn-secondary" style="flex:1;">Пропустити</button>
                             <button onclick="startPhotoSearch()" class="btn btn-primary" style="flex:1;">Наступний</button>
                         </div>
-                        
-                        <!-- Manual URL input -->
                         <div style="margin-top:1rem;display:flex;gap:0.5rem;">
                             <input type="text" id="pf-manual-url" placeholder="Або вставте URL фото вручну..." style="flex:1;padding:0.6rem;border:1px solid var(--gray-200);border-radius:6px;font-size:0.85rem;">
                             <button onclick="setManualPhoto()" class="btn btn-secondary">Зберегти</button>
                         </div>
                     </div>
-                    
-                    <!-- Status log -->
                     <div id="pf-log" style="margin-top:1rem;max-height:200px;overflow-y:auto;font-size:0.8rem;color:var(--gray-500);"></div>
                 </div>
             </div>
@@ -740,7 +409,6 @@
             <div id="promo-codes" class="admin-section">
                 <div class="admin-form">
                     <h3>🎁 Управління промокодами</h3>
-                    
                     <div class="form-section">
                         <h4>Створити новий промокод</h4>
                         <form id="promo-form" onsubmit="createPromo(event)">
@@ -776,7 +444,6 @@
                             <button type="submit" class="btn btn-primary" style="margin-top:1rem;">✓ Створити промокод</button>
                         </form>
                     </div>
-                    
                     <div class="form-section" style="margin-top:2rem;">
                         <h4>Активні промокоди</h4>
                         <div id="promo-list" style="margin-top:1rem;">
@@ -787,780 +454,723 @@
             </div>
         </main>
     </div>
-    
+
+    <!-- Edit Product Modal -->
+    <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:16px;padding:2rem;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+                <h3 style="margin:0;font-size:1.25rem;font-weight:700;">✏️ Редагувати товар</h3>
+                <button onclick="closeEditModal()" style="background:none;border:none;font-size:1.75rem;cursor:pointer;color:#6B7280;line-height:1;">&times;</button>
+            </div>
+            <form onsubmit="submitEditProduct(event)">
+                <input type="hidden" id="edit-id">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Назва</label>
+                    <input type="text" id="edit-name" required style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div>
+                        <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Ціна (грн)</label>
+                        <input type="number" id="edit-price" required min="0" step="0.01" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Кількість</label>
+                        <input type="number" id="edit-stock" required min="0" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                    </div>
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Бренд</label>
+                    <input type="text" id="edit-brand" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div>
+                        <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Стать</label>
+                        <select id="edit-gender" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                            <option value="унісекс">Унісекс</option>
+                            <option value="чоловічий">Чоловічий</option>
+                            <option value="жіночий">Жіночий</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Тип</label>
+                        <select id="edit-type" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                            <option value="футболка">Футболка</option>
+                            <option value="сорочка">Сорочка</option>
+                            <option value="джинси">Джинси</option>
+                            <option value="штани">Штани</option>
+                            <option value="куртка">Куртка</option>
+                            <option value="кросівки">Кросівки</option>
+                            <option value="аксесуар">Аксесуар</option>
+                            <option value="інше">Інше</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Розміри</label>
+                    <input type="text" id="edit-sizes" placeholder="XS:1,S:1,M:1,L:0" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                    <small style="color:#6B7280;font-size:0.8rem;">Формат: розмір:1 (є) або розмір:0 (немає)</small>
+                </div>
+                <div style="display:flex;gap:1rem;">
+                    <button type="button" onclick="closeEditModal()" style="flex:1;padding:0.875rem;border:2px solid #E5E7EB;border-radius:8px;background:white;font-size:0.95rem;cursor:pointer;font-weight:600;">Скасувати</button>
+                    <button type="submit" id="edit-submit-btn" style="flex:1;padding:0.875rem;border:none;border-radius:8px;background:#10B981;color:white;font-size:0.95rem;cursor:pointer;font-weight:600;">✓ Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div id="cropper-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center;">
+        <div style="background:#1f2937; border-radius:16px; padding:1.5rem; max-width:700px; width:95%; max-height:90vh; display:flex; flex-direction:column; gap:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="color:#fff; margin:0;">✂️ Обрізати фото</h3>
+                <button onclick="closeCropper()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer; font-size:1rem;">✕ Закрити</button>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button onclick="setCropRatio(NaN)" class="crop-ratio-btn active-ratio" style="background:#10B981; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">✂️ Вільно</button>
+                <button onclick="setCropRatio(1,1)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">1:1</button>
+                <button onclick="setCropRatio(4,3)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">4:3</button>
+                <button onclick="setCropRatio(3,4)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">3:4</button>
+                <button onclick="setCropRatio(16,9)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">16:9</button>
+            </div>
+            <div style="overflow:auto; max-height:50vh; background:#111; border-radius:8px;">
+                <img id="cropper-image" style="max-width:100%; display:block;">
+            </div>
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button onclick="rotateCrop(-90)" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer;">↺ Повернути</button>
+                <button onclick="rotateCrop(90)" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer;">↻ Повернути</button>
+                <button onclick="applyCrop()" style="background:#10B981; color:#fff; border:none; border-radius:8px; padding:0.5rem 1.5rem; cursor:pointer; font-weight:700; font-size:1rem;">✅ Застосувати</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
     <script>
-        // Load promo codes on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            if (document.getElementById('promo-list')) {
-                loadPromoCodes();
-            }
+    // ============================================================
+    // TAB SWITCHING
+    // ============================================================
+    function showTab(tab, clickedEl) {
+        document.querySelectorAll('.admin-section').forEach(function(s) { s.classList.remove('active'); });
+        document.querySelectorAll('.admin-nav a').forEach(function(a) { a.classList.remove('active'); });
+        var section = document.getElementById(tab);
+        if (section) section.classList.add('active');
+        if (clickedEl) clickedEl.classList.add('active');
+    }
+
+    // ============================================================
+    // ORDER STATUS
+    // ============================================================
+    function updateStatus(orderId, status) {
+        fetch('/api/orders/' + orderId + '/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: status })
         });
-        
-        function loadPromoCodes() {
-            fetch('/api/promo/list')
-                .then(r => r.json())
-                .then(promos => {
-                    const list = document.getElementById('promo-list');
-                    if (promos.length === 0) {
-                        list.innerHTML = '<p style="text-align:center;color:var(--gray-500);">Промокодів поки немає</p>';
-                        return;
-                    }
-                    
-                    list.innerHTML = promos.map(p => `
-                        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
-                                <div>
-                                    <h4 style="font-size:1.25rem;font-weight:700;color:var(--primary-dark);margin-bottom:0.5rem;">${p.code}</h4>
-                                    <p style="color:var(--gray-600);">
-                                        ${p.discount_type === 'percent' ? p.discount_value + '%' : p.discount_value + ' грн'} знижка
-                                    </p>
-                                </div>
-                                <span style="padding:0.375rem 0.875rem;border-radius:50px;font-size:0.85rem;font-weight:600;
-                                    background:${p.active ? 'var(--primary-50)' : 'var(--gray-100)'};
-                                    color:${p.active ? 'var(--primary-dark)' : 'var(--gray-600)'};">
-                                    ${p.active ? '✓ Активний' : '✗ Неактивний'}
-                                </span>
-                            </div>
-                            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-size:0.9rem;color:var(--gray-600);">
-                                <div>
-                                    <strong>Використано:</strong> ${p.current_uses}${p.max_uses > 0 ? ' / ' + p.max_uses : ''}
-                                </div>
-                                <div>
-                                    <strong>Дійсний до:</strong> ${p.valid_until || 'Необмежено'}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                })
-                .catch(err => {
-                    document.getElementById('promo-list').innerHTML = '<p style="text-align:center;color:var(--danger);">Помилка завантаження</p>';
-                });
-        }
-        
-        function createPromo(e) {
-            e.preventDefault();
-            const form = e.target;
-            const data = {
-                code: form.code.value.toUpperCase(),
-                discount_type: form.discount_type.value,
-                discount_value: parseFloat(form.discount_value.value),
-                min_order_amount: parseFloat(form.min_order_amount.value) || 0,
-                max_uses: parseInt(form.max_uses.value) || 0,
-                valid_until: form.valid_until.value || null
-            };
-            
-            fetch('/api/promo/create', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    alert('✅ Промокод створено!');
-                    form.reset();
-                    loadPromoCodes();
-                } else {
-                    alert('❌ Помилка: ' + (res.error || 'Спробуйте ще раз'));
-                }
-            })
-            .catch(err => {
-                alert('❌ Помилка: ' + err.message);
-            });
-        }
-        
-        // showTab defined earlier
-        
-        function updateStatus(orderId, status) {
-            fetch('/api/orders/' + orderId + '/status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: status })
-            });
-        }
-        
-        function deleteProduct(id) {
-            if (confirm('Видалити товар?')) {
-                fetch('/api/products/' + id, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else if (data.error === 'Unauthorized') {
-                        alert('Сесія закінчилась. Увійдіть знову.');
-                        window.location.href = '/admin/login';
-                    } else {
-                        alert('Помилка: ' + (data.error || 'невідома'));
-                    }
-                })
-                .catch(err => alert('Помилка: ' + err.message));
-            }
-        }
+    }
 
-        function editProduct(id, name, price, stock, brand, sizes, gender, type, categoryId) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-name').value = name;
-            document.getElementById('edit-price').value = price;
-            document.getElementById('edit-stock').value = stock;
-            document.getElementById('edit-brand').value = brand;
-            document.getElementById('edit-sizes').value = sizes;
-            document.getElementById('edit-gender').value = gender;
-            document.getElementById('edit-type').value = type;
-            document.getElementById('edit-modal').style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
-
-        function submitEditProduct(e) {
-            e.preventDefault();
-            var id = document.getElementById('edit-id').value;
-            var btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = '⏳ Збереження...';
-            var data = {
-                name: document.getElementById('edit-name').value,
-                price: parseFloat(document.getElementById('edit-price').value),
-                stock: parseInt(document.getElementById('edit-stock').value) || 0,
-                brand: document.getElementById('edit-brand').value,
-                sizes: document.getElementById('edit-sizes').value,
-                gender: document.getElementById('edit-gender').value,
-                type: document.getElementById('edit-type').value
-            };
+    // ============================================================
+    // DELETE PRODUCT
+    // ============================================================
+    function deleteProduct(id) {
+        if (confirm('Видалити товар?')) {
             fetch('/api/products/' + id, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
             })
             .then(function(r) { return r.json(); })
-            .then(function(d) {
-                if (d.success) {
-                    closeEditModal();
+            .then(function(data) {
+                if (data.success) {
                     location.reload();
-                } else if (d.error === 'Unauthorized') {
+                } else if (data.error === 'Unauthorized') {
                     alert('Сесія закінчилась. Увійдіть знову.');
                     window.location.href = '/admin/login';
                 } else {
-                    alert('Помилка: ' + (d.error || 'невідома'));
-                    btn.disabled = false;
-                    btn.textContent = '✓ Зберегти';
+                    alert('Помилка: ' + (data.error || 'невідома'));
                 }
             })
-            .catch(function(err) {
-                alert('Помилка: ' + err.message);
+            .catch(function(err) { alert('Помилка: ' + err.message); });
+        }
+    }
+
+    // ============================================================
+    // EDIT PRODUCT MODAL
+    // ============================================================
+    function editProduct(id, name, price, stock, brand, sizes, gender, type, categoryId) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-name').value = name;
+        document.getElementById('edit-price').value = price;
+        document.getElementById('edit-stock').value = stock;
+        document.getElementById('edit-brand').value = brand;
+        document.getElementById('edit-sizes').value = sizes;
+        document.getElementById('edit-gender').value = gender;
+        document.getElementById('edit-type').value = type;
+        document.getElementById('edit-modal').style.display = 'flex';
+        var btn = document.getElementById('edit-submit-btn');
+        if (btn) { btn.disabled = false; btn.textContent = '✓ Зберегти'; }
+    }
+
+    function closeEditModal() {
+        document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    function submitEditProduct(e) {
+        e.preventDefault();
+        var id = document.getElementById('edit-id').value;
+        var btn = document.getElementById('edit-submit-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Збереження...';
+        var data = {
+            name: document.getElementById('edit-name').value,
+            price: parseFloat(document.getElementById('edit-price').value),
+            stock: parseInt(document.getElementById('edit-stock').value) || 0,
+            brand: document.getElementById('edit-brand').value,
+            sizes: document.getElementById('edit-sizes').value,
+            gender: document.getElementById('edit-gender').value,
+            type: document.getElementById('edit-type').value
+        };
+        fetch('/api/products/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.success) {
+                closeEditModal();
+                location.reload();
+            } else if (d.error === 'Unauthorized') {
+                alert('Сесія закінчилась. Увійдіть знову.');
+                window.location.href = '/admin/login';
+            } else {
+                alert('Помилка: ' + (d.error || 'невідома'));
                 btn.disabled = false;
                 btn.textContent = '✓ Зберегти';
-            });
-        }
-        
-    </script>
-
-<!-- Edit Product Modal -->
-<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:white;border-radius:16px;padding:2rem;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
-            <h3 style="margin:0;font-size:1.25rem;font-weight:700;">✏️ Редагувати товар</h3>
-            <button onclick="closeEditModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6B7280;">×</button>
-        </div>
-        <form id="edit-form" onsubmit="submitEditProduct(event)">
-            <input type="hidden" id="edit-id">
-            <div style="margin-bottom:1rem;">
-                <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Назва</label>
-                <input type="text" id="edit-name" required style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Ціна (грн)</label>
-                    <input type="number" id="edit-price" required min="0" step="0.01" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                </div>
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Кількість</label>
-                    <input type="number" id="edit-stock" required min="0" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                </div>
-            </div>
-            <div style="margin-bottom:1rem;">
-                <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Бренд</label>
-                <input type="text" id="edit-brand" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Стать</label>
-                    <select id="edit-gender" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                        <option value="унісекс">Унісекс</option>
-                        <option value="чоловічий">Чоловічий</option>
-                        <option value="жіночий">Жіночий</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Тип</label>
-                    <select id="edit-type" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                        <option value="футболка">Футболка</option>
-                        <option value="сорочка">Сорочка</option>
-                        <option value="джинси">Джинси</option>
-                        <option value="штани">Штани</option>
-                        <option value="куртка">Куртка</option>
-                        <option value="кросівки">Кросівки</option>
-                        <option value="аксесуар">Аксесуар</option>
-                        <option value="інше">Інше</option>
-                    </select>
-                </div>
-            </div>
-            <div style="margin-bottom:1.5rem;">
-                <label style="display:block;font-weight:600;margin-bottom:0.4rem;">Розміри</label>
-                <input type="text" id="edit-sizes" placeholder="XS:1,S:1,M:1,L:0" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                <small style="color:#6B7280;">Формат: розмір:1 (є) або розмір:0 (немає)</small>
-            </div>
-            <div style="display:flex;gap:1rem;">
-                <button type="button" onclick="closeEditModal()" style="flex:1;padding:0.875rem;border:2px solid #E5E7EB;border-radius:8px;background:white;font-size:0.95rem;cursor:pointer;font-weight:600;">Скасувати</button>
-                <button type="submit" style="flex:1;padding:0.875rem;border:none;border-radius:8px;background:#10B981;color:white;font-size:0.95rem;cursor:pointer;font-weight:600;">✓ Зберегти</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-</body>
-</html>
-
-<!-- Cropper.js -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-
-<!-- Cropper Modal -->
-<div id="cropper-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center;">
-    <div style="background:#1f2937; border-radius:16px; padding:1.5rem; max-width:700px; width:95%; max-height:90vh; display:flex; flex-direction:column; gap:1rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="color:#fff; margin:0;">✂️ Обрізати фото</h3>
-            <button onclick="closeCropper()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer; font-size:1rem;">✕ Закрити</button>
-        </div>
-        
-        <!-- Aspect ratio buttons -->
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button onclick="setCropRatio(NaN)" class="crop-ratio-btn active-ratio" style="background:#10B981; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">✂️ Вільно</button>
-            <button onclick="setCropRatio(1,1)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">1:1</button>
-            <button onclick="setCropRatio(4,3)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">4:3</button>
-            <button onclick="setCropRatio(3,4)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">3:4</button>
-            <button onclick="setCropRatio(16,9)" class="crop-ratio-btn" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-size:0.85rem;">16:9</button>
-        </div>
-        
-        <div style="overflow:auto; max-height:50vh; background:#111; border-radius:8px;">
-            <img id="cropper-image" style="max-width:100%; display:block;">
-        </div>
-        
-        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-            <button onclick="rotateCrop(-90)" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer;">↺ Повернути</button>
-            <button onclick="rotateCrop(90)" style="background:#374151; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer;">↻ Повернути</button>
-            <button onclick="applyCrop()" style="background:#10B981; color:#fff; border:none; border-radius:8px; padding:0.5rem 1.5rem; cursor:pointer; font-weight:700; font-size:1rem;">✅ Застосувати</button>
-        </div>
-    </div>
-</div>
-
-<script>
-let cropperInstance = null;
-let cropperImageIndex = -1;
-
-function openCropper(imgUrl, index) {
-    cropperImageIndex = index;
-    const modal = document.getElementById('cropper-modal');
-    const img = document.getElementById('cropper-image');
-    
-    modal.style.display = 'flex';
-    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-    
-    img.onload = null; img.onerror = null;
-    img.style.display = 'block';
-    img.removeAttribute('crossorigin');
-    
-    let loader = document.getElementById('crop-loader');
-    if (!loader) {
-        loader = document.createElement('div');
-        loader.id = 'crop-loader';
-        loader.style.cssText = 'color:#fff;text-align:center;padding:2rem;display:none;';
-        img.parentNode.insertBefore(loader, img);
-    }
-    loader.style.display = 'none';
-    
-    img.onload = function() {
-        cropperInstance = new Cropper(img, {
-            aspectRatio: NaN, viewMode: 1, autoCropArea: 0.9,
-            responsive: true, background: false, checkCrossOrigin: false,
-        });
-    };
-    
-    img.onerror = null; // не показуємо помилку — просто чекаємо
-    
-    img.src = '';
-    setTimeout(() => { img.src = imgUrl; }, 50);
-}
-
-function loadLocalForCrop(input, index) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = document.getElementById('cropper-image');
-        const loader = document.getElementById('crop-loader');
-        if (loader) loader.style.display = 'none';
-        img.style.display = 'block';
-        img.crossOrigin = '';
-        img.onload = function() {
-            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-            cropperInstance = new Cropper(img, {
-                aspectRatio: NaN, viewMode: 1, autoCropArea: 0.9,
-                responsive: true, background: false,
-            });
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-function closeCropper() {
-    document.getElementById('cropper-modal').style.display = 'none';
-    const loader = document.getElementById('crop-loader');
-    if (loader) loader.style.display = 'none';
-    const img = document.getElementById('cropper-image');
-    if (img) img.style.display = 'block';
-    if (cropperInstance) {
-        cropperInstance.destroy();
-        cropperInstance = null;
-    }
-}
-
-function setCropRatio(w, h) {
-    if (cropperInstance) {
-        cropperInstance.setAspectRatio(isNaN(w) ? NaN : w / h);
-    }
-    // Highlight active button
-    document.querySelectorAll('.crop-ratio-btn').forEach(b => b.style.background = '#374151');
-    event.target.style.background = '#10B981';
-}
-
-function rotateCrop(deg) {
-    if (cropperInstance) cropperInstance.rotate(deg);
-}
-
-function applyCrop() {
-    if (!cropperInstance) return;
-    
-    const btn = document.querySelector('[onclick="applyCrop()"]');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Збереження...'; }
-    
-    let canvas;
-    try {
-        canvas = cropperInstance.getCroppedCanvas({
-            maxWidth: 1200, maxHeight: 1200,
-            imageSmoothingEnabled: true, imageSmoothingQuality: 'high',
-        });
-    } catch(e) {
-        if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; }
-        return;
-    }
-    
-    function saveCanvas(canvas) {
-        try {
-            canvas.toBlob(function(blob) {
-                if (!blob) { 
-                    if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; }
-                    return; 
-                }
-                const formData = new FormData();
-                formData.append('images', blob, 'cropped_' + Date.now() + '.jpg');
-                fetch('/api/upload-multiple', { method: 'POST', body: formData })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.urls && data.urls[0]) {
-                            if (cropperImageIndex >= 0) parsedImages[cropperImageIndex] = data.urls[0];
-                            else parsedImages.push(data.urls[0]);
-                            renderImages();
-                            closeCropper();
-                        }
-                    })
-                    .finally(() => { if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; } });
-            }, 'image/jpeg', 0.9);
-        } catch(e) {
-            // toBlob теж tainted — використовуємо dataURL через новий Image
-            try {
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-                // Конвертуємо dataURL в blob вручну
-                const arr = dataUrl.split(',');
-                const mime = arr[0].match(/:(.*?);/)[1];
-                const bstr = atob(arr[1]);
-                let n = bstr.length;
-                const u8arr = new Uint8Array(n);
-                while(n--) u8arr[n] = bstr.charCodeAt(n);
-                const blob = new Blob([u8arr], {type: mime});
-                
-                const formData = new FormData();
-                formData.append('images', blob, 'cropped_' + Date.now() + '.jpg');
-                fetch('/api/upload-multiple', { method: 'POST', body: formData })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.urls && data.urls[0]) {
-                            if (cropperImageIndex >= 0) parsedImages[cropperImageIndex] = data.urls[0];
-                            else parsedImages.push(data.urls[0]);
-                            renderImages();
-                            closeCropper();
-                        }
-                    })
-                    .finally(() => { if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; } });
-            } catch(e2) {
-                if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; }
-                closeCropper();
             }
-        }
-    }
-    
-    // Завжди намагаємось зберегти
-    saveCanvas(canvas);
-}
-
-// Close modal on backdrop click
-document.getElementById('cropper-modal').addEventListener('click', function(e) {
-    if (e.target === this) closeCropper();
-});
-</script>
-</body>
-</html>
-
-<!-- Edit Product Modal -->
-<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:white;border-radius:16px;padding:2rem;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.3);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
-            <h3 style="margin:0;font-size:1.25rem;font-weight:700;">✏️ Редагувати товар</h3>
-            <button onclick="closeEditModal()" style="background:none;border:none;font-size:1.75rem;cursor:pointer;color:#6B7280;line-height:1;">×</button>
-        </div>
-        <form onsubmit="submitEditForm(event)">
-            <input type="hidden" id="edit-id">
-            <div style="margin-bottom:1rem;">
-                <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Назва</label>
-                <input type="text" id="edit-name" required style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Ціна (грн)</label>
-                    <input type="number" id="edit-price" required min="0" step="0.01" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                </div>
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Кількість</label>
-                    <input type="number" id="edit-stock" required min="0" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                </div>
-            </div>
-            <div style="margin-bottom:1rem;">
-                <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Бренд</label>
-                <input type="text" id="edit-brand" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Стать</label>
-                    <select id="edit-gender" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                        <option value="унісекс">Унісекс</option>
-                        <option value="чоловічий">Чоловічий</option>
-                        <option value="жіночий">Жіночий</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Тип</label>
-                    <select id="edit-type" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                        <option value="футболка">Футболка</option>
-                        <option value="сорочка">Сорочка</option>
-                        <option value="джинси">Джинси</option>
-                        <option value="штани">Штани</option>
-                        <option value="куртка">Куртка</option>
-                        <option value="кросівки">Кросівки</option>
-                        <option value="аксесуар">Аксесуар</option>
-                        <option value="інше">Інше</option>
-                    </select>
-                </div>
-            </div>
-            <div style="margin-bottom:1.5rem;">
-                <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;">Розміри</label>
-                <input type="text" id="edit-sizes" placeholder="XS:1,S:1,M:1,L:0" style="width:100%;padding:0.75rem;border:2px solid #E5E7EB;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
-                <small style="color:#6B7280;font-size:0.8rem;">Формат: розмір:1 (є) або розмір:0 (немає)</small>
-            </div>
-            <div style="display:flex;gap:1rem;">
-                <button type="button" onclick="closeEditModal()" style="flex:1;padding:0.875rem;border:2px solid #E5E7EB;border-radius:8px;background:white;font-size:0.95rem;cursor:pointer;font-weight:600;">Скасувати</button>
-                <button type="submit" id="edit-submit-btn" style="flex:1;padding:0.875rem;border:none;border-radius:8px;background:#10B981;color:white;font-size:0.95rem;cursor:pointer;font-weight:600;">✓ Зберегти</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-function editProduct(id, name, price, stock, brand, sizes, gender, type) {
-    document.getElementById('edit-id').value = id;
-    document.getElementById('edit-name').value = name;
-    document.getElementById('edit-price').value = price;
-    document.getElementById('edit-stock').value = stock;
-    document.getElementById('edit-brand').value = brand;
-    document.getElementById('edit-sizes').value = sizes;
-    document.getElementById('edit-gender').value = gender;
-    document.getElementById('edit-type').value = type;
-    var modal = document.getElementById('edit-modal');
-    modal.style.display = 'flex';
-    // Reset submit button
-    var btn = document.getElementById('edit-submit-btn');
-    btn.disabled = false;
-    btn.textContent = '✓ Зберегти';
-}
-
-function closeEditModal() {
-    document.getElementById('edit-modal').style.display = 'none';
-}
-
-function submitEditForm(e) {
-    e.preventDefault();
-    var id = document.getElementById('edit-id').value;
-    var btn = document.getElementById('edit-submit-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Збереження...';
-
-    var data = {
-        name: document.getElementById('edit-name').value,
-        price: parseFloat(document.getElementById('edit-price').value),
-        stock: parseInt(document.getElementById('edit-stock').value) || 0,
-        brand: document.getElementById('edit-brand').value,
-        sizes: document.getElementById('edit-sizes').value,
-        gender: document.getElementById('edit-gender').value,
-        type: document.getElementById('edit-type').value
-    };
-
-    fetch('/api/products/' + id, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-        if (d.success) {
-            closeEditModal();
-            location.reload();
-        } else if (d.error === 'Unauthorized') {
-            alert('Сесія закінчилась. Увійдіть знову.');
-            window.location.href = '/admin/login';
-        } else {
-            alert('Помилка: ' + (d.error || 'невідома'));
+        })
+        .catch(function(err) {
+            alert('Помилка: ' + err.message);
             btn.disabled = false;
             btn.textContent = '✓ Зберегти';
-        }
-    })
-    .catch(function(err) {
-        alert('Помилка: ' + err.message);
-        btn.disabled = false;
-        btn.textContent = '✓ Зберегти';
+        });
+    }
+
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
     });
-}
 
-// Закрити при кліку поза модалкою
-document.getElementById('edit-modal').addEventListener('click', function(e) {
-    if (e.target === this) closeEditModal();
-});
+    // ============================================================
+    // ADD PRODUCT - Images & Sizes
+    // ============================================================
+    var parsedImages = [];
 
-// ============================================================
-// IMPORT FUNCTIONALITY
-// ============================================================
-var importFile = null;
-
-function handleImportFile(input) {
-    var file = input.files[0];
-    if (!file) return;
-    importFile = file;
-    document.getElementById('import-file-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-    document.getElementById('preview-btn').style.display = 'inline-block';
-    // Reset previous state
-    document.getElementById('import-preview-container').style.display = 'none';
-    document.getElementById('import-execute-section').style.display = 'none';
-    document.getElementById('import-report').style.display = 'none';
-}
-
-function previewImport() {
-    if (!importFile) { alert('Оберіть файл'); return; }
-    var btn = document.getElementById('preview-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Зчитування...';
-
-    var formData = new FormData();
-    formData.append('file', importFile);
-
-    fetch('/api/import/preview', { method: 'POST', body: formData })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        btn.disabled = false;
-        btn.textContent = '👁️ Попередній перегляд';
-
-        if (data.error) { alert(data.error); return; }
-
-        // Show preview
-        var container = document.getElementById('import-preview-container');
-        container.style.display = 'block';
-        document.getElementById('import-preview-title').textContent = 'Попередній перегляд';
-        document.getElementById('import-preview-count').textContent = 'Знайдено ' + data.total + ' товарів' + (data.total > 50 ? ' (показано перші 50)' : '');
-
-        // Build table
-        var thead = document.getElementById('import-preview-thead');
-        thead.innerHTML = '<th>#</th><th>Назва (UA)</th><th>Оригінал</th><th>Бренд</th><th>Ціна</th><th>Категорія</th><th>Розміри</th><th>Кількість</th>';
-
-        var tbody = document.getElementById('import-preview-tbody');
-        tbody.innerHTML = data.rows.map(function(row, i) {
-            return '<tr>' +
-                '<td>' + (row.row_num || (i+2)) + '</td>' +
-                '<td><strong>' + escapeHtml(row.normalized_name || row.name || '') + '</strong></td>' +
-                '<td style="font-size:0.75rem;color:var(--gray-400);">' + escapeHtml(row.name || '').substring(0,30) + '</td>' +
-                '<td>' + escapeHtml(row.brand || '') + '</td>' +
-                '<td>' + (row.price || 0) + ' грн</td>' +
-                '<td>' + escapeHtml(row.category || '-') + '</td>' +
-                '<td style="font-size:0.8rem;">' + escapeHtml(row.sizes || '') + '</td>' +
-                '<td>' + (row.stock || 0) + '</td>' +
-                '</tr>';
-        }).join('');
-
-        // Show errors
-        var errorsDiv = document.getElementById('import-preview-errors');
-        if (data.errors && data.errors.length > 0) {
-            errorsDiv.innerHTML = '<div style="background:#FEF2F2;padding:0.75rem;border-radius:8px;border:1px solid #FECACA;">' +
-                '<strong style="color:#DC2626;">⚠️ Попередження (' + data.errors.length + '):</strong>' +
-                '<ul style="margin:0.5rem 0 0 1.25rem;font-size:0.85rem;color:#7F1D1D;">' +
-                data.errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') +
-                '</ul></div>';
+    function updateDefaultSizes() {
+        var type = document.getElementById('product-type').value;
+        var gender = document.getElementById('product-gender').value;
+        var sizes;
+        if (type === 'кросівки') {
+            if (gender === 'жіночий') sizes = '36,37,38,39,40,41';
+            else if (gender === 'чоловічий') sizes = '40,41,42,43,44,45,46';
+            else sizes = '36,37,38,39,40,41,42,43,44,45,46';
+        } else if (type === 'джинси' || type === 'штани') {
+            sizes = '28,29,30,31,32,33,34,36,38';
         } else {
-            errorsDiv.innerHTML = '<p style="color:var(--primary-dark,#059669);font-size:0.9rem;">✅ Помилок не знайдено</p>';
+            sizes = 'XS,S,M,L,XL,XXL';
+        }
+        var sizesWithStock = sizes.split(',').map(function(s) { return s + ':1'; }).join(',');
+        renderSizesBuilder(sizesWithStock);
+    }
+
+    function renderSizesBuilder(sizesData) {
+        var builder = document.getElementById('sizes-builder');
+        var hidden = document.getElementById('product-sizes');
+        if (!builder) return;
+
+        var items = sizesData.split(',').map(function(s) {
+            s = s.trim();
+            if (s.indexOf(':') !== -1) {
+                var parts = s.split(':');
+                return { size: parts[0].trim(), inStock: parts[1].trim() === '1' };
+            }
+            return { size: s, inStock: true };
+        }).filter(function(i) { return i.size; });
+
+        function updateHidden() {
+            hidden.value = items.map(function(i) { return i.size + ':' + (i.inStock ? '1' : '0'); }).join(',');
         }
 
-        // Show execute button
-        if (data.total > 0) {
-            document.getElementById('import-execute-section').style.display = 'block';
-            document.getElementById('execute-btn').textContent = '🚀 Імпортувати ' + data.total + ' товарів';
+        function render() {
+            builder.innerHTML = '';
+            items.forEach(function(item, idx) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = item.size;
+                btn.style.cssText = 'padding:0.5rem 1rem;border-radius:8px;border:2px solid;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;' +
+                    (item.inStock
+                        ? 'background:#d1fae5;border-color:#10b981;color:#065f46;'
+                        : 'background:#f3f4f6;border-color:#d1d5db;color:#9ca3af;text-decoration:line-through;');
+                btn.title = item.inStock ? 'В наявності (клік = немає)' : 'Немає (клік = є)';
+                btn.onclick = function() {
+                    items[idx].inStock = !items[idx].inStock;
+                    updateHidden();
+                    render();
+                };
+                builder.appendChild(btn);
+            });
+            updateHidden();
         }
-    })
-    .catch(function(err) {
-        btn.disabled = false;
-        btn.textContent = '👁️ Попередній перегляд';
-        alert('Помилка: ' + err.message);
+        render();
+    }
+
+    function renderImages() {
+        var grid = document.getElementById('images-grid');
+        var preview = document.getElementById('images-preview');
+        if (parsedImages.length === 0) {
+            preview.style.display = 'none';
+            return;
+        }
+        preview.style.display = 'block';
+        grid.innerHTML = parsedImages.map(function(img, i) {
+            return '<div style="position:relative;">' +
+                '<img src="' + img + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:2px solid ' + (i === 0 ? '#10B981' : '#ddd') + ';" onerror="this.style.opacity=0.3">' +
+                '<span onclick="removeImage(' + i + ')" style="position:absolute;top:2px;right:2px;background:#ef4444;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;z-index:2;line-height:1;">&times;</span>' +
+                '<span onclick="proxyAndCrop(' + i + ')" style="position:absolute;bottom:2px;right:2px;background:#3b82f6;color:white;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;z-index:2;">✂️</span>' +
+                (i === 0 ? '<span style="position:absolute;bottom:2px;left:2px;background:#10B981;color:white;padding:2px 6px;border-radius:4px;font-size:10px;pointer-events:none;">Головна</span>' : '') +
+                '</div>';
+        }).join('');
+        document.getElementById('image-urls-input').value = JSON.stringify(parsedImages);
+    }
+
+    function removeImage(index) {
+        parsedImages.splice(index, 1);
+        renderImages();
+    }
+
+    function proxyAndCrop(index) {
+        openCropper(parsedImages[index], index);
+    }
+
+    function addManualImage() {
+        var url = document.getElementById('manual-img-url').value.trim();
+        if (!url) return;
+        if (url.indexOf('http') !== 0) {
+            alert('Введіть коректне посилання на фото (починається з http)');
+            return;
+        }
+        parsedImages.push(url);
+        renderImages();
+        document.getElementById('manual-img-url').value = '';
+    }
+
+    function uploadLocalImages(input) {
+        var files = Array.from(input.files);
+        if (!files.length) return;
+        var formData = new FormData();
+        files.forEach(function(f) { formData.append('images', f); });
+        fetch('/api/upload-multiple', { method: 'POST', body: formData })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.urls) {
+                    parsedImages = parsedImages.concat(data.urls);
+                    renderImages();
+                }
+            })
+            .catch(function() { alert('Помилка завантаження файлів'); });
+        input.value = '';
+    }
+
+    function parseUrl() {
+        var url = document.getElementById('parse-url').value.trim();
+        if (!url) { alert('Вставте URL товару'); return; }
+        var btn = document.getElementById('parse-btn');
+        var status = document.getElementById('parse-status');
+        btn.disabled = true;
+        btn.textContent = '⏳ Парсимо...';
+        status.innerHTML = '<span style="color:#666;">Завантаження даних...</span>';
+        fetch('/api/parse-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.textContent = '🔍 Парсити';
+            if (data.error) { status.innerHTML = '<span style="color:#ef4444;">❌ ' + data.error + '</span>'; return; }
+            if (data.name) document.getElementById('product-name').value = data.name;
+            if (data.description) document.getElementById('product-description').value = data.description;
+            if (data.brand) document.getElementById('product-brand').value = data.brand;
+            if (data.price > 0) document.getElementById('product-price').value = Math.round(data.price);
+            var nameLower = (data.name || '').toLowerCase();
+            var genderEl = document.getElementById('product-gender');
+            var typeEl = document.getElementById('product-type');
+            if (genderEl) {
+                if (nameLower.indexOf('жін') !== -1 || nameLower.indexOf('woman') !== -1 || nameLower.indexOf('women') !== -1) genderEl.value = 'жіночий';
+                else if (nameLower.indexOf('чол') !== -1 || nameLower.indexOf('man') !== -1 || nameLower.indexOf('men') !== -1) genderEl.value = 'чоловічий';
+            }
+            if (typeEl) {
+                if (nameLower.indexOf('t-shirt') !== -1 || nameLower.indexOf('футбол') !== -1) typeEl.value = 'футболка';
+                else if (nameLower.indexOf('shirt') !== -1 || nameLower.indexOf('сорочк') !== -1) typeEl.value = 'сорочка';
+                else if (nameLower.indexOf('jeans') !== -1 || nameLower.indexOf('джинс') !== -1) typeEl.value = 'джинси';
+                else if (nameLower.indexOf('jacket') !== -1 || nameLower.indexOf('куртк') !== -1) typeEl.value = 'куртка';
+                else if (nameLower.indexOf('sweater') !== -1 || nameLower.indexOf('светр') !== -1 || nameLower.indexOf('hoodie') !== -1) typeEl.value = 'светр';
+                else if (nameLower.indexOf('pants') !== -1 || nameLower.indexOf('штан') !== -1 || nameLower.indexOf('trousers') !== -1) typeEl.value = 'штани';
+                else if (nameLower.indexOf('sneaker') !== -1 || nameLower.indexOf('кросівк') !== -1 || nameLower.indexOf('shoe') !== -1) typeEl.value = 'кросівки';
+                else if (nameLower.indexOf('dress') !== -1 || nameLower.indexOf('сукн') !== -1) typeEl.value = 'сукня';
+            }
+            var rawImages = data.images || [];
+            if (data.image_url && rawImages.indexOf(data.image_url) === -1) rawImages.unshift(data.image_url);
+            parsedImages = rawImages.slice(0, 8);
+            renderImages();
+            updateDefaultSizes();
+            status.innerHTML = '<span style="color:#10B981;">✅ ' + (data.name || 'товар') + ' | ' + parsedImages.length + ' фото</span>';
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = '🔍 Парсити';
+            status.innerHTML = '<span style="color:#ef4444;">❌ Помилка: ' + err.message + '</span>';
+        });
+    }
+
+    // Add product form submit
+    document.getElementById('product-form').onsubmit = function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        var data = {};
+        formData.forEach(function(v, k) { data[k] = v; });
+        data.price = parseFloat(data.price);
+        data.stock = parseInt(data.stock) || 0;
+        data.category_id = parseInt(data.category_id) || 1;
+        delete data.image_urls;
+        if (parsedImages.length > 0) data.image_urls = parsedImages;
+        var btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = '⏳ Додаємо...';
+        fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            btn.disabled = false;
+            btn.textContent = '✅ Додати товар';
+            if (d.error) alert('Помилка: ' + d.error);
+            else if (d.id) { alert('Товар додано! ID: ' + d.id); location.reload(); }
+            else alert('Невідома відповідь: ' + JSON.stringify(d));
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = '✅ Додати товар';
+            alert('Помилка мережі: ' + err.message);
+        });
+        return false;
+    };
+
+    // ============================================================
+    // CROPPER
+    // ============================================================
+    var cropperInstance = null;
+    var cropperImageIndex = -1;
+
+    function openCropper(imgUrl, index) {
+        cropperImageIndex = index;
+        var modal = document.getElementById('cropper-modal');
+        var img = document.getElementById('cropper-image');
+        modal.style.display = 'flex';
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+        img.onload = null; img.onerror = null;
+        img.style.display = 'block';
+        img.removeAttribute('crossorigin');
+        img.onload = function() {
+            cropperInstance = new Cropper(img, {
+                aspectRatio: NaN, viewMode: 1, autoCropArea: 0.9,
+                responsive: true, background: false, checkCrossOrigin: false,
+            });
+        };
+        img.src = '';
+        setTimeout(function() { img.src = imgUrl; }, 50);
+    }
+
+    function closeCropper() {
+        document.getElementById('cropper-modal').style.display = 'none';
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+    }
+
+    function setCropRatio(w, h) {
+        if (cropperInstance) cropperInstance.setAspectRatio(isNaN(w) ? NaN : w / h);
+        document.querySelectorAll('.crop-ratio-btn').forEach(function(b) { b.style.background = '#374151'; });
+        if (event && event.target) event.target.style.background = '#10B981';
+    }
+
+    function rotateCrop(deg) {
+        if (cropperInstance) cropperInstance.rotate(deg);
+    }
+
+    function applyCrop() {
+        if (!cropperInstance) return;
+        var btn = document.querySelector('[onclick="applyCrop()"]');
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Збереження...'; }
+        var canvas;
+        try {
+            canvas = cropperInstance.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200, imageSmoothingEnabled: true, imageSmoothingQuality: 'high' });
+        } catch(e) {
+            if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; }
+            return;
+        }
+        try {
+            canvas.toBlob(function(blob) {
+                if (!blob) { if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; } return; }
+                var formData = new FormData();
+                formData.append('images', blob, 'cropped_' + Date.now() + '.jpg');
+                fetch('/api/upload-multiple', { method: 'POST', body: formData })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.urls && data.urls[0]) {
+                            if (cropperImageIndex >= 0) parsedImages[cropperImageIndex] = data.urls[0];
+                            else parsedImages.push(data.urls[0]);
+                            renderImages();
+                            closeCropper();
+                        }
+                    })
+                    .finally(function() { if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; } });
+            }, 'image/jpeg', 0.9);
+        } catch(e) {
+            if (btn) { btn.disabled = false; btn.textContent = '✅ Застосувати'; }
+            closeCropper();
+        }
+    }
+
+    document.getElementById('cropper-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeCropper();
     });
-}
 
-function executeImport() {
-    if (!importFile) { alert('Оберіть файл'); return; }
-    var btn = document.getElementById('execute-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Імпорт...';
+    // ============================================================
+    // IMPORT FUNCTIONALITY
+    // ============================================================
+    var importFile = null;
 
-    var formData = new FormData();
-    formData.append('file', importFile);
-
-    fetch('/api/import/execute', { method: 'POST', body: formData })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        btn.disabled = false;
-        btn.textContent = '🚀 Імпортувати товари';
+    function handleImportFile(input) {
+        var file = input.files[0];
+        if (!file) return;
+        importFile = file;
+        document.getElementById('import-file-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+        document.getElementById('preview-btn').style.display = 'inline-block';
+        document.getElementById('import-preview-container').style.display = 'none';
         document.getElementById('import-execute-section').style.display = 'none';
+        document.getElementById('import-report').style.display = 'none';
+    }
 
-        if (data.error) { alert(data.error); return; }
+    function previewImport() {
+        if (!importFile) { alert('Оберіть файл'); return; }
+        var btn = document.getElementById('preview-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Зчитування...';
+        var formData = new FormData();
+        formData.append('file', importFile);
+        fetch('/api/import/preview', { method: 'POST', body: formData })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.textContent = '👁️ Попередній перегляд';
+            if (data.error) { alert(data.error); return; }
+            var container = document.getElementById('import-preview-container');
+            container.style.display = 'block';
+            document.getElementById('import-preview-title').textContent = 'Попередній перегляд';
+            document.getElementById('import-preview-count').textContent = 'Знайдено ' + data.total + ' товарів' + (data.total > 50 ? ' (показано перші 50)' : '');
+            var thead = document.getElementById('import-preview-thead');
+            thead.innerHTML = '<th>#</th><th>Назва (UA)</th><th>Оригінал</th><th>Бренд</th><th>Ціна</th><th>Категорія</th><th>Розміри</th><th>Кількість</th>';
+            var tbody = document.getElementById('import-preview-tbody');
+            tbody.innerHTML = data.rows.map(function(row, i) {
+                return '<tr><td>' + (row.row_num || (i+2)) + '</td><td><strong>' + escapeHtml(row.normalized_name || row.name || '') + '</strong></td><td style="font-size:0.75rem;color:var(--gray-400);">' + escapeHtml(row.name || '').substring(0,30) + '</td><td>' + escapeHtml(row.brand || '') + '</td><td>' + (row.price || 0) + ' грн</td><td>' + escapeHtml(row.category || '-') + '</td><td style="font-size:0.8rem;">' + escapeHtml(row.sizes || '') + '</td><td>' + (row.stock || 0) + '</td></tr>';
+            }).join('');
+            var errorsDiv = document.getElementById('import-preview-errors');
+            if (data.errors && data.errors.length > 0) {
+                errorsDiv.innerHTML = '<div style="background:#FEF2F2;padding:0.75rem;border-radius:8px;border:1px solid #FECACA;"><strong style="color:#DC2626;">⚠️ Попередження (' + data.errors.length + '):</strong><ul style="margin:0.5rem 0 0 1.25rem;font-size:0.85rem;color:#7F1D1D;">' + data.errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul></div>';
+            } else {
+                errorsDiv.innerHTML = '<p style="color:var(--primary-dark,#059669);font-size:0.9rem;">✅ Помилок не знайдено</p>';
+            }
+            if (data.total > 0) {
+                document.getElementById('import-execute-section').style.display = 'block';
+                document.getElementById('execute-btn').textContent = '🚀 Імпортувати ' + data.total + ' товарів';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = '👁️ Попередній перегляд';
+            alert('Помилка: ' + err.message);
+        });
+    }
 
-        // Show report
-        var reportDiv = document.getElementById('import-report');
-        reportDiv.style.display = 'block';
-
-        var report = data.report || {};
-        var summaryDiv = document.getElementById('import-report-summary');
-        summaryDiv.innerHTML =
-            '<div style="background:#ECFDF5;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#059669;">' + (report.created || 0) + '</div><div style="font-size:0.8rem;color:#065F46;">Створено</div></div>' +
-            '<div style="background:#DBEAFE;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#1D4ED8;">' + (report.updated || 0) + '</div><div style="font-size:0.8rem;color:#1E3A5F;">Оновлено</div></div>' +
-            '<div style="background:#FEF2F2;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#DC2626;">' + (report.errors || 0) + '</div><div style="font-size:0.8rem;color:#7F1D1D;">Помилок</div></div>';
-
-        // Details table
-        var details = report.details || [];
-        var detailsDiv = document.getElementById('import-report-details');
-        if (details.length > 0) {
-            detailsDiv.innerHTML = '<table style="width:100%;font-size:0.8rem;border-collapse:collapse;">' +
-                '<thead><tr style="background:var(--gray-100,#F3F4F6);"><th style="padding:0.5rem;text-align:left;">Рядок</th><th style="padding:0.5rem;text-align:left;">Назва</th><th style="padding:0.5rem;text-align:left;">Дія</th><th style="padding:0.5rem;text-align:left;">Деталі</th></tr></thead>' +
-                '<tbody>' + details.map(function(d) {
+    function executeImport() {
+        if (!importFile) { alert('Оберіть файл'); return; }
+        var btn = document.getElementById('execute-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Імпорт...';
+        var formData = new FormData();
+        formData.append('file', importFile);
+        fetch('/api/import/execute', { method: 'POST', body: formData })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.textContent = '🚀 Імпортувати товари';
+            document.getElementById('import-execute-section').style.display = 'none';
+            if (data.error) { alert(data.error); return; }
+            var reportDiv = document.getElementById('import-report');
+            reportDiv.style.display = 'block';
+            var report = data.report || {};
+            var summaryDiv = document.getElementById('import-report-summary');
+            summaryDiv.innerHTML =
+                '<div style="background:#ECFDF5;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#059669;">' + (report.created || 0) + '</div><div style="font-size:0.8rem;color:#065F46;">Створено</div></div>' +
+                '<div style="background:#DBEAFE;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#1D4ED8;">' + (report.updated || 0) + '</div><div style="font-size:0.8rem;color:#1E3A5F;">Оновлено</div></div>' +
+                '<div style="background:#FEF2F2;padding:1rem;border-radius:8px;text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:#DC2626;">' + (report.errors || 0) + '</div><div style="font-size:0.8rem;color:#7F1D1D;">Помилок</div></div>';
+            var details = report.details || [];
+            var detailsDiv = document.getElementById('import-report-details');
+            if (details.length > 0) {
+                detailsDiv.innerHTML = '<table style="width:100%;font-size:0.8rem;border-collapse:collapse;"><thead><tr style="background:var(--gray-100,#F3F4F6);"><th style="padding:0.5rem;text-align:left;">Рядок</th><th style="padding:0.5rem;text-align:left;">Назва</th><th style="padding:0.5rem;text-align:left;">Дія</th><th style="padding:0.5rem;text-align:left;">Деталі</th></tr></thead><tbody>' + details.map(function(d) {
                     var color = d.action === 'created' ? '#059669' : d.action === 'updated' ? '#1D4ED8' : '#DC2626';
                     var icon = d.action === 'created' ? '✅' : d.action === 'updated' ? '🔄' : '❌';
                     return '<tr style="border-bottom:1px solid #F3F4F6;"><td style="padding:0.4rem 0.5rem;">' + d.row + '</td><td style="padding:0.4rem 0.5rem;">' + escapeHtml(d.name || '') + '</td><td style="padding:0.4rem 0.5rem;color:' + color + ';">' + icon + ' ' + d.action + '</td><td style="padding:0.4rem 0.5rem;color:#6B7280;">' + escapeHtml(d.message || '') + '</td></tr>';
                 }).join('') + '</tbody></table>';
-        }
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = '🚀 Імпортувати товари';
+            alert('Помилка: ' + err.message);
+        });
+    }
 
-        // Show parse errors
-        if (data.parse_errors && data.parse_errors.length > 0) {
-            detailsDiv.innerHTML += '<div style="margin-top:0.75rem;padding:0.75rem;background:#FEF3C7;border-radius:8px;font-size:0.8rem;"><strong>Попередження парсера:</strong><ul style="margin:0.25rem 0 0 1rem;">' +
-                data.parse_errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul></div>';
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ============================================================
+    // PHOTO FINDER
+    // ============================================================
+    var pfSkipIds = [];
+    var pfCurrentProductId = null;
+
+    function loadPhotoStats() {
+        fetch('/api/import/photo-stats').then(function(r){return r.json();}).then(function(d){
+            var t=document.getElementById('ps-total');if(t)t.textContent=d.total||0;
+            var w=document.getElementById('ps-with');if(w)w.textContent=d.with_photo||0;
+            var wo=document.getElementById('ps-without');if(wo)wo.textContent=d.without_photo||0;
+        }).catch(function(){});
+    }
+
+    function startPhotoSearch() {
+        var btn=document.getElementById('pf-start-btn');
+        if(btn){btn.disabled=true;btn.textContent='Пошук...';}
+        fetch('/api/import/photo-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skip_ids:pfSkipIds})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(btn){btn.disabled=false;btn.textContent='Знайти фото (наступний товар)';}
+            if(d.done){document.getElementById('pf-product').style.display='none';pfLog('Всі товари оброблені!');return;}
+            pfCurrentProductId=d.product_id;
+            document.getElementById('pf-product').style.display='block';
+            document.getElementById('pf-name').textContent=d.name||'';
+            document.getElementById('pf-brand').textContent=d.brand||'';
+            document.getElementById('pf-sku').textContent=d.sku||'';
+            document.getElementById('pf-original').textContent=d.original_name||'';
+            document.getElementById('pf-remaining').textContent='Залишилось: '+(d.remaining||0);
+            var grid=document.getElementById('pf-results');
+            if(d.results&&d.results.length>0&&d.results[0].url){
+                grid.innerHTML=d.results.map(function(r){
+                    return '<div style="cursor:pointer;border:2px solid transparent;border-radius:8px;overflow:hidden;transition:border-color 0.2s;" onclick="pfSelect(\''+r.url.replace(/'/g,"\\'")+'\')" onmouseover="this.style.borderColor=\'#10B981\'" onmouseout="this.style.borderColor=\'transparent\'"><img src="'+(r.thumbnail||r.url)+'" style="width:100%;height:80px;object-fit:cover;" onerror="this.parentElement.style.display=\'none\'"><div style="font-size:0.55rem;color:#999;padding:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.source||'')+'</div></div>';
+                }).join('');
+            } else if(d.results&&d.results[0]&&d.results[0].search_url){
+                grid.innerHTML='<div style="grid-column:span 5;text-align:center;padding:1rem;"><p style="color:#666;margin-bottom:0.5rem;">API не знайшов. Спробуйте вручну:</p>'+d.results.map(function(r){return '<a href="'+r.search_url+'" target="_blank" style="display:inline-block;margin:0.25rem;padding:0.3rem 0.7rem;background:#f3f4f6;border-radius:4px;font-size:0.7rem;color:#3b82f6;">Google</a>';}).join('')+'</div>';
+            } else {
+                grid.innerHTML='<div style="grid-column:span 5;text-align:center;color:#999;padding:1rem;">Не знайдено</div>';
+            }
+            pfLog('Пошук: '+(d.name||'')+' ['+d.mode+']');
+        })
+        .catch(function(e){if(btn){btn.disabled=false;btn.textContent='Знайти фото';}pfLog('Помилка: '+e.message);});
+    }
+
+    function pfSelect(url){
+        if(!pfCurrentProductId||!url)return;
+        pfLog('Зберігаю фото ID='+pfCurrentProductId+'...');
+        fetch('/api/import/set-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pfCurrentProductId,image_url:url})})
+        .then(function(r){return r.json();}).then(function(d){
+            if(d.success){pfLog('OK! Фото збережено');loadPhotoStats();startPhotoSearch();}
+            else pfLog('Помилка: '+(d.error||''));
+        });
+    }
+
+    function skipPhoto(){if(pfCurrentProductId){pfSkipIds.push(pfCurrentProductId);pfLog('Пропущено ID='+pfCurrentProductId);}startPhotoSearch();}
+
+    function setManualPhoto(){var url=document.getElementById('pf-manual-url').value.trim();if(!url||!pfCurrentProductId)return;pfSelect(url);document.getElementById('pf-manual-url').value='';}
+
+    function pfLog(msg){var l=document.getElementById('pf-log');if(l)l.innerHTML='<div>'+new Date().toLocaleTimeString()+' — '+msg+'</div>'+l.innerHTML;}
+
+    // ============================================================
+    // PROMO CODES
+    // ============================================================
+    function loadPromoCodes() {
+        fetch('/api/promo/list')
+            .then(function(r) { return r.json(); })
+            .then(function(promos) {
+                var list = document.getElementById('promo-list');
+                if (promos.length === 0) {
+                    list.innerHTML = '<p style="text-align:center;color:var(--gray-500);">Промокодів поки немає</p>';
+                    return;
+                }
+                list.innerHTML = promos.map(function(p) {
+                    return '<div style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:1.5rem;margin-bottom:1rem;">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;"><div>' +
+                        '<h4 style="font-size:1.25rem;font-weight:700;color:var(--primary-dark);margin-bottom:0.5rem;">' + p.code + '</h4>' +
+                        '<p style="color:var(--gray-600);">' + (p.discount_type === 'percent' ? p.discount_value + '%' : p.discount_value + ' грн') + ' знижка</p></div>' +
+                        '<span style="padding:0.375rem 0.875rem;border-radius:50px;font-size:0.85rem;font-weight:600;background:' + (p.active ? 'var(--primary-50)' : 'var(--gray-100)') + ';color:' + (p.active ? 'var(--primary-dark)' : 'var(--gray-600)') + ';">' + (p.active ? '✓ Активний' : '✗ Неактивний') + '</span></div>' +
+                        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-size:0.9rem;color:var(--gray-600);">' +
+                        '<div><strong>Використано:</strong> ' + p.current_uses + (p.max_uses > 0 ? ' / ' + p.max_uses : '') + '</div>' +
+                        '<div><strong>Дійсний до:</strong> ' + (p.valid_until || 'Необмежено') + '</div></div></div>';
+                }).join('');
+            })
+            .catch(function() {
+                document.getElementById('promo-list').innerHTML = '<p style="text-align:center;color:var(--danger);">Помилка завантаження</p>';
+            });
+    }
+
+    function createPromo(e) {
+        e.preventDefault();
+        var form = e.target;
+        var data = {
+            code: form.code.value.toUpperCase(),
+            discount_type: form.discount_type.value,
+            discount_value: parseFloat(form.discount_value.value),
+            min_order_amount: parseFloat(form.min_order_amount.value) || 0,
+            max_uses: parseInt(form.max_uses.value) || 0,
+            valid_until: form.valid_until.value || null
+        };
+        fetch('/api/promo/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            if (res.success) { alert('✅ Промокод створено!'); form.reset(); loadPromoCodes(); }
+            else alert('❌ Помилка: ' + (res.error || 'Спробуйте ще раз'));
+        })
+        .catch(function(err) { alert('❌ Помилка: ' + err.message); });
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        renderSizesBuilder('XS:1,S:1,M:1,L:1,XL:1,XXL:1');
+        var manualInput = document.getElementById('manual-img-url');
+        if (manualInput) {
+            manualInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); addManualImage(); }
+            });
         }
-    })
-    .catch(function(err) {
-        btn.disabled = false;
-        btn.textContent = '🚀 Імпортувати товари';
-        alert('Помилка: ' + err.message);
+        loadPromoCodes();
+        setTimeout(loadPhotoStats, 1000);
     });
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ============================================================
-// PHOTO FINDER
-// ============================================================
-var pfSkipIds = [];
-var pfCurrentProductId = null;
-
-function loadPhotoStats() {
-    fetch('/api/import/photo-stats').then(function(r){return r.json()}).then(function(d){
-        var t=document.getElementById('ps-total');if(t)t.textContent=d.total||0;
-        var w=document.getElementById('ps-with');if(w)w.textContent=d.with_photo||0;
-        var wo=document.getElementById('ps-without');if(wo)wo.textContent=d.without_photo||0;
-    }).catch(function(){});
-}
-
-function startPhotoSearch() {
-    var btn=document.getElementById('pf-start-btn');
-    if(btn){btn.disabled=true;btn.textContent='Пошук...';}
-    fetch('/api/import/photo-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skip_ids:pfSkipIds})})
-    .then(function(r){return r.json()})
-    .then(function(d){
-        if(btn){btn.disabled=false;btn.textContent='Знайти фото (наступний товар)';}
-        if(d.done){document.getElementById('pf-product').style.display='none';pfLog('Всі товари оброблені!');return;}
-        pfCurrentProductId=d.product_id;
-        document.getElementById('pf-product').style.display='block';
-        document.getElementById('pf-name').textContent=d.name||'';
-        document.getElementById('pf-brand').textContent=d.brand||'';
-        document.getElementById('pf-sku').textContent=d.sku||'';
-        document.getElementById('pf-original').textContent=d.original_name||'';
-        document.getElementById('pf-remaining').textContent='Залишилось: '+(d.remaining||0);
-        var grid=document.getElementById('pf-results');
-        if(d.results&&d.results.length>0&&d.results[0].url){
-            grid.innerHTML=d.results.map(function(r){
-                return '<div style="cursor:pointer;border:2px solid transparent;border-radius:8px;overflow:hidden;transition:border-color 0.2s;" onclick="pfSelect(\''+r.url.replace(/'/g,"\\'")+'\')" onmouseover="this.style.borderColor=\'#10B981\'" onmouseout="this.style.borderColor=\'transparent\'"><img src="'+(r.thumbnail||r.url)+'" style="width:100%;height:80px;object-fit:cover;" onerror="this.parentElement.style.display=\'none\'"><div style="font-size:0.55rem;color:#999;padding:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.source||'')+'</div></div>';
-            }).join('');
-        } else if(d.results&&d.results[0]&&d.results[0].search_url){
-            grid.innerHTML='<div style="grid-column:span 5;text-align:center;padding:1rem;"><p style="color:#666;margin-bottom:0.5rem;">API не знайшов. Спробуйте вручну:</p>'+d.results.map(function(r){return '<a href="'+r.search_url+'" target="_blank" style="display:inline-block;margin:0.25rem;padding:0.3rem 0.7rem;background:#f3f4f6;border-radius:4px;font-size:0.7rem;color:#3b82f6;">Google</a>';}).join('')+'</div>';
-        } else {
-            grid.innerHTML='<div style="grid-column:span 5;text-align:center;color:#999;padding:1rem;">Не знайдено</div>';
-        }
-        pfLog('Пошук: '+(d.name||'')+' ['+d.mode+']');
-    })
-    .catch(function(e){if(btn){btn.disabled=false;btn.textContent='Знайти фото';}pfLog('Помилка: '+e.message);});
-}
-
-function pfSelect(url){
-    if(!pfCurrentProductId||!url)return;
-    pfLog('Зберігаю фото ID='+pfCurrentProductId+'...');
-    fetch('/api/import/set-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pfCurrentProductId,image_url:url})})
-    .then(function(r){return r.json()}).then(function(d){
-        if(d.success){pfLog('OK! Фото збережено');loadPhotoStats();startPhotoSearch();}
-        else pfLog('Помилка: '+(d.error||''));
-    });
-}
-
-function skipPhoto(){if(pfCurrentProductId){pfSkipIds.push(pfCurrentProductId);pfLog('Пропущено ID='+pfCurrentProductId);}startPhotoSearch();}
-
-function setManualPhoto(){var url=document.getElementById('pf-manual-url').value.trim();if(!url||!pfCurrentProductId)return;pfSelect(url);document.getElementById('pf-manual-url').value='';}
-
-function pfLog(msg){var l=document.getElementById('pf-log');if(l)l.innerHTML='<div>'+new Date().toLocaleTimeString()+' — '+msg+'</div>'+l.innerHTML;}
-
-setTimeout(loadPhotoStats, 1000);
-</script>
+    </script>
+</body>
+</html>
