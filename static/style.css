@@ -7745,12 +7745,17 @@ h1, h2, h3, h4, h5, h6 {
     background: #fff !important;
 }
 .trust-section--minimal .trust-badges {
-    max-width: 900px !important;
+    max-width: 1000px !important;
     margin: 0 auto !important;
 }
 .trust-section--minimal .trust-badge {
-    padding: 1.5rem 1rem !important;
+    padding: 2.5rem 1.5rem !important;
     border-right: 1px solid #EEEEEE !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
 }
 .trust-section--minimal .trust-badge:last-child {
     border-right: none !important;
@@ -7758,16 +7763,19 @@ h1, h2, h3, h4, h5, h6 {
 .trust-section--minimal .trust-icon {
     background: transparent !important;
     border: none !important;
-    width: auto !important;
-    height: auto !important;
-    font-size: 1.25rem !important;
-    margin-bottom: 0.5rem !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 1.75rem !important;
+    margin-bottom: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 .trust-section--minimal .trust-badge-text {
-    font-size: 0.75rem !important;
-    font-weight: 500 !important;
-    color: #555 !important;
-    letter-spacing: 0.02em !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #1A1A1A !important;
+    letter-spacing: 0.01em !important;
 }
 .trust-section--minimal .trust-badge-sub {
     display: none !important;
@@ -7855,6 +7863,8 @@ h1, h2, h3, h4, h5, h6 {
 /* --- SEO Content Section --- */
 .seo-content-section {
     border-top: 1px solid #EEEEEE;
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
 }
 .seo-content {
     max-width: 800px;
@@ -7881,12 +7891,47 @@ h1, h2, h3, h4, h5, h6 {
 /* --- Footer refinement --- */
 footer {
     background: #F8F7F5 !important;
-    border-top: 1px solid #EEEEEE !important;
+    border-top: 1px solid #E5E7EB !important;
+}
+footer h4, .footer-section h4 {
+    color: #1A1A1A !important;
+    font-weight: 700 !important;
+}
+footer p, .footer-brand p {
+    color: #4B5563 !important;
+}
+footer a, .footer-section a {
+    color: #1A1A1A !important;
+    transition: opacity 0.2s !important;
+}
+footer a:hover, .footer-section a:hover {
+    opacity: 0.7 !important;
+    color: #1A1A1A !important;
+}
+.footer-bottom p {
+    color: #4B5563 !important;
+}
+.footer-social a {
+    color: #1A1A1A !important;
 }
 
 /* --- Hide email popup (not premium) --- */
 .email-popup {
     display: none !important;
+}
+
+/* --- Reduce gap before footer --- */
+.recently-viewed-section {
+    padding: 2rem clamp(1rem, 3vw, 3rem) !important;
+    margin-bottom: 0 !important;
+}
+.recently-viewed-header h2 {
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+}
+.seo-content-section + .recently-viewed-section,
+.recently-viewed-section:last-of-type {
+    padding-bottom: 1.5rem !important;
 }
 
 /* --- Mobile Premium adjustments --- */
@@ -7955,10 +8000,16 @@ footer {
         grid-template-columns: repeat(2, 1fr) !important;
     }
     .trust-section--minimal .trust-badge {
-        padding: 1rem 0.5rem !important;
+        padding: 1.5rem 0.75rem !important;
+    }
+    .trust-section--minimal .trust-icon {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.5rem !important;
     }
     .trust-section--minimal .trust-badge-text {
-        font-size: 0.68rem !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
     }
 
     /* Sections tight */
