@@ -7496,7 +7496,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Visual Hero with background image */
 .hero--visual {
-    min-height: 75vh !important;
+    min-height: 80vh !important;
     display: flex !important;
     align-items: flex-end !important;
     justify-content: center !important;
@@ -7511,32 +7511,42 @@ h1, h2, h3, h4, h5, h6 {
     height: 100%;
     object-fit: cover;
     object-position: center top;
+    filter: brightness(0.85) contrast(1.05);
 }
 .hero-content--overlay {
     position: relative;
     z-index: 2;
-    padding: 3rem 2rem 4rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.45) 50%, transparent 100%);
+    padding: 4rem 2rem 5rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.15) 75%, transparent 100%);
     width: 100%;
     text-align: center;
 }
 .hero--visual h1 {
-    font-size: clamp(2rem, 5vw, 3.2rem) !important;
-    font-weight: 500 !important;
+    font-size: clamp(2.2rem, 5vw, 3.5rem) !important;
+    font-weight: 600 !important;
     color: #fff !important;
     letter-spacing: -0.02em !important;
-    line-height: 1.15 !important;
+    line-height: 1.12 !important;
     margin-bottom: 0.75rem !important;
-    text-shadow: 0 2px 30px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4);
+    text-shadow: 0 3px 40px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.5);
 }
 .hero--visual .hero-brands {
-    color: rgba(255,255,255,0.9) !important;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+    color: rgba(255,255,255,0.92) !important;
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.04em !important;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.5);
+    margin-bottom: 2rem !important;
 }
 .hero--visual .hero-cta-btn {
     background: #fff !important;
     color: #1A1A1A !important;
     border: none !important;
+    padding: 1.1rem 3rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
 }
 .hero--visual .hero-cta-btn:hover {
     background: #F0F0F0 !important;
@@ -7637,24 +7647,25 @@ h1, h2, h3, h4, h5, h6 {
     background: transparent !important;
 }
 .product-info .brand {
-    font-size: 0.7rem !important;
+    font-size: 0.72rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.08em !important;
-    color: #999 !important;
-    font-weight: 500 !important;
+    color: #757575 !important;
+    font-weight: 600 !important;
     margin-bottom: 0.2rem !important;
 }
 .product-info h3 {
-    font-size: 0.82rem !important;
+    font-size: 0.84rem !important;
     font-weight: 400 !important;
     color: #1A1A1A !important;
     letter-spacing: 0 !important;
+    line-height: 1.35 !important;
 }
 .product-info .price {
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
     color: #1A1A1A !important;
-    margin-top: 0.25rem !important;
+    margin-top: 0.3rem !important;
 }
 .product-info .bonus-badge {
     display: none !important;
@@ -7740,22 +7751,27 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Trust Section minimal --- */
 .trust-section--minimal {
-    border-top: 1px solid #EEEEEE !important;
-    border-bottom: 1px solid #EEEEEE !important;
-    background: #fff !important;
+    border-top: 1px solid #E5E7EB !important;
+    border-bottom: 1px solid #E5E7EB !important;
+    background: #FAFAFA !important;
 }
 .trust-section--minimal .trust-badges {
-    max-width: 1000px !important;
+    max-width: 1100px !important;
     margin: 0 auto !important;
 }
 .trust-section--minimal .trust-badge {
-    padding: 2.5rem 1.5rem !important;
-    border-right: 1px solid #EEEEEE !important;
+    padding: 2.75rem 1.5rem !important;
+    border-right: 1px solid #E5E7EB !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
+    text-decoration: none !important;
+    transition: background 0.2s !important;
+}
+.trust-section--minimal .trust-badge:hover {
+    background: #F0EFED !important;
 }
 .trust-section--minimal .trust-badge:last-child {
     border-right: none !important;
@@ -7765,17 +7781,18 @@ h1, h2, h3, h4, h5, h6 {
     border: none !important;
     width: 48px !important;
     height: 48px !important;
-    font-size: 1.75rem !important;
-    margin-bottom: 0.75rem !important;
+    font-size: 2rem !important;
+    margin-bottom: 0.85rem !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border-radius: 0 !important;
 }
 .trust-section--minimal .trust-badge-text {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     font-weight: 600 !important;
     color: #1A1A1A !important;
-    letter-spacing: 0.01em !important;
+    letter-spacing: 0 !important;
 }
 .trust-section--minimal .trust-badge-sub {
     display: none !important;
@@ -7807,15 +7824,22 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Section headers — less loud --- */
 .section-header {
-    margin-bottom: 2.5rem !important;
+    margin-bottom: 2rem !important;
 }
 .section-title {
-    font-size: clamp(1.5rem, 3vw, 2rem) !important;
-    font-weight: 500 !important;
+    font-size: clamp(1.4rem, 3vw, 1.8rem) !important;
+    font-weight: 600 !important;
     color: #1A1A1A !important;
+    letter-spacing: -0.02em !important;
 }
 .section-subtitle {
     display: none !important;
+}
+
+/* Tighter section spacing */
+.section.section-light {
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
 }
 
 /* --- Buttons general — refined --- */
@@ -7890,29 +7914,52 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Footer refinement --- */
 footer {
-    background: #F8F7F5 !important;
-    border-top: 1px solid #E5E7EB !important;
+    background: #F5F4F2 !important;
+    border-top: 1px solid #E0DFDD !important;
+    padding-top: 3.5rem !important;
 }
 footer h4, .footer-section h4 {
     color: #1A1A1A !important;
     font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    margin-bottom: 1rem !important;
 }
 footer p, .footer-brand p {
     color: #4B5563 !important;
+    font-size: 0.88rem !important;
+    line-height: 1.6 !important;
 }
 footer a, .footer-section a {
     color: #1A1A1A !important;
+    font-weight: 500 !important;
     transition: opacity 0.2s !important;
 }
 footer a:hover, .footer-section a:hover {
-    opacity: 0.7 !important;
+    opacity: 0.6 !important;
     color: #1A1A1A !important;
 }
+.footer-bottom {
+    border-top: 1px solid #E0DFDD !important;
+    margin-top: 2rem !important;
+    padding-top: 1.5rem !important;
+}
 .footer-bottom p {
-    color: #4B5563 !important;
+    color: #555 !important;
+    font-size: 0.8rem !important;
 }
 .footer-social a {
     color: #1A1A1A !important;
+    border: 1px solid #DDD !important;
+    border-radius: 50% !important;
+    transition: all 0.2s !important;
+}
+.footer-social a:hover {
+    background: #1A1A1A !important;
+    color: #fff !important;
+    border-color: #1A1A1A !important;
+    opacity: 1 !important;
 }
 
 /* --- Hide email popup (not premium) --- */
@@ -7937,23 +7984,23 @@ footer a:hover, .footer-section a:hover {
 /* --- Mobile Premium adjustments --- */
 @media (max-width: 768px) {
     .hero--visual {
-        min-height: 65vh !important;
+        min-height: 60vh !important;
         align-items: flex-end !important;
     }
     .hero-content--overlay {
-        padding: 2rem 1.25rem 2.5rem !important;
+        padding: 2.5rem 1.25rem 3rem !important;
     }
     .hero--visual h1 {
-        font-size: 1.6rem !important;
-        font-weight: 500 !important;
-        text-shadow: 0 2px 24px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.5) !important;
+        font-size: 1.65rem !important;
+        font-weight: 600 !important;
+        text-shadow: 0 3px 30px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.5) !important;
     }
-    .hero-brands {
-        font-size: 0.72rem !important;
+    .hero--visual .hero-brands {
+        font-size: 0.75rem !important;
         margin-bottom: 1.5rem !important;
     }
     .hero-cta-btn {
-        padding: 0.85rem 2rem !important;
+        padding: 0.9rem 2.25rem !important;
         font-size: 0.78rem !important;
         width: auto !important;
     }
@@ -8062,11 +8109,11 @@ footer a:hover, .footer-section a:hover {
 
 @media (max-width: 390px) {
     .hero--visual h1 {
-        font-size: 1.4rem !important;
-        font-weight: 500 !important;
-        text-shadow: 0 2px 20px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.5) !important;
+        font-size: 1.45rem !important;
+        font-weight: 600 !important;
+        text-shadow: 0 3px 24px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5) !important;
     }
-    .hero-brands {
+    .hero--visual .hero-brands {
         font-size: 0.65rem !important;
     }
     .category-card__label {
