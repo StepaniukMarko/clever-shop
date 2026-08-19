@@ -585,6 +585,16 @@ def index():
     products = query.order_by(Product.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
     total_pages = (total + per_page - 1) // per_page
     
+    # Category images for visual nav cards
+    men_product = Product.query.filter(
+        Product.gender.in_(['чоловічий', 'унісекс']),
+        Product.image_url != None, Product.image_url != ''
+    ).first()
+    women_product = Product.query.filter(
+        Product.gender.in_(['жіночий', 'унісекс']),
+        Product.image_url != None, Product.image_url != ''
+    ).first()
+
     return render_template('index.html',
         categories=categories,
         products=products,
@@ -595,7 +605,9 @@ def index():
         per_page=per_page,
         catalog_meta=get_catalog_meta_description(gender),
         hero_video_url=os.environ.get('HERO_VIDEO_URL'),
-        brands_list=BRANDS_LIST
+        brands_list=BRANDS_LIST,
+        men_image=men_product.image_url if men_product else '',
+        women_image=women_product.image_url if women_product else '',
     )
 
 @app.route('/category/<int:category_id>')

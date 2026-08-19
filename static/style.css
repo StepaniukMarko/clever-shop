@@ -7483,24 +7483,111 @@ h1, h2, h3, h4, h5, h6 {
 .hero--premium {
     background: #F8F7F5 !important;
     min-height: 50vh !important;
-    padding: 8rem 2rem 5rem !important;
+    padding: 0 !important;
     text-align: center;
     color: #1A1A1A !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 .hero--premium::before,
 .hero--premium::after {
     display: none !important;
 }
-.hero--premium .hero-content {
-    max-width: 700px;
+
+/* Visual Hero with background image */
+.hero--visual {
+    min-height: 75vh !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
 }
-.hero--premium h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem) !important;
+.hero-image-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+.hero-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+.hero-content--overlay {
+    position: relative;
+    z-index: 2;
+    padding: 3rem 2rem 4rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+    width: 100%;
+    text-align: center;
+}
+.hero--visual h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem) !important;
     font-weight: 300 !important;
-    color: #1A1A1A !important;
-    letter-spacing: -0.03em !important;
+    color: #fff !important;
+    letter-spacing: -0.02em !important;
     line-height: 1.15 !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.75rem !important;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.hero--visual .hero-brands {
+    color: rgba(255,255,255,0.85) !important;
+    text-shadow: 0 1px 10px rgba(0,0,0,0.3);
+}
+.hero--visual .hero-cta-btn {
+    background: #fff !important;
+    color: #1A1A1A !important;
+    border: none !important;
+}
+.hero--visual .hero-cta-btn:hover {
+    background: #F0F0F0 !important;
+}
+
+/* Category Visual Cards */
+.categories-visual {
+    padding: 3rem clamp(1rem, 3vw, 3rem) !important;
+}
+.categories-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.category-card {
+    position: relative;
+    display: block;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.category-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+.category-card:hover img {
+    transform: scale(1.05);
+}
+.category-card__placeholder {
+    width: 100%;
+    height: 100%;
+    background: #F0EFED;
+}
+.category-card__label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
 }
 .hero-brands {
     font-size: 0.9rem;
@@ -7804,22 +7891,42 @@ footer {
 
 /* --- Mobile Premium adjustments --- */
 @media (max-width: 768px) {
-    .hero--premium {
-        padding: 5rem 1.25rem 3rem !important;
-        min-height: auto !important;
+    .hero--visual {
+        min-height: 65vh !important;
+        align-items: flex-end !important;
     }
-    .hero--premium h1 {
-        font-size: 1.75rem !important;
+    .hero-content--overlay {
+        padding: 2rem 1.25rem 2.5rem !important;
+    }
+    .hero--visual h1 {
+        font-size: 1.6rem !important;
         font-weight: 300 !important;
     }
     .hero-brands {
-        font-size: 0.75rem !important;
-        margin-bottom: 1.75rem !important;
+        font-size: 0.72rem !important;
+        margin-bottom: 1.5rem !important;
     }
     .hero-cta-btn {
-        padding: 0.9rem 2.5rem !important;
-        font-size: 0.8rem !important;
+        padding: 0.85rem 2rem !important;
+        font-size: 0.78rem !important;
         width: auto !important;
+    }
+
+    /* Categories visual */
+    .categories-visual {
+        padding: 1.5rem 1rem !important;
+    }
+    .categories-grid {
+        gap: 0.6rem !important;
+    }
+    .category-card {
+        aspect-ratio: 2/3 !important;
+        border-radius: 2px;
+    }
+    .category-card__label {
+        font-size: 0.8rem !important;
+        padding: 1rem !important;
+        letter-spacing: 0.12em !important;
     }
 
     /* Cards: clean, no border */
@@ -7902,11 +8009,14 @@ footer {
 }
 
 @media (max-width: 390px) {
-    .hero--premium h1 {
-        font-size: 1.5rem !important;
+    .hero--visual h1 {
+        font-size: 1.4rem !important;
     }
     .hero-brands {
-        font-size: 0.68rem !important;
+        font-size: 0.65rem !important;
+    }
+    .category-card__label {
+        font-size: 0.72rem !important;
     }
 }
 
