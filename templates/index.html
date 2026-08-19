@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
 {% block title %}Clever Shop — оригінальний брендовий одяг з Європи | Premiata, Boss, Calvin Klein{% endblock %}
-{% block meta_description %}{% if catalog_meta %}{{ catalog_meta }}{% else %}Магазин оригінального одягу Premiata, Boss, Calvin Klein з доставкою 1-2 дні по Україні. ✅ Гарантія автентичності ✅ Безкоштовна доставка від 5000 грн ✅ Живі фото перед відправкою ✅ Оплата при отриманні{% endif %}{% endblock %}
+{% block meta_description %}{% if catalog_meta %}{{ catalog_meta }}{% else %}Магазин оригінального одягу Premiata, Boss, Calvin Klein з доставкою 1-2 дні по Україні. Гарантія автентичності. Безкоштовна доставка від 5000 грн. Оплата при отриманні.{% endif %}{% endblock %}
 {% block meta_keywords %}брендовий одяг, оригінальний одяг, Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss, Levi's, Diesel, Lacoste, Mango, Michael Kors, Clever Shop, інтернет магазин одягу, доставка Україна{% endblock %}
 
 {% block head %}
-<!-- Structured Data - Store -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -16,7 +15,8 @@
   "telephone": "+380632665135",
   "address": {
     "@type": "PostalAddress",
-    "addressCountry": "UA"
+    "addressCountry": "UA",
+    "addressLocality": "Вінниця"
   },
   "openingHours": "Mo-Su 09:00-21:00",
   "paymentAccepted": ["Cash", "CreditCard"],
@@ -24,27 +24,23 @@
   "priceRange": "$$"
 }
 </script>
-
-<!-- Structured Data - BreadcrumbList -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Головна",
-      "item": "https://www.clevershop.vn.ua/"
-    }
-  ]
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Головна",
+    "item": "https://www.clevershop.vn.ua/"
+  }]
 }
 </script>
 {% endblock %}
 
 {% block content %}
-<!-- HERO SECTION -->
-<section class="hero">
+<!-- HERO — minimal, product-focused -->
+<section class="hero hero--premium">
     {% if hero_video_url %}
     <video class="hero-video" autoplay muted loop playsinline
            poster="{{ url_for('static', filename='photo_2026-04-05_00-35-20.jpg') }}"
@@ -54,37 +50,14 @@
     <div class="hero-overlay"></div>
     {% endif %}
     <div class="hero-content">
-        <span class="hero-badge">✨ Преміум бренди з Європи · 100% Оригінал</span>
-        <h1>Стиль, який<br>говорить за тебе</h1>
-        <p class="hero-subtitle">Оригінальний одяг від Calvin Klein, Tommy Hilfiger, Boss, Massimo Dutti та ін. Доставка по Україні 1–2 дні.</p>
-        <div class="hero-cta">
-            <a href="#products" class="btn btn-primary btn-lg">Перейти до каталогу</a>
-            <a href="https://t.me/clevershopv" target="_blank" rel="noopener" class="btn btn-outline btn-lg">Написати менеджеру</a>
-        </div>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-number">1000+</div>
-                <div class="hero-stat-label">Задоволених клієнтів</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">100%</div>
-                <div class="hero-stat-label">Оригінальна продукція</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">1-2</div>
-                <div class="hero-stat-label">Дні доставки</div>
-            </div>
-        </div>
+        <h1>Оригінальний одяг<br>з Європи</h1>
+        <p class="hero-brands">Calvin Klein · Boss · Tommy Hilfiger · Massimo Dutti · Premiata</p>
+        <a href="#products" class="btn btn-primary btn-lg hero-cta-btn">Перейти до каталогу</a>
     </div>
 </section>
 
 <!-- CATALOG -->
 <section class="section section-light" id="products">
-    <div class="section-header">
-        <h2 class="section-title">Каталог</h2>
-        <p class="section-subtitle">Оригінальний одяг від найкращих світових брендів</p>
-    </div>
-    
     <div class="category-section">
         <div class="category-toggle">
             <a href="/?gender={% if gender == 'men' %}{% else %}men{% endif %}#products" 
@@ -92,20 +65,20 @@
             <a href="/?gender={% if gender == 'women' %}{% else %}women{% endif %}#products" 
                id="btn-women-top" class="cat-btn {% if gender == 'women' %}active{% endif %}">Жінкам</a>
             {% if gender %}
-            <a href="/#products" class="cat-btn-clear">✕ Всі товари</a>
+            <a href="/#products" class="cat-btn-clear">✕ Всі</a>
             {% endif %}
         </div>
     </div>
     
-    <button class="mobile-filter-toggle" onclick="toggleMobileFilters()">☰ Фільтри та сортування</button>
+    <button class="mobile-filter-toggle" onclick="toggleMobileFilters()">Фільтри</button>
     
     <div class="shop-layout" id="main-grid">
         <aside class="filters" id="filters-aside">
             <div class="filters-header-mobile">
-                <h3>🔍 Фільтри</h3>
+                <h3>Фільтри</h3>
                 <button onclick="toggleMobileFilters()" class="close-filters">✕</button>
             </div>
-            <h3 class="filters-header-desktop">🔍 Фільтри</h3>
+            <h3 class="filters-header-desktop">Фільтри</h3>
             <div class="filter-group">
                 <h4>Сортування</h4>
                 <select id="sort-select" onchange="sortProducts()" class="filter-select">
@@ -146,8 +119,8 @@
                 <h4>Розмір</h4>
                 <div class="filter-content" id="sizes-filter"></div>
             </div>
-            <button onclick="resetFilters()" class="btn btn-secondary filter-reset">Очистити фільтри</button>
-            <button onclick="applyFilters()" class="btn btn-primary filter-apply">✓ Застосувати</button>
+            <button onclick="resetFilters()" class="btn btn-secondary filter-reset">Очистити</button>
+            <button onclick="applyFilters()" class="btn btn-primary filter-apply">Застосувати</button>
         </aside>
         
         <div>
@@ -173,8 +146,6 @@
                         <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})">♡</button>
                         {% if product.stock and product.stock <= 5 and product.stock > 0 %}
                         <div class="product-badge"><span class="badge-hot">Мало</span></div>
-                        {% elif loop.index <= 4 %}
-                        <div class="product-badge"><span class="badge-new">New</span></div>
                         {% endif %}
                         {% if product.stock > 0 %}
                         <div class="quick-add-overlay">
@@ -183,8 +154,7 @@
                                     data-pname="{{ product.name | replace('"', '&quot;') | replace("'", '&#39;') }}" 
                                     data-pprice="{{ product.price }}" 
                                     data-brand="{{ product.brand | replace('"', '&quot;') }}"
-                                    class="btn btn-primary">🛒 В кошик</button>
-                            <button onclick="event.stopPropagation(); toggleWishlist(this, {{ product.id }})" class="btn btn-wishlist-ov" title="До вподобаного">♡</button>
+                                    class="btn btn-primary">В кошик</button>
                         </div>
                         {% endif %}
                     </div>
@@ -192,7 +162,6 @@
                         <p class="brand">{{ product.brand }}</p>
                         <h3>{{ product.name }}</h3>
                         <p class="price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} грн</p>
-                        <span class="bonus-badge">+{{ (product.price // 100)|int }} бонусів</span>
                     </div>
                     <div class="card-buttons">
                         {% if product.stock > 0 %}
@@ -211,7 +180,7 @@
             </div>
             {% if total_pages > 1 %}
             <div class="pagination">
-                <div class="pagination-info">Показано {{ ((page-1)*per_page)+1 }}–{{ [page*per_page, total]|min }} з {{ total }} товарів</div>
+                <div class="pagination-info">Показано {{ ((page-1)*per_page)+1 }}–{{ [page*per_page, total]|min }} з {{ total }}</div>
                 <div class="pagination-controls">
                     {% if page > 1 %}<a href="/?page={{ page-1 }}{% if gender %}&gender={{ gender }}{% endif %}#products" class="page-btn">← Назад</a>{% endif %}
                     {% for p in range(1, total_pages+1) %}
@@ -227,225 +196,35 @@
     </div>
 </section>
 
-<!-- TRUST BADGES -->
-<section class="trust-section">
+<!-- TRUST — minimal strip -->
+<section class="trust-section trust-section--minimal">
     <div class="trust-badges">
         <a href="/delivery" class="trust-badge">
             <div class="trust-icon">🚚</div>
-            <span class="trust-badge-text">Швидка доставка</span>
-            <span class="trust-badge-sub">1-2 робочих дні</span>
+            <span class="trust-badge-text">Доставка 1-2 дні</span>
         </a>
         <a href="/delivery" class="trust-badge">
-            <div class="trust-icon">💵</div>
-            <span class="trust-badge-text">Зручна оплата</span>
-            <span class="trust-badge-sub">Онлайн або на пошті</span>
+            <div class="trust-icon">💳</div>
+            <span class="trust-badge-text">Оплата при отриманні</span>
         </a>
         <a href="/returns" class="trust-badge">
             <div class="trust-icon">↩️</div>
-            <span class="trust-badge-text">Легке повернення</span>
-            <span class="trust-badge-sub">14 днів на обмін</span>
+            <span class="trust-badge-text">Обмін 14 днів</span>
         </a>
         <a href="/brands" class="trust-badge">
-            <div class="trust-icon">✅</div>
-            <span class="trust-badge-text">100% Оригінал</span>
-            <span class="trust-badge-sub">Гарантія якості</span>
+            <div class="trust-icon">✓</div>
+            <span class="trust-badge-text">100% оригінал</span>
         </a>
-    </div>
-</section>
-
-
-<!-- PROBLEM SECTION -->
-<section class="section section-gray">
-    <div class="section-header">
-        <span class="section-badge">😤 Знайома ситуація?</span>
-        <h2 class="section-title">Проблеми з покупкою брендового одягу</h2>
-    </div>
-    <div class="spoiler-block">
-        <div class="spoiler-block-content">
-            <div class="problems-grid">
-                <div class="problem-card animate-on-scroll">
-                    <div class="problem-icon">❌</div>
-                    <h3>Підробки скрізь</h3>
-                    <p>На ринках та в інтернеті 80% "брендового" одягу — це підробки низької якості</p>
-                </div>
-                <div class="problem-card animate-on-scroll animate-delay-1">
-                    <div class="problem-icon">🤷</div>
-                    <h3>Невпевненість</h3>
-                    <p>Страшно замовляти онлайн — а раптом не підійде розмір або якість?</p>
-                </div>
-                <div class="problem-card animate-on-scroll animate-delay-2">
-                    <div class="problem-icon">⏰</div>
-                    <h3>Довге очікування</h3>
-                    <p>Замовлення з-за кордону йдуть тижнями, а хочеться отримати швидко</p>
-                </div>
-            </div>
-        </div>
-        <button class="spoiler-block-toggle" aria-expanded="false">Читати далі ▼</button>
-    </div>
-</section>
-
-<!-- SOLUTION SECTION -->
-<section class="section section-dark">
-    <div class="section-header">
-        <span class="section-badge" style="background:rgba(255,255,255,0.1);color:#34D399;">✅ Рішення</span>
-        <h2 class="section-title" style="color:#fff;">Clever — ваш надійний партнер</h2>
-        <p class="section-subtitle" style="color:rgba(255,255,255,0.7);">Ми вирішили всі ці проблеми, щоб ви отримували тільки найкраще</p>
-    </div>
-    <div class="solutions-grid">
-        <div class="solution-card animate-on-scroll">
-            <div class="solution-icon">✓</div>
-            <h3>Перевірені магазини</h3>
-            <p>Замовляємо товар тільки в офіційних та перевірених онлайн магазинах Європи</p>
-        </div>
-        <div class="solution-card animate-on-scroll animate-delay-1">
-            <div class="solution-icon">✓</div>
-            <h3>Чесні ціни</h3>
-            <p>Ціни нижче ніж в офіційних магазинах України — замовляємо товари з офіційних онлайн-магазинів Європи</p>
-        </div>
-        <div class="solution-card animate-on-scroll animate-delay-2">
-            <div class="solution-icon">✓</div>
-            <h3>Гарантія обміну</h3>
-            <p>Не підійшов розмір? Обміняємо безкоштовно протягом 14 днів</p>
-        </div>
-    </div>
-</section>
-
-<!-- WHY US SECTION -->
-<section class="section section-light">
-    <div class="section-header">
-        <span class="section-badge">💎 Чому обирають нас</span>
-        <h2 class="section-title">Переваги покупки у Clever</h2>
-        <p class="section-subtitle">Ми робимо шопінг простим, безпечним та приємним для кожного клієнта</p>
-    </div>
-    <div class="spoiler-block">
-        <div class="spoiler-block-content">
-            <div class="features-grid">
-                <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">🏷️</div>
-                    <h3>Тільки оригінал</h3>
-                    <p>Замовляємо товар тільки в офіційних та перевірених онлайн магазинах</p>
-                </div>
-                <div class="feature-card animate-on-scroll animate-delay-1">
-                    <div class="feature-icon">💰</div>
-                    <h3>Найкращі ціни</h3>
-                    <p>Ціни нижче ніж в офіційних магазинах України — замовляємо товари з офіційних онлайн-магазинів Європи для наших клієнтів</p>
-                </div>
-                <div class="feature-card animate-on-scroll animate-delay-2">
-                    <div class="feature-icon">🎁</div>
-                    <h3>Безкоштовна доставка</h3>
-                    <p>При замовленні від 5000 грн доставка по Україні за наш рахунок</p>
-                </div>
-                <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">📞</div>
-                    <h3>Підтримка 24/7</h3>
-                    <p>Завжди на зв'язку в Telegram та по телефону для консультацій</p>
-                </div>
-                <div class="feature-card animate-on-scroll animate-delay-1">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Швидка доставка</h3>
-                    <p>Відправляємо в день замовлення. Отримуєте за 1-2 дні</p>
-                </div>
-                <div class="feature-card animate-on-scroll animate-delay-2">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Зручна оплата</h3>
-                    <p>Оплачуйте онлайн або при отриманні — обирайте зручний спосіб</p>
-                </div>
-            </div>
-        </div>
-        <button class="spoiler-block-toggle" aria-expanded="false">Читати далі ▼</button>
-    </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="section section-gray">
-    <div class="section-header">
-        <span class="section-badge">📋 Як це працює</span>
-        <h2 class="section-title">3 простих кроки до покупки</h2>
-    </div>
-    <div class="steps-grid">
-        <div class="step-card animate-on-scroll">
-            <div class="step-number">1</div>
-            <h3>Обирайте товар</h3>
-            <p>Перегляньте каталог та додайте вподобані товари в кошик</p>
-        </div>
-        <div class="step-card animate-on-scroll animate-delay-1">
-            <div class="step-number">2</div>
-            <h3>Оформіть замовлення</h3>
-            <p>Вкажіть ваші дані та адресу відділення Нової Пошти</p>
-        </div>
-        <div class="step-card animate-on-scroll animate-delay-2">
-            <div class="step-number">3</div>
-            <h3>Отримайте замовлення</h3>
-            <p>Отримайте посилку від Нової Пошти та насолоджуйтесь покупкою</p>
-        </div>
-    </div>
-</section>
-
-<!-- BRANDS SECTION -->
-<section class="section section-light">
-    <div class="section-header">
-        <span class="section-badge">👔 Бренди</span>
-        <h2 class="section-title">Працюємо з найкращими</h2>
-        <p class="section-subtitle">Замовляємо оригінальні товари від провідних європейських брендів</p>
-    </div>
-    <div class="brand-slider" role="list" aria-label="Бренди">
-        <div class="brand-slider__track">
-            {% for brand in brands_list %}
-            <a href="/?brand={{ brand.slug }}#products" class="brand-slider__item" role="listitem"
-               aria-label="{{ brand.name }}" tabindex="0">
-                <img src="{{ url_for('static', filename='brands/' + brand.slug + '.png') }}"
-                     alt="{{ brand.name }}" loading="lazy"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <span class="brand-slider__text-fallback" style="display:none;">{{ brand.name }}</span>
-            </a>
-            {% endfor %}
-            {% for brand in brands_list %}
-            <a href="/?brand={{ brand.slug }}#products" class="brand-slider__item" role="listitem"
-               aria-label="{{ brand.name }}" tabindex="-1">
-                <img src="{{ url_for('static', filename='brands/' + brand.slug + '.png') }}"
-                     alt="{{ brand.name }}" loading="lazy"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <span class="brand-slider__text-fallback" style="display:none;">{{ brand.name }}</span>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- GUARANTEES SECTION -->
-<section class="section section-gray">
-    <div class="section-header">
-        <span class="section-badge">🛡️ Гарантії</span>
-        <h2 class="section-title">Ваш спокій — наш пріоритет</h2>
-    </div>
-    <div class="guarantees-grid">
-        <div class="guarantee-card animate-on-scroll">
-            <div class="guarantee-icon">🔄</div>
-            <h3>14 днів на повернення</h3>
-            <p>Не підійшов розмір або колір? Поверніть або обміняйте</p>
-        </div>
-        <div class="guarantee-card animate-on-scroll animate-delay-1">
-            <div class="guarantee-icon">⚡</div>
-            <h3>Швидка доставка</h3>
-            <p>Відправляємо в день замовлення, отримуєте за 1-2 дні</p>
-        </div>
-        <div class="guarantee-card animate-on-scroll animate-delay-2">
-            <div class="guarantee-icon">💳</div>
-            <h3>Зручна оплата</h3>
-            <p>Оплачуйте онлайн або при отриманні — як вам зручно</p>
-        </div>
     </div>
 </section>
 
 <!-- REVIEWS -->
 <section class="section section-light">
     <div class="section-header">
-        <span class="section-badge">⭐ Відгуки</span>
-        <h2 class="section-title">Що кажуть наші клієнти</h2>
-        <p class="section-subtitle">Реальні відгуки від реальних покупців</p>
+        <h2 class="section-title">Відгуки покупців</h2>
     </div>
     <div class="reviews-grid">
-        <div class="review-card animate-on-scroll">
+        <div class="review-card">
             <div class="review-header">
                 <div class="reviewer-info">
                     <div class="reviewer-avatar">О</div>
@@ -453,10 +232,10 @@
                 </div>
                 <span class="review-rating">⭐⭐⭐⭐⭐</span>
             </div>
-            <p class="review-text">Замовляв куртку Tommy Hilfiger, прийшла за 2 дні. Якість супер, все оригінальне з бірками! Буду замовляти ще.</p>
-            <span class="review-date">2 дні тому • Київ</span>
+            <p class="review-text">Замовляв куртку Tommy Hilfiger, прийшла за 2 дні. Якість супер, все оригінальне з бірками.</p>
+            <span class="review-date">Київ</span>
         </div>
-        <div class="review-card animate-on-scroll animate-delay-1">
+        <div class="review-card">
             <div class="review-header">
                 <div class="reviewer-info">
                     <div class="reviewer-avatar">М</div>
@@ -464,10 +243,10 @@
                 </div>
                 <span class="review-rating">⭐⭐⭐⭐⭐</span>
             </div>
-            <p class="review-text">Чудовий магазин! Консультант допоміг підібрати розмір по телефону. Плаття Massimo Dutti просто ідеальне!</p>
-            <span class="review-date">5 днів тому • Львів</span>
+            <p class="review-text">Консультант допоміг підібрати розмір по телефону. Плаття Massimo Dutti просто ідеальне!</p>
+            <span class="review-date">Львів</span>
         </div>
-        <div class="review-card animate-on-scroll animate-delay-2">
+        <div class="review-card">
             <div class="review-header">
                 <div class="reviewer-info">
                     <div class="reviewer-avatar">Д</div>
@@ -475,322 +254,62 @@
                 </div>
                 <span class="review-rating">⭐⭐⭐⭐⭐</span>
             </div>
-            <p class="review-text">Вже третє замовлення роблю. Завжди якісно, швидко і без проблем. Рекомендую всім друзям!</p>
-            <span class="review-date">1 тиждень тому • Одеса</span>
-        </div>
-        <div class="review-card animate-on-scroll">
-            <div class="review-header">
-                <div class="reviewer-info">
-                    <div class="reviewer-avatar">А</div>
-                    <span class="reviewer-name">Анна С.</span>
-                </div>
-                <span class="review-rating">⭐⭐⭐⭐⭐</span>
-            </div>
-            <p class="review-text">Нарешті знайшла магазин з адекватними цінами на оригінал! Замовила светр Calvin Klein — якість бомба, сіла ідеально.</p>
-            <span class="review-date">3 дні тому • Харків</span>
-        </div>
-        <div class="review-card animate-on-scroll animate-delay-1">
-            <div class="review-header">
-                <div class="reviewer-info">
-                    <div class="reviewer-avatar">В</div>
-                    <span class="reviewer-name">Віктор Л.</span>
-                </div>
-                <span class="review-rating">⭐⭐⭐⭐⭐</span>
-            </div>
-            <p class="review-text">Брав сорочку Hugo Boss на подарунок. Упаковка преміум, доставка швидка. Дружина в захваті, дякую!</p>
-            <span class="review-date">1 тиждень тому • Дніпро</span>
+            <p class="review-text">Вже третє замовлення. Завжди якісно, швидко і без проблем. Рекомендую!</p>
+            <span class="review-date">Одеса</span>
         </div>
     </div>
 </section>
 
-<!-- ABOUT US SECTION -->
-<section class="section section-dark about-section">
-    <div class="about-container">
-        <div class="about-content animate-on-scroll">
-            <span class="section-badge" style="background:rgba(255,255,255,0.1);color:#34D399;">🏪 Про нас</span>
-            <h2 class="section-title" style="color:#fff;">Clever — ваш стиль, наша пристрасть</h2>
-            <p style="color:rgba(255,255,255,0.8);font-size:1.1rem;line-height:1.8;margin-bottom:1.5rem;">
-                Ми — команда ентузіастів моди, які вірять, що кожен заслуговує носити оригінальний брендовий одяг за доступною ціною. З 2018 року ми допомагаємо українцям виглядати стильно, пропонуючи тільки справжню продукцію від Massimo Dutti, Calvin Klein, Tommy Hilfiger, Boss та інших топових брендів.
-            </p>
-            
-            <div class="about-story" style="margin:2rem 0;">
-                <h3 style="color:#fff;font-size:1.5rem;margin-bottom:1rem;">📖 Наша історія</h3>
-                <p style="color:rgba(255,255,255,0.7);line-height:1.7;margin-bottom:1rem;">
-                    Все почалося з простої ідеї: зробити якісний європейський одяг доступним для українців. Засновники Clever помітили, що в Україні важко знайти оригінальні речі від топових брендів за адекватними цінами.
-                </p>
-                <p style="color:rgba(255,255,255,0.7);line-height:1.7;margin-bottom:1rem;">
-                    Ми замовляємо товари з офіційних онлайн-магазинів Європи, що дозволяє нам пропонувати автентичні речі дешевше, ніж в українських бутіках.
-                </p>
-                <p style="color:rgba(255,255,255,0.7);line-height:1.7;">
-                    Сьогодні Clever — це не просто магазин, а спільнота людей, які цінують якість, стиль та автентичність.
-                </p>
-            </div>
-            
-            <div class="about-stats">
-                <div class="about-stat">
-                    <span class="stat-number">1000+</span>
-                    <span class="stat-label">Задоволених клієнтів</span>
-                </div>
-                <div class="about-stat">
-                    <span class="stat-number">14</span>
-                    <span class="stat-label">Преміум брендів</span>
-                </div>
-                <div class="about-stat">
-                    <span class="stat-number">100%</span>
-                    <span class="stat-label">Оригінальні товари</span>
-                </div>
-            </div>
-        </div>
-        <div class="about-image animate-on-scroll animate-delay-1">
-            <div class="about-features">
-                <div class="about-feature">
-                    <span>🇪🇺</span>
-                    <div>
-                        <strong>Замовлення з Європи</strong>
-                        <p>З офіційних магазинів</p>
-                    </div>
-                </div>
-                <div class="about-feature">
-                    <span>✅</span>
-                    <div>
-                        <strong>100% оригінал</strong>
-                        <p>Гарантія якості</p>
-                    </div>
-                </div>
-                <div class="about-feature">
-                    <span>🇺🇦</span>
-                    <div>
-                        <strong>Українська команда</strong>
-                        <p>Підтримка 24/7</p>
-                    </div>
-                </div>
-                <div class="about-feature">
-                    <span>💚</span>
-                    <div>
-                        <strong>Любов до моди</strong>
-                        <p>З 2018 року</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="trust-certificates" style="margin-top:2rem;">
-                <h4 style="color:#fff;margin-bottom:1rem;text-align:center;">🏆 Наші гарантії</h4>
-                <div class="certificates-grid">
-                    <div class="certificate">
-                        <div class="cert-icon">🛡️</div>
-                        <div class="cert-text">
-                            <strong>Захист покупця</strong>
-                            <p>Повернення коштів</p>
-                        </div>
-                    </div>
-                    <div class="certificate">
-                        <div class="cert-icon">📜</div>
-                        <div class="cert-text">
-                            <strong>Сертифікати</strong>
-                            <p>Офіційні документи</p>
-                        </div>
-                    </div>
-                    <div class="certificate">
-                        <div class="cert-icon">🔒</div>
-                        <div class="cert-text">
-                            <strong>Безпека даних</strong>
-                            <p>SSL шифрування</p>
-                        </div>
-                    </div>
-                    <div class="certificate">
-                        <div class="cert-icon">⚡</div>
-                        <div class="cert-text">
-                            <strong>Швидка доставка</strong>
-                            <p>1-2 робочих дні</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="about-process" style="margin-top:4rem;padding-top:3rem;border-top:1px solid rgba(255,255,255,0.1);">
-        <h3 style="color:#fff;text-align:center;font-size:2rem;margin-bottom:2rem;">🔄 Як ми працюємо</h3>
-        <div class="process-steps">
-            <div class="process-step">
-                <div class="process-number">1</div>
-                <h4>Відбір товарів</h4>
-                <p>Ретельно відбираємо найкращі моделі від топових брендів в офіційних європейських магазинах</p>
-            </div>
-            <div class="process-step">
-                <div class="process-number">2</div>
-                <h4>Перевірка якості</h4>
-                <p>Кожен товар проходить контроль якості та перевірку на автентичність перед відправкою</p>
-            </div>
-            <div class="process-step">
-                <div class="process-number">3</div>
-                <h4>Швидка доставка</h4>
-                <p>Відправляємо замовлення в день оформлення через надійних логістичних партнерів</p>
-            </div>
-            <div class="process-step">
-                <div class="process-number">4</div>
-                <h4>Підтримка клієнтів</h4>
-                <p>Надаємо повну підтримку до та після покупки, допомагаємо з обміном та поверненням</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- FAQ -->
-<section class="section section-gray">
+<!-- FAQ (SEO value — FAQ schema) -->
+<section class="section section-light">
     <div class="section-header">
-        <span class="section-badge">❓ FAQ</span>
         <h2 class="section-title">Часті питання</h2>
     </div>
     <div class="faq-container">
         <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Як оформити замовлення?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Виберіть товар, натисніть "В кошик", перейдіть до оформлення та заповніть форму з вашими даними та адресою доставки. Ми зв'яжемося для підтвердження.</p>
-            </div>
+            <div class="faq-question"><span>Як переконатися, що товар оригінальний?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Ми замовляємо товари виключно в офіційних онлайн-магазинах Європи. Кожен товар має оригінальні бірки та QR-коди. За запитом надаємо чек від постачальника.</p></div>
         </div>
         <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Які способи оплати доступні?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Оплата онлайн або при отриманні на пошті.</p>
-            </div>
+            <div class="faq-question"><span>Скільки коштує доставка?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Доставка Новою Поштою за їх тарифами. При замовленні від 5000 грн — безкоштовна.</p></div>
         </div>
         <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Скільки коштує доставка?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Доставка здійснюється Новою Поштою за їх тарифами. При замовленні від 5000 грн доставка безкоштовна!</p>
-            </div>
+            <div class="faq-question"><span>Чи можна повернути або обміняти товар?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Так, протягом 14 днів. Товар має бути в оригінальному стані з усіма бірками.</p></div>
         </div>
         <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Чи можна повернути або обміняти товар?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Так, протягом 14 днів з моменту отримання. Товар має бути в оригінальному стані, з усіма бірками та упаковкою.</p>
-            </div>
+            <div class="faq-question"><span>Які способи оплати?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Оплата онлайн карткою або при отриманні на пошті (накладений платіж).</p></div>
         </div>
         <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Як переконатися, що товар оригінальний?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Ми замовляємо товари виключно в офіційних онлайн-магазинах Європи (Zalando, About You, офіційні сайти брендів). Кожен товар має оригінальні бірки, голограми та QR-коди. За запитом надаємо чек від постачальника. Ми несемо повну відповідальність за автентичність кожної одиниці.</p>
-            </div>
+            <div class="faq-question"><span>Чи надсилаєте фото товару перед відправкою?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Так. Перед відправкою фотографуємо замовлення і надсилаємо в Telegram.</p></div>
         </div>
         <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Чи є митні обмеження на товари з Європи?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Всі товари вже розмитнені та знаходяться в Україні — ви не платите жодних додаткових зборів чи мит. Ціна на сайті — фінальна, включає все.</p>
-            </div>
-        </div>
-        <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Чи можна приміряти перед оплатою?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>При оплаті накладеним платежем ви можете оглянути товар на відділенні Нової Пошти. Якщо розмір не підійшов — обмін безкоштовний протягом 14 днів. Також ми завжди допоможемо підібрати розмір по телефону або в Telegram.</p>
-            </div>
-        </div>
-        <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Чи є у вас фізичний магазин?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Ми працюємо онлайн, що дозволяє пропонувати найкращі ціни без накруток за оренду. Наш офіс знаходиться у Вінниці (вул. Зодчих, 2). Доставляємо по всій Україні Новою Поштою за 1-2 дні.</p>
-            </div>
-        </div>
-        <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Як перевірити оригінальність через CLG-код?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Більшість брендових товарів мають CLG-код або QR-код на бірці. Скануйте його камерою телефону або введіть на офіційному сайті бренду. З кожним замовленням ми надаємо інструкцію з перевірки автентичності. Також за запитом надсилаємо чек від європейського постачальника.</p>
-            </div>
-        </div>
-        <div class="faq-item" onclick="this.classList.toggle('active')">
-            <div class="faq-question">
-                <span>Чи надсилаєте фото товару перед відправкою?</span>
-                <span class="faq-icon">+</span>
-            </div>
-            <div class="faq-answer">
-                <p>Так! Перед відправкою ми фотографуємо ваше замовлення (бірки, стан, упаковку) і надсилаємо в Telegram або Viber. Ви бачите саме те, що отримаєте. Це наш стандарт роботи з кожним клієнтом.</p>
-            </div>
+            <div class="faq-question"><span>Чи є фізичний магазин?</span><span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Ми працюємо онлайн, що дозволяє пропонувати найкращі ціни. Офіс у Вінниці. Доставка по всій Україні за 1-2 дні.</p></div>
         </div>
     </div>
 </section>
 
-<!-- RECENTLY VIEWED SECTION -->
+<!-- SEO TEXT (hidden visually on mobile, helps search indexing) -->
+<section class="section section-light seo-content-section">
+    <div class="seo-content">
+        <h2>Clever Shop — магазин оригінального брендового одягу</h2>
+        <p>Clever Shop — це інтернет-магазин оригінального одягу від світових брендів з доставкою по всій Україні. Ми замовляємо товари з офіційних онлайн-магазинів Європи (Zalando, About You, офіційні сайти брендів), що дозволяє пропонувати автентичні речі за доступними цінами.</p>
+        <p>В нашому каталозі представлені бренди: Calvin Klein, Tommy Hilfiger, Boss, Massimo Dutti, Polo Ralph Lauren, Karl Lagerfeld, Premiata, Armani Exchange, Levi's, Diesel, Lacoste, Mango, Victoria's Secret, Michael Kors.</p>
+        <p>Переваги покупки в Clever Shop: 100% гарантія оригінальності, швидка доставка Новою Поштою за 1-2 робочих дні, безкоштовна доставка від 5000 грн, обмін протягом 14 днів, фото товару перед відправкою, зручна оплата онлайн або при отриманні.</p>
+    </div>
+</section>
+
+<!-- Recently Viewed -->
 <section class="recently-viewed-section" id="recently-viewed-section">
     <div class="recently-viewed-header">
-        <h2>👁️ Нещодавно переглянуті</h2>
-        <a href="/#products">Дивитись всі товари →</a>
+        <h2>Нещодавно переглянуті</h2>
+        <a href="/#products">Всі товари →</a>
     </div>
     <div class="recently-viewed-grid"></div>
-</section>
-
-<!-- CTA SECTION -->
-<!-- PRODUCT JOURNEY -->
-<section class="section section-light">
-    <div class="section-header">
-        <span class="section-badge">🌍 Прозорість</span>
-        <h2 class="section-title">Шлях вашого товару</h2>
-        <p class="section-subtitle">Від офіційного магазину в Європі — до вашого відділення Нової Пошти</p>
-    </div>
-    <div class="steps-grid" style="max-width:1000px;margin:0 auto;">
-        <div class="step-card">
-            <div class="step-number">🇮🇹</div>
-            <h3>Магазин в Європі</h3>
-            <p>Замовляємо з офіційних онлайн-магазинів Італії, Німеччини, Іспанії</p>
-        </div>
-        <div class="step-card">
-            <div class="step-number">✅</div>
-            <h3>Перевірка якості</h3>
-            <p>Перевіряємо бірки, CLG-коди, стан товару. Надсилаємо фото в Telegram</p>
-        </div>
-        <div class="step-card">
-            <div class="step-number">📦</div>
-            <h3>Відправка в день замовлення</h3>
-            <p>Пакуємо та відправляємо Новою Поштою. Трек-номер одразу в месенджер</p>
-        </div>
-        <div class="step-card">
-            <div class="step-number">🏠</div>
-            <h3>У вас вдома за 1-2 дні</h3>
-            <p>Отримуєте на відділенні або в поштоматі. Оплата при отриманні</p>
-        </div>
-    </div>
-</section>
-
-<section class="cta-section">
-    <div class="cta-content">
-        <h2>Готові оновити гардероб?</h2>
-        <p>Переглядайте каталог та замовляйте оригінальний одяг з доставкою по всій Україні</p>
-        <div class="cta-buttons">
-            <a href="#products" class="btn btn-lg">🛍️ Перейти до каталогу</a>
-            <a href="https://t.me/clevershopv" target="_blank" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5);color:#fff;">✈️ Написати в Telegram</a>
-        </div>
-        <div class="cta-trust">
-            <span>✓ Безкоштовна доставка від 5000 грн</span>
-            <span>✓ Зручна оплата</span>
-            <span>✓ 14 днів на повернення</span>
-        </div>
-    </div>
 </section>
 
 <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Вгору">↑</button>
@@ -801,7 +320,6 @@
 var currentCategory = 'men';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Перевіряємо параметр ?gender= в URL
     var urlParams = new URLSearchParams(window.location.search);
     var genderParam = urlParams.get('gender');
     if (genderParam === 'men') {
@@ -812,25 +330,12 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeFilters();
         filterProducts();
     }
-    initScrollAnimations();
 });
 
 window.addEventListener('scroll', function() {
     var btn = document.getElementById('scroll-top');
-    btn.classList.toggle('visible', window.scrollY > 500);
+    if (btn) btn.classList.toggle('visible', window.scrollY > 500);
 });
-
-function initScrollAnimations() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    
-    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-}
 
 function toggleMobileFilters() {
     document.getElementById('filters-aside').classList.toggle('mobile-open');
@@ -846,44 +351,27 @@ function applyFilters() {
 function initializeFilters() {
     var products = document.querySelectorAll('.product-card');
     var brands = new Set(), types = new Set(), sizes = new Set();
-    
     products.forEach(function(p) {
-        var dominated = (currentCategory === 'men' && p.dataset.gender !== 'чоловічий' && p.dataset.gender !== 'унісекс') ||
-                       (currentCategory === 'women' && p.dataset.gender !== 'жіночий' && p.dataset.gender !== 'унісекс');
-        if (dominated) return;
+        if (currentCategory === 'men' && p.dataset.gender !== 'чоловічий' && p.dataset.gender !== 'унісекс') return;
+        if (currentCategory === 'women' && p.dataset.gender !== 'жіночий' && p.dataset.gender !== 'унісекс') return;
         if (p.dataset.brand) brands.add(p.dataset.brand);
         if (p.dataset.type) types.add(p.dataset.type);
-        if (p.dataset.sizes) p.dataset.sizes.split(',').forEach(s => sizes.add(s.trim()));
+        if (p.dataset.sizes) p.dataset.sizes.split(',').forEach(function(s) { sizes.add(s.trim()); });
     });
-    
     var tf = document.getElementById('types-filter');
     tf.innerHTML = '';
     Array.from(types).sort().forEach(function(t) {
-        if (t) {
-            var l = document.createElement('label');
-            l.innerHTML = '<input type="checkbox" value="' + t + '" onchange="filterProducts()"> ' + t;
-            tf.appendChild(l);
-        }
+        if (t) { var l = document.createElement('label'); l.innerHTML = '<input type="checkbox" value="' + t + '" onchange="filterProducts()"> ' + t; tf.appendChild(l); }
     });
-    
     var bf = document.getElementById('brands-filter');
     bf.innerHTML = '';
     Array.from(brands).sort().forEach(function(b) {
-        if (b) {
-            var l = document.createElement('label');
-            l.innerHTML = '<input type="checkbox" value="' + b + '" onchange="filterProducts()"> ' + b;
-            bf.appendChild(l);
-        }
+        if (b) { var l = document.createElement('label'); l.innerHTML = '<input type="checkbox" value="' + b + '" onchange="filterProducts()"> ' + b; bf.appendChild(l); }
     });
-    
     var sf = document.getElementById('sizes-filter');
     sf.innerHTML = '';
     ['XS', 'S', 'M', 'L', 'XL', 'XXL'].forEach(function(sz) {
-        if (sizes.has(sz)) {
-            var l = document.createElement('label');
-            l.innerHTML = '<input type="checkbox" value="' + sz + '" onchange="filterProducts()"> ' + sz;
-            sf.appendChild(l);
-        }
+        if (sizes.has(sz)) { var l = document.createElement('label'); l.innerHTML = '<input type="checkbox" value="' + sz + '" onchange="filterProducts()"> ' + sz; sf.appendChild(l); }
     });
 }
 
@@ -891,7 +379,7 @@ function switchCategory(cat) {
     currentCategory = cat;
     ['btn-men', 'btn-women', 'btn-men-top', 'btn-women-top'].forEach(function(id) {
         var el = document.getElementById(id);
-        if (el) el.classList.toggle('active', id.includes(cat === 'men' ? 'men' : 'women'));
+        if (el) el.classList.toggle('active', id.indexOf(cat === 'men' ? 'men' : 'women') !== -1);
     });
     initializeFilters();
     filterProducts();
@@ -899,100 +387,48 @@ function switchCategory(cat) {
 
 function filterProducts() {
     var products = document.querySelectorAll('.product-card');
-    var sb = Array.from(document.querySelectorAll('#brands-filter input:checked')).map(i => i.value);
-    var st = Array.from(document.querySelectorAll('#types-filter input:checked')).map(i => i.value);
-    var ss = Array.from(document.querySelectorAll('#sizes-filter input:checked')).map(i => i.value);
-    var sa = Array.from(document.querySelectorAll('.filter-content input:checked')).map(i => i.value);
-    
+    var sb = Array.from(document.querySelectorAll('#brands-filter input:checked')).map(function(i) { return i.value; });
+    var st = Array.from(document.querySelectorAll('#types-filter input:checked')).map(function(i) { return i.value; });
+    var ss = Array.from(document.querySelectorAll('#sizes-filter input:checked')).map(function(i) { return i.value; });
+    var sa = Array.from(document.querySelectorAll('.filter-content input:checked')).map(function(i) { return i.value; });
     var priceMin = parseInt(document.getElementById('price-min').value) || 0;
     var priceMax = parseInt(document.getElementById('price-max').value) || 999999;
-    
     products.forEach(function(p) {
         var show = true;
         var price = parseFloat(p.dataset.price);
-        var stockEl = p.querySelector('.stock');
-        var isInStock = stockEl && stockEl.classList.contains('in-stock');
-        var stockText = stockEl ? stockEl.textContent : '';
-        var isLowStock = stockText.includes('Залишилось') || (p.dataset.stock && parseInt(p.dataset.stock) <= 5);
-        
-        // Category filter
         if (currentCategory === 'men' && p.dataset.gender !== 'чоловічий' && p.dataset.gender !== 'унісекс') show = false;
         if (currentCategory === 'women' && p.dataset.gender !== 'жіночий' && p.dataset.gender !== 'унісекс') show = false;
-        
-        // Brand filter
-        if (show && sb.length > 0 && !sb.includes(p.dataset.brand)) show = false;
-        
-        // Type filter
-        if (show && st.length > 0 && !st.includes(p.dataset.type)) show = false;
-        
-        // Size filter
+        if (show && sb.length > 0 && sb.indexOf(p.dataset.brand) === -1) show = false;
+        if (show && st.length > 0 && st.indexOf(p.dataset.type) === -1) show = false;
         if (show && ss.length > 0) {
-            var ps = p.dataset.sizes ? p.dataset.sizes.split(',').map(s => s.trim()) : [];
-            if (!ss.some(s => ps.includes(s))) show = false;
+            var ps = p.dataset.sizes ? p.dataset.sizes.split(',').map(function(s) { return s.trim(); }) : [];
+            if (!ss.some(function(s) { return ps.indexOf(s) !== -1; })) show = false;
         }
-        
-        // Price filter
         if (show && (price < priceMin || price > priceMax)) show = false;
-        
-        // Availability filter
-        if (show && sa.length > 0) {
-            var showByAvailability = false;
-            if (sa.includes('in-stock') && isInStock) showByAvailability = true;
-            if (sa.includes('low-stock') && isLowStock) showByAvailability = true;
-            if (!showByAvailability) show = false;
-        }
-        
         p.style.display = show ? '' : 'none';
     });
-    
     updateProductCount();
 }
 
 function updateProductCount() {
     var visible = document.querySelectorAll('.product-card:not([style*="display: none"])').length;
-    var total = document.querySelectorAll('.product-card').length;
-    
-    // Update or create the product count element
     var countEl = document.getElementById('product-count');
     if (!countEl) {
         countEl = document.createElement('div');
         countEl.id = 'product-count';
-        countEl.style.cssText = 'text-align:center;margin:1rem 0;color:var(--gray-600);font-size:0.95rem;font-weight:600;padding:0.75rem 1.5rem;background:var(--gray-50);border-radius:12px;border:1px solid var(--gray-200);';
-        document.getElementById('products-container').parentNode.insertBefore(countEl, document.getElementById('products-container'));
+        countEl.style.cssText = 'text-align:center;margin:1rem 0;color:#757575;font-size:0.85rem;font-weight:500;';
+        var container = document.getElementById('products-container');
+        if (container && container.parentNode) container.parentNode.insertBefore(countEl, container);
     }
-    
-    countEl.textContent = 'Знайдено: ' + visible + ' товарів';
-    
-    // Show/hide no-products message
-    var noProductsEl = document.getElementById('no-products-message');
-    if (visible === 0) {
-        if (!noProductsEl) {
-            noProductsEl = document.createElement('div');
-            noProductsEl.id = 'no-products-message';
-            noProductsEl.style.cssText = 'text-align:center;padding:3rem 1.5rem;color:var(--gray-500);';
-            noProductsEl.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">🔍</div>' +
-                '<p style="font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;">Товарів не знайдено</p>' +
-                '<p style="font-size:0.9rem;margin-bottom:1.5rem;">Спробуйте змінити параметри фільтрів</p>' +
-                '<button onclick="resetFilters()" class="btn btn-primary" style="font-size:0.95rem;">Очистити фільтри</button>';
-            document.getElementById('products-container').parentNode.insertBefore(noProductsEl, document.getElementById('products-container').nextSibling);
-        }
-        noProductsEl.style.display = 'block';
-    } else {
-        if (noProductsEl) {
-            noProductsEl.style.display = 'none';
-        }
-    }
+    countEl.textContent = visible + ' товарів';
 }
 
 function updatePriceMin(value) {
     document.getElementById('price-min').value = value;
-    document.getElementById('price-slider-max').min = value;
     filterProducts();
 }
-
 function updatePriceMax(value) {
     document.getElementById('price-max').value = value;
-    document.getElementById('price-slider-min').max = value;
     filterProducts();
 }
 
@@ -1000,31 +436,22 @@ function sortProducts() {
     var c = document.getElementById('products-container');
     var cards = Array.from(c.querySelectorAll('.product-card'));
     var s = document.getElementById('sort-select').value;
-    
     if (s !== 'default') {
-        cards.sort((a, b) => {
-            switch(s) {
-                case 'price-asc':
-                    return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
-                case 'price-desc':
-                    return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-                case 'newest':
-                    // Assume products with higher IDs are newer
-                    var aId = parseInt(a.onclick.toString().match(/\/product\/(\d+)/)?.[1] || 0);
-                    var bId = parseInt(b.onclick.toString().match(/\/product\/(\d+)/)?.[1] || 0);
-                    return bId - aId;
-                default:
-                    return 0;
-            }
+        cards.sort(function(a, b) {
+            if (s === 'price-asc') return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+            if (s === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+            return 0;
         });
-        cards.forEach(card => c.appendChild(card));
+        cards.forEach(function(card) { c.appendChild(card); });
     }
     filterProducts();
 }
 
 function resetFilters() {
-    document.querySelectorAll('.filters input[type="checkbox"]').forEach(i => i.checked = false);
+    document.querySelectorAll('.filters input[type="checkbox"]').forEach(function(i) { i.checked = false; });
     document.getElementById('sort-select').value = 'default';
+    document.getElementById('price-min').value = '';
+    document.getElementById('price-max').value = '';
     filterProducts();
 }
 </script>

@@ -7446,3 +7446,468 @@ textarea:focus-visible {
 }
 
 /* ===== END MOBILE UX AUDIT FIXES v4 ===== */
+
+
+/* ===== PREMIUM REDESIGN v5 (Aug 2026) =====
+   Clean, minimal, product-focused design.
+   Inspired by COS, Massimo Dutti, Arket.
+   =========================================== */
+
+/* --- Color Override: Neutral palette --- */
+:root {
+    --primary: #1A1A1A !important;
+    --primary-dark: #000000 !important;
+    --primary-light: #333333 !important;
+    --primary-50: #F5F5F5 !important;
+    --primary-100: #EEEEEE !important;
+    --accent: #8B7355;
+    --accent-light: #A8956D;
+}
+
+/* --- Typography: lighter weight, more air --- */
+body {
+    letter-spacing: 0.01em;
+}
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+}
+.section-title {
+    font-weight: 600 !important;
+    letter-spacing: -0.03em !important;
+}
+.section-badge {
+    display: none !important;
+}
+
+/* --- Premium Hero --- */
+.hero--premium {
+    background: #F8F7F5 !important;
+    min-height: 50vh !important;
+    padding: 8rem 2rem 5rem !important;
+    text-align: center;
+    color: #1A1A1A !important;
+}
+.hero--premium::before,
+.hero--premium::after {
+    display: none !important;
+}
+.hero--premium .hero-content {
+    max-width: 700px;
+}
+.hero--premium h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem) !important;
+    font-weight: 300 !important;
+    color: #1A1A1A !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.15 !important;
+    margin-bottom: 1rem !important;
+}
+.hero-brands {
+    font-size: 0.9rem;
+    color: #757575;
+    letter-spacing: 0.05em;
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+}
+.hero-cta-btn {
+    background: #1A1A1A !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 1rem 3rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: background 0.3s !important;
+}
+.hero-cta-btn:hover {
+    background: #333 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* --- Product Cards: photo-first, minimal --- */
+.product-card {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    transition: opacity 0.3s !important;
+}
+.product-card:hover {
+    opacity: 0.85;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.product-image-wrap {
+    border-radius: 4px !important;
+    background: #F5F5F3 !important;
+}
+.product-info {
+    padding: 0.75rem 0.25rem 0 !important;
+    background: transparent !important;
+}
+.product-info .brand {
+    font-size: 0.7rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: #999 !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.2rem !important;
+}
+.product-info h3 {
+    font-size: 0.82rem !important;
+    font-weight: 400 !important;
+    color: #1A1A1A !important;
+    letter-spacing: 0 !important;
+}
+.product-info .price {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #1A1A1A !important;
+    margin-top: 0.25rem !important;
+}
+.product-info .bonus-badge {
+    display: none !important;
+}
+.product-badge .badge-new {
+    background: #1A1A1A !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+    font-size: 0.6rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+.product-badge .badge-hot {
+    background: #1A1A1A !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+}
+
+/* Card buttons — minimal */
+.card-buttons {
+    padding: 0.5rem 0 0 !important;
+}
+.card-buttons .btn {
+    background: transparent !important;
+    color: #1A1A1A !important;
+    border: 1px solid #1A1A1A !important;
+    border-radius: 0 !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    padding: 0.6rem 0.75rem !important;
+    min-height: 38px !important;
+    transition: all 0.2s !important;
+}
+.card-buttons .btn:hover {
+    background: #1A1A1A !important;
+    color: #fff !important;
+}
+
+/* Quick add overlay — match style */
+.quick-add-overlay .btn,
+.product-card-overlay .btn {
+    background: #1A1A1A !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+}
+
+/* --- Category Toggle --- */
+.category-toggle {
+    border: none !important;
+    background: transparent !important;
+    gap: 0 !important;
+}
+.cat-btn {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: #757575 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.2s !important;
+}
+.cat-btn.active {
+    color: #1A1A1A !important;
+    border-bottom-color: #1A1A1A !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.cat-btn-clear {
+    font-size: 0.75rem !important;
+    color: #999 !important;
+    text-decoration: none !important;
+    margin-left: 0.5rem;
+}
+
+/* --- Trust Section minimal --- */
+.trust-section--minimal {
+    border-top: 1px solid #EEEEEE !important;
+    border-bottom: 1px solid #EEEEEE !important;
+    background: #fff !important;
+}
+.trust-section--minimal .trust-badges {
+    max-width: 900px !important;
+    margin: 0 auto !important;
+}
+.trust-section--minimal .trust-badge {
+    padding: 1.5rem 1rem !important;
+    border-right: 1px solid #EEEEEE !important;
+}
+.trust-section--minimal .trust-badge:last-child {
+    border-right: none !important;
+}
+.trust-section--minimal .trust-icon {
+    background: transparent !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+}
+.trust-section--minimal .trust-badge-text {
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: #555 !important;
+    letter-spacing: 0.02em !important;
+}
+.trust-section--minimal .trust-badge-sub {
+    display: none !important;
+}
+
+/* --- Reviews minimal --- */
+.review-card {
+    border: 1px solid #EEEEEE !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+.reviewer-avatar {
+    background: #F5F5F3 !important;
+    color: #1A1A1A !important;
+    font-weight: 500 !important;
+}
+
+/* --- FAQ minimal --- */
+.faq-item {
+    border: none !important;
+    border-bottom: 1px solid #EEEEEE !important;
+    border-radius: 0 !important;
+}
+.faq-question {
+    font-weight: 400 !important;
+    font-size: 0.9rem !important;
+    color: #1A1A1A !important;
+}
+
+/* --- Section headers — less loud --- */
+.section-header {
+    margin-bottom: 2.5rem !important;
+}
+.section-title {
+    font-size: clamp(1.5rem, 3vw, 2rem) !important;
+    font-weight: 500 !important;
+    color: #1A1A1A !important;
+}
+.section-subtitle {
+    display: none !important;
+}
+
+/* --- Buttons general — refined --- */
+.btn-primary {
+    background: #1A1A1A !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.03em !important;
+}
+.btn-primary:hover {
+    background: #333 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.btn-outline, .btn-secondary {
+    border-color: #1A1A1A !important;
+    color: #1A1A1A !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* --- Mobile Filter Button --- */
+.mobile-filter-toggle {
+    background: transparent !important;
+    color: #1A1A1A !important;
+    border: 1px solid #DDD !important;
+    border-radius: 0 !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    padding: 0.6rem 1.25rem !important;
+    box-shadow: none !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    text-indent: 0 !important;
+    overflow: visible !important;
+}
+.mobile-filter-toggle::after {
+    display: none !important;
+}
+
+/* --- SEO Content Section --- */
+.seo-content-section {
+    border-top: 1px solid #EEEEEE;
+}
+.seo-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.seo-content h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #555;
+}
+.seo-content p {
+    font-size: 0.82rem;
+    color: #757575;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+
+/* --- Header refinement --- */
+.header-badge {
+    background: #1A1A1A !important;
+}
+
+/* --- Footer refinement --- */
+footer {
+    background: #F8F7F5 !important;
+    border-top: 1px solid #EEEEEE !important;
+}
+
+/* --- Hide email popup (not premium) --- */
+.email-popup {
+    display: none !important;
+}
+
+/* --- Mobile Premium adjustments --- */
+@media (max-width: 768px) {
+    .hero--premium {
+        padding: 5rem 1.25rem 3rem !important;
+        min-height: auto !important;
+    }
+    .hero--premium h1 {
+        font-size: 1.75rem !important;
+        font-weight: 300 !important;
+    }
+    .hero-brands {
+        font-size: 0.75rem !important;
+        margin-bottom: 1.75rem !important;
+    }
+    .hero-cta-btn {
+        padding: 0.9rem 2.5rem !important;
+        font-size: 0.8rem !important;
+        width: auto !important;
+    }
+
+    /* Cards: clean, no border */
+    .product-grid {
+        gap: 0.5rem 0.4rem !important;
+    }
+    .product-info {
+        padding: 0.5rem 0.15rem 0 !important;
+    }
+    .product-info h3 {
+        font-size: 0.72rem !important;
+        min-height: auto !important;
+    }
+    .product-info .price {
+        font-size: 0.82rem !important;
+    }
+    .card-buttons .btn {
+        min-height: 36px !important;
+        font-size: 0.65rem !important;
+        padding: 0.5rem 0.4rem !important;
+    }
+
+    /* Trust inline */
+    .trust-section--minimal .trust-badges {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .trust-section--minimal .trust-badge {
+        padding: 1rem 0.5rem !important;
+    }
+    .trust-section--minimal .trust-badge-text {
+        font-size: 0.68rem !important;
+    }
+
+    /* Sections tight */
+    .section {
+        padding: 2rem 1rem !important;
+    }
+    .section-header {
+        margin-bottom: 1.5rem !important;
+    }
+    .section-title {
+        font-size: 1.25rem !important;
+    }
+
+    /* Reviews */
+    .reviews-grid {
+        gap: 0.75rem !important;
+    }
+    .review-card {
+        padding: 1rem !important;
+    }
+
+    /* FAQ */
+    .faq-question {
+        padding: 0.875rem 0 !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* SEO text smaller on mobile */
+    .seo-content h2 {
+        font-size: 0.95rem;
+    }
+    .seo-content p {
+        font-size: 0.75rem;
+    }
+
+    /* Category toggle */
+    .category-toggle {
+        justify-content: center !important;
+    }
+    .cat-btn {
+        font-size: 0.78rem !important;
+        padding: 0.6rem 1rem !important;
+    }
+
+    /* Filter button */
+    .mobile-filter-toggle {
+        margin-bottom: 1rem !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .hero--premium h1 {
+        font-size: 1.5rem !important;
+    }
+    .hero-brands {
+        font-size: 0.68rem !important;
+    }
+}
+
+/* ===== END PREMIUM REDESIGN v5 ===== */
