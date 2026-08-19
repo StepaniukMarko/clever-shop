@@ -7029,3 +7029,420 @@ textarea:focus-visible {
 }
 
 /* ===== END v3 =====*/
+
+
+/* ===== MOBILE UX AUDIT FIXES v4 (Aug 2026) =====
+   All rules scoped to mobile breakpoints only.
+   Does NOT affect desktop layout.
+   ============================================= */
+
+/* --- 1. COMPACT HERO (mobile) --- */
+@media (max-width: 768px) {
+    .hero {
+        min-height: auto !important;
+        padding: 4.5rem 1rem 2rem !important;
+    }
+    .hero h1 {
+        font-size: 1.65rem !important;
+        margin-bottom: 0.75rem !important;
+        line-height: 1.15 !important;
+    }
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+        margin-bottom: 1.25rem !important;
+        line-height: 1.5 !important;
+    }
+    .hero-badge {
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.9rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .hero-cta {
+        gap: 0.6rem !important;
+    }
+    .hero-cta .btn {
+        padding: 0.85rem 1.5rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* --- 7. HERO STATS compact row on mobile --- */
+@media (max-width: 768px) {
+    .hero-stats {
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        padding-top: 1.25rem !important;
+        justify-content: center;
+    }
+    .hero-stat {
+        flex: 1;
+        text-align: center;
+    }
+    .hero-stat-number {
+        font-size: 1.35rem !important;
+    }
+    .hero-stat-label {
+        font-size: 0.65rem !important;
+    }
+}
+@media (max-width: 390px) {
+    .hero-stats {
+        gap: 0.25rem !important;
+    }
+    .hero-stat-number {
+        font-size: 1.15rem !important;
+    }
+    .hero-stat-label {
+        font-size: 0.6rem !important;
+    }
+}
+
+/* --- 2. PRODUCT CARDS: bigger photos, bolder price --- */
+@media (max-width: 768px) {
+    .product-grid {
+        gap: 0.6rem !important;
+    }
+    .product-image-wrap {
+        aspect-ratio: 3/4 !important;
+    }
+    .product-info {
+        padding: 0.6rem 0.7rem 0.5rem !important;
+    }
+    .product-info h3 {
+        font-size: 0.78rem !important;
+        min-height: 2.2em !important;
+        line-height: 1.3 !important;
+        margin-bottom: 0.15rem !important;
+    }
+    .product-info .brand {
+        font-size: 0.65rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+    .product-info .price {
+        font-size: 1.05rem !important;
+        font-weight: 800 !important;
+    }
+    .product-info .bonus-badge {
+        font-size: 0.6rem !important;
+    }
+}
+@media (max-width: 390px) {
+    .product-grid {
+        gap: 0.5rem !important;
+    }
+    .product-info {
+        padding: 0.5rem 0.6rem 0.4rem !important;
+    }
+    .product-info h3 {
+        font-size: 0.72rem !important;
+    }
+    .product-info .price {
+        font-size: 0.95rem !important;
+    }
+}
+
+/* --- 3. CART BUTTONS: min-height 44px touch target --- */
+@media (max-width: 768px) {
+    .card-buttons {
+        padding: 0 0.6rem 0.6rem !important;
+    }
+    .card-buttons .btn {
+        font-size: 0.82rem !important;
+        padding: 0.6rem 0.5rem !important;
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 10px !important;
+    }
+}
+
+/* --- 4. SHORTEN PAGE: hide verbose sections on mobile --- */
+@media (max-width: 768px) {
+    /* Problems section — collapse more aggressively */
+    .spoiler-block-content {
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+    .spoiler-block-content.expanded {
+        max-height: 9999px !important;
+        opacity: 1;
+    }
+    .spoiler-block-content::after {
+        display: none !important;
+    }
+    .spoiler-block-toggle {
+        display: block !important;
+        margin: 0.75rem auto 0 !important;
+        padding: 0.6rem 1.5rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Reduce section padding globally */
+    .section {
+        padding: 2.5rem 1rem !important;
+    }
+    .section-header {
+        margin-bottom: 1.75rem !important;
+    }
+    .section-title {
+        font-size: 1.35rem !important;
+    }
+    .section-subtitle {
+        font-size: 0.85rem !important;
+    }
+    .section-badge {
+        font-size: 0.72rem !important;
+        padding: 0.4rem 0.9rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* About section — more compact */
+    .about-process {
+        margin-top: 2rem !important;
+        padding-top: 2rem !important;
+    }
+    .about-stats {
+        gap: 1rem !important;
+    }
+    .about-stat .stat-number {
+        font-size: 1.5rem !important;
+    }
+
+    /* Steps grid compact */
+    .steps-grid {
+        gap: 0.75rem !important;
+    }
+    .step-card {
+        padding: 1.25rem !important;
+    }
+    .step-number {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.25rem !important;
+    }
+
+    /* Features/problems/solutions cards compact */
+    .feature-card, .guarantee-card, .problem-card, .solution-card {
+        padding: 1.25rem 1rem !important;
+    }
+    .feature-card h3, .guarantee-card h3, .problem-card h3, .solution-card h3 {
+        font-size: 0.9rem !important;
+    }
+    .feature-card p, .guarantee-card p, .problem-card p, .solution-card p {
+        font-size: 0.8rem !important;
+    }
+
+    /* Reviews compact */
+    .reviews-grid {
+        gap: 0.75rem !important;
+    }
+    .review-card {
+        padding: 1.25rem !important;
+    }
+    .review-text {
+        font-size: 0.85rem !important;
+    }
+
+    /* FAQ compact */
+    .faq-question {
+        padding: 0.875rem 1rem !important;
+        font-size: 0.85rem !important;
+    }
+    .faq-answer p {
+        padding: 0 1rem 0.875rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* CTA section compact */
+    .cta-section {
+        padding: 2.5rem 1rem !important;
+    }
+    .cta-section h2 {
+        font-size: 1.35rem !important;
+    }
+    .cta-trust {
+        font-size: 0.75rem !important;
+        gap: 0.4rem !important;
+    }
+}
+
+/* --- 5. FILTERS: sticky apply button at bottom --- */
+@media (max-width: 768px) {
+    .filters {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1001;
+        background: var(--white);
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding: 1.25rem 1.25rem 5.5rem !important;
+    }
+    .filters.mobile-open {
+        display: block;
+    }
+    .filter-apply {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1002 !important;
+        border-radius: 0 !important;
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        min-height: 52px !important;
+    }
+    .filter-reset {
+        margin-bottom: 1rem !important;
+    }
+    .filter-group h4 {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* --- 6. PRODUCT PAGE: compact quick-order, better touch --- */
+@media (max-width: 768px) {
+    .quick-order-section {
+        padding: 1.25rem !important;
+        margin-top: 1.25rem !important;
+    }
+    .quick-order-section h3 {
+        font-size: 1rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .quick-order-section p {
+        font-size: 0.82rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .product-section h3 {
+        font-size: 1rem !important;
+    }
+    .size-btn {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        font-size: 0.9rem !important;
+    }
+    .qty-btn {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        font-size: 1.2rem !important;
+    }
+    .product-actions .btn {
+        min-height: 52px !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Social share compact */
+    .social-share {
+        margin-top: 1.5rem !important;
+    }
+    .share-buttons {
+        gap: 0.4rem !important;
+    }
+    .share-btn {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.6rem !important;
+    }
+
+    /* Cross-sell compact */
+    .cross-sell-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+}
+
+/* --- 8. TRUST BADGES: stay 2x2 even on small screens --- */
+@media (max-width: 480px) {
+    .trust-badges {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .trust-badge {
+        padding: 1rem 0.75rem !important;
+    }
+    .trust-icon {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.1rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .trust-badge-text {
+        font-size: 0.78rem !important;
+    }
+    .trust-badge-sub {
+        font-size: 0.68rem !important;
+    }
+}
+
+/* --- 9. CHECKOUT: summary before form on mobile --- */
+@media (max-width: 1024px) {
+    .checkout-grid {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+    }
+    .checkout-summary {
+        position: static !important;
+        margin-bottom: 1.5rem !important;
+        border: 2px solid var(--primary-100) !important;
+        border-radius: var(--radius-lg) !important;
+    }
+    .checkout-form {
+        order: 2;
+    }
+}
+
+/* --- 10. FOOTER: compact on mobile --- */
+@media (max-width: 768px) {
+    footer {
+        padding: 2.5rem 1rem 1rem !important;
+    }
+    .footer-content {
+        gap: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+    .footer-brand p {
+        font-size: 0.8rem !important;
+        line-height: 1.5 !important;
+    }
+    .footer-section {
+        border-bottom: 1px solid var(--gray-100);
+        padding-bottom: 1rem;
+    }
+    .footer-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .footer-section h4 {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .footer-section a {
+        font-size: 0.82rem !important;
+        padding: 0.25rem 0 !important;
+    }
+    .footer-bottom {
+        padding-top: 1rem !important;
+    }
+    .footer-bottom p {
+        font-size: 0.75rem !important;
+    }
+    .footer-social a {
+        width: 38px !important;
+        height: 38px !important;
+    }
+}
+
+/* --- Extra: prevent horizontal scroll globally --- */
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+    }
+    .container {
+        overflow-x: hidden !important;
+    }
+}
+
+/* ===== END MOBILE UX AUDIT FIXES v4 ===== */
