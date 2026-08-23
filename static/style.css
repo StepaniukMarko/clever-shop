@@ -7511,46 +7511,54 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
-    filter: brightness(0.75) contrast(1.05);
+    object-position: center center;
+}
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    z-index: 1;
 }
 .hero-content--overlay {
     position: relative;
     z-index: 2;
-    padding: 2rem 2rem 3rem;
-    background: radial-gradient(ellipse at center bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.2) 100%);
+    padding: 2rem 2rem;
+    background: none;
     width: 100%;
     text-align: center;
 }
 .hero--visual h1 {
-    font-size: clamp(2.5rem, 6vw, 4rem) !important;
-    font-weight: 700 !important;
+    font-size: clamp(2.2rem, 5.5vw, 3.8rem) !important;
+    font-weight: 800 !important;
     color: #fff !important;
-    letter-spacing: -0.03em !important;
-    line-height: 1.1 !important;
-    margin-bottom: 0.75rem !important;
-    text-shadow: 0 4px 40px rgba(0,0,0,0.8), 0 2px 6px rgba(0,0,0,0.6);
+    letter-spacing: -0.02em !important;
+    line-height: 1.12 !important;
+    margin-bottom: 1rem !important;
+    text-shadow: none !important;
 }
 .hero--visual .hero-brands {
-    color: rgba(255,255,255,0.95) !important;
-    font-size: 1rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 0.92rem !important;
     font-weight: 400 !important;
-    letter-spacing: 0.04em !important;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    letter-spacing: 0.06em !important;
+    text-shadow: none !important;
     margin-bottom: 2rem !important;
 }
 .hero--visual .hero-cta-btn {
     background: #fff !important;
     color: #1A1A1A !important;
     border: none !important;
-    padding: 1.1rem 3rem !important;
-    font-size: 0.85rem !important;
+    padding: 1.05rem 2.75rem !important;
+    font-size: 0.84rem !important;
     font-weight: 600 !important;
-    letter-spacing: 0.1em !important;
+    letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
+    box-shadow: none !important;
 }
 .hero--visual .hero-cta-btn:hover {
     background: #F0F0F0 !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* Category Visual Cards */
@@ -7990,20 +7998,20 @@ footer a:hover, .footer-section a:hover {
         align-items: center !important;
     }
     .hero-content--overlay {
-        padding: 1.5rem 1.25rem 2rem !important;
+        padding: 1.5rem 1.25rem !important;
     }
     .hero--visual h1 {
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        text-shadow: 0 4px 30px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.6) !important;
+        font-size: 1.85rem !important;
+        font-weight: 800 !important;
+        text-shadow: none !important;
     }
     .hero--visual .hero-brands {
-        font-size: 0.78rem !important;
-        margin-bottom: 1.25rem !important;
+        font-size: 0.72rem !important;
+        margin-bottom: 1.5rem !important;
     }
     .hero-cta-btn {
-        padding: 0.9rem 2.25rem !important;
-        font-size: 0.8rem !important;
+        padding: 0.9rem 2rem !important;
+        font-size: 0.78rem !important;
         width: auto !important;
     }
 
@@ -8111,12 +8119,12 @@ footer a:hover, .footer-section a:hover {
 
 @media (max-width: 390px) {
     .hero--visual h1 {
-        font-size: 1.75rem !important;
-        font-weight: 700 !important;
-        text-shadow: 0 3px 24px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.6) !important;
+        font-size: 1.6rem !important;
+        font-weight: 800 !important;
+        text-shadow: none !important;
     }
     .hero--visual .hero-brands {
-        font-size: 0.68rem !important;
+        font-size: 0.65rem !important;
     }
     .category-card__label {
         font-size: 0.72rem !important;
