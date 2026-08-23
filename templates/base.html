@@ -88,8 +88,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=43" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=43"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='style.css') }}?v=44" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=44"></noscript>
     
     <!-- Critical CSS inlined for fast first paint -->
     <style>
@@ -110,9 +110,9 @@
         .nav-links{display:flex;list-style:none;background:transparent;justify-content:center;gap:0;padding:0;margin:0;overflow-x:auto;border-top:1px solid #F3F4F6}
         .nav-links li a{display:block;padding:0.625rem 1rem;color:#4B5563;text-decoration:none;font-size:0.85rem;font-weight:500;white-space:nowrap}
         /* Critical: Hero */
-        .hero{position:relative;overflow:hidden;min-height:70vh;display:flex;align-items:flex-end;justify-content:center}
+        .hero{position:relative;overflow:hidden;min-height:70vh;max-height:85vh;display:flex;align-items:center;justify-content:center}
         .hero-content{position:relative;z-index:2;max-width:800px;margin:0 auto}
-        .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:500;color:#fff;margin-bottom:0.75rem;text-shadow:0 2px 30px rgba(0,0,0,0.5),0 1px 3px rgba(0,0,0,0.4)}
+        .hero h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:700;color:#fff;margin-bottom:0.75rem;text-shadow:0 4px 40px rgba(0,0,0,0.8),0 2px 6px rgba(0,0,0,0.6)}
         /* Critical: Product grid first row */
         .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
         .product-card{background:transparent;border-radius:0;overflow:hidden;border:none;cursor:pointer}
@@ -135,8 +135,8 @@
             .hamburger{display:flex}
             .nav-links{display:none;flex-direction:column;position:absolute;top:100%;left:0;right:0;z-index:99}
             .nav-links.active{display:flex}
-            .hero{min-height:55vh}
-            .hero h1{font-size:1.6rem}
+            .hero{min-height:55vh;max-height:70vh}
+            .hero h1{font-size:2rem}
             .product-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem}
         }
     </style>
