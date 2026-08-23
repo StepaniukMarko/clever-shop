@@ -7548,15 +7548,17 @@ h1, h2, h3, h4, h5, h6 {
     background: #fff !important;
     color: #1A1A1A !important;
     border: none !important;
-    padding: 1.05rem 2.75rem !important;
+    padding: 1.1rem 3.5rem !important;
     font-size: 0.84rem !important;
     font-weight: 600 !important;
-    letter-spacing: 0.08em !important;
+    letter-spacing: 0.06em !important;
     text-transform: uppercase !important;
     box-shadow: none !important;
+    border-radius: 9999px !important;
+    transition: background 0.3s, opacity 0.3s !important;
 }
 .hero--visual .hero-cta-btn:hover {
-    background: #F0F0F0 !important;
+    background: rgba(255, 255, 255, 0.88) !important;
     transform: none !important;
     box-shadow: none !important;
 }
