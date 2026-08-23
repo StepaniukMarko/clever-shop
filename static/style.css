@@ -8122,3 +8122,166 @@ footer a:hover, .footer-section a:hover {
 }
 
 /* ===== END PREMIUM REDESIGN v5 ===== */
+
+
+/* ===== CRO & TRUST IMPROVEMENTS v6 ===== */
+
+/* Hero social links */
+.hero-social {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+.hero-social__link {
+    color: rgba(255,255,255,0.8) !important;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50px;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+}
+.hero-social__link:hover {
+    color: #fff !important;
+    border-color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+/* Trust badge subtitle */
+.trust-badge-sub2 {
+    font-size: 0.7rem !important;
+    color: #757575 !important;
+    margin-top: 0.2rem;
+    font-weight: 400 !important;
+}
+
+/* Section rating under title */
+.section-rating {
+    font-size: 0.85rem;
+    color: #757575;
+    margin-top: 0.5rem;
+}
+
+/* Verification steps */
+.verification-section {
+    border-top: 1px solid #EBEBEB;
+}
+.verification-steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.verification-step {
+    text-align: center;
+    position: relative;
+}
+.verification-step__num {
+    width: 40px;
+    height: 40px;
+    background: #1A1A1A;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+}
+.verification-step h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+.verification-step p {
+    font-size: 0.78rem;
+    color: #757575;
+    line-height: 1.5;
+}
+
+/* Reviews 4 columns desktop */
+.reviews-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+}
+
+/* Mobile adjustments for new blocks */
+@media (max-width: 768px) {
+    .hero-social {
+        margin-top: 1.25rem;
+    }
+    .hero-social__link {
+        font-size: 0.7rem;
+        padding: 0.35rem 0.85rem;
+    }
+
+    .trust-section--minimal .trust-badges {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+    }
+    .trust-section--minimal .trust-badge {
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        gap: 1rem;
+        padding: 1rem 1.25rem !important;
+        border-right: none !important;
+        border-bottom: 1px solid #EBEBEB;
+        text-align: left !important;
+    }
+    .trust-section--minimal .trust-badge:last-child {
+        border-bottom: none;
+    }
+    .trust-section--minimal .trust-icon {
+        margin-bottom: 0 !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.25rem !important;
+        flex-shrink: 0;
+    }
+    .trust-badge-sub2 {
+        display: block;
+    }
+
+    .verification-steps {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem;
+    }
+    .verification-step {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        text-align: left;
+        gap: 0 1rem;
+        align-items: start;
+    }
+    .verification-step__num {
+        margin: 0;
+        grid-row: span 2;
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+    .verification-step h4 {
+        font-size: 0.82rem;
+    }
+    .verification-step p {
+        font-size: 0.75rem;
+    }
+
+    .section-rating {
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 390px) {
+    .hero-social__link {
+        font-size: 0.65rem;
+        padding: 0.3rem 0.7rem;
+    }
+}
+
+/* ===== END CRO v6 ===== */
