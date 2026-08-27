@@ -8297,3 +8297,65 @@ footer a:hover, .footer-section a:hover {
 }
 
 /* ===== END CRO v6 ===== */
+
+
+/* === v7 Premium Refinement — CSS only === */
+
+/* 1. Product cards — subtle border + refined hover */
+.product-card {
+    border: 1px solid #F5F5F5 !important;
+    border-radius: 8px !important;
+}
+.product-card:hover {
+    opacity: 1 !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+    border-color: #EEEEEE !important;
+}
+.product-image-wrap {
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* 2. Reviews — compact, refined */
+.review-card {
+    padding: 1.5rem !important;
+    border-radius: 8px !important;
+}
+
+/* 3. Filters — lighter, no heavy shadow */
+.filters {
+    box-shadow: none !important;
+    border: 1px solid #EEEEEE !important;
+    border-radius: 8px !important;
+}
+
+/* 4. CTA buttons — #111827 base, green hover */
+.btn-primary {
+    background: #111827 !important;
+    box-shadow: none !important;
+}
+.btn-primary:hover {
+    background: #4CAF50 !important;
+    box-shadow: none !important;
+}
+.hero-cta-btn {
+    border-radius: 8px !important;
+}
+.card-buttons .btn:hover {
+    background: #111827 !important;
+    color: #fff !important;
+}
+.quick-add-overlay .btn {
+    background: #111827 !important;
+}
+.quick-add-overlay .btn:hover {
+    background: #4CAF50 !important;
+}
+
+/* 5. Trust icons — no colored background */
+.trust-section--minimal .trust-icon {
+    background: none !important;
+    border: none !important;
+}
+
+/* === END v7 === */
