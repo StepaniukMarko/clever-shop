@@ -896,3 +896,111 @@ function initHoverGallery() {
 document.addEventListener('DOMContentLoaded', function() {
     initHoverGallery();
 });
+
+
+// ===== CLEVERSHOP v8 — AI Panel, Quick View, Page Transitions =====
+
+// --- AI Stylist Side Panel ---
+var csAiStep = 0, csAiData = {};
+var csAiFlow = [
+    {q:'Який стиль тобі ближче?', opts:['Casual','Streetwear','Класика','Sport']},
+    {q:'Бюджет на річ?', opts:['До 5 000 ₴','5 000 – 15 000 ₴','Будь-який']},
+    {q:'Сезон?', opts:['Осінь/Зима','Весна/Літо']}
+];
+
+function toggleAIPanel() {
+    var panel = document.getElementById('cs-ai-panel');
+    var backdrop = document.getElementById('cs-ai-backdrop');
+    var isOpen = panel.classList.contains('open');
+    panel.classList.toggle('open');
+    backdrop.classList.toggle('open');
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+
+function csAiAnswer(text) {
+    var body = document.getElementById('cs-ai-body');
+    var opts = document.getElementById('cs-ai-opts');
+    body.innerHTML += '<div class="cs-ai-msg cs-ai-msg--user">' + text + '</div>';
+    body.scrollTop = body.scrollHeight;
+    csAiStep++;
+    if (csAiStep <= csAiFlow.length) {
+        var next = csAiFlow[csAiStep - 1];
+        setTimeout(function() {
+            body.innerHTML += '<div class="cs-ai-msg cs-ai-msg--bot">' + next.q + '</div>';
+            body.scrollTop = body.scrollHeight;
+            opts.innerHTML = '';
+            next.opts.forEach(function(o) {
+                opts.innerHTML += '<button class="cs-ai-opt" onclick="csAiAnswer(\'' + o.replace(/'/g,'\\\'') + '\')">' + o + '</button>';
+            });
+        }, 400);
+    } else {
+        opts.innerHTML = '';
+        setTimeout(function() {
+            body.innerHTML += '<div class="cs-ai-msg cs-ai-msg--bot">Підбираю з каталогу...</div>';
+            body.scrollTop = body.scrollHeight;
+            fetch('/api/products').then(function(r){return r.json();}).then(function(products) {
+                if (!products.length) {
+                    body.innerHTML += '<div class="cs-ai-msg cs-ai-msg--bot">Каталог поки порожній — додайте товари через адмін-панель.</div>';
+                    return;
+                }
+                var html = '<div class="cs-ai-msg cs-ai-msg--bot">Ось що підходить:';
+                products.slice(0,3).forEach(function(p) {
+                    html += '<a href="/product/' + p.id + '">';
+                    if(p.image_url) html += '<img src="' + p.image_url + '" alt="">';
+                    html += '<div><span class="cs-ai-prod-name">' + p.brand + ' ' + p.name + '</span>';
+                    html += '<span class="cs-ai-prod-price">' + p.price.toLocaleString('uk-UA') + ' грн</span></div></a>';
+                });
+                html += '</div>';
+                body.innerHTML += html;
+                body.scrollTop = body.scrollHeight;
+                opts.innerHTML = '<button class="cs-ai-opt" onclick="csAiReset()">Почати знову</button>';
+            });
+        }, 500);
+    }
+}
+
+function csAiReset() {
+    csAiStep = 0; csAiData = {};
+    document.getElementById('cs-ai-body').innerHTML = '<div class="cs-ai-msg cs-ai-msg--bot">Привіт! Я допоможу підібрати образ з нашого каталогу. Для кого шукаємо?</div>';
+    document.getElementById('cs-ai-opts').innerHTML = '<button class="cs-ai-opt" onclick="csAiAnswer(\'Чоловік\')">Чоловік</button><button class="cs-ai-opt" onclick="csAiAnswer(\'Жінка\')">Жінка</button>';
+}
+
+// --- Quick View ---
+function openQV(productId) {
+    if (event) event.stopPropagation();
+    fetch('/api/products').then(function(r){return r.json();}).then(function(products) {
+        var p = products.find(function(x){return x.id == productId;});
+        if (!p) return;
+        document.getElementById('cs-qv-img').src = p.image_url || '';
+        document.getElementById('cs-qv-brand').textContent = p.brand;
+        document.getElementById('cs-qv-name').textContent = p.name;
+        document.getElementById('cs-qv-price').textContent = p.price.toLocaleString('uk-UA') + ' грн';
+        document.getElementById('cs-qv-link').href = '/product/' + p.id;
+        document.getElementById('cs-qv-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    });
+}
+function closeQV() {
+    document.getElementById('cs-qv-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+// --- Page Transition Loader ---
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript') || href.startsWith('tel:') || href.startsWith('mailto:') || link.target === '_blank') return;
+    var loader = document.getElementById('cs-page-loader');
+    if (loader) {
+        loader.classList.add('active');
+        loader.querySelector('.cs-page-loader__bar').style.width = '70%';
+    }
+});
+window.addEventListener('pageshow', function() {
+    var loader = document.getElementById('cs-page-loader');
+    if (loader) {
+        loader.querySelector('.cs-page-loader__bar').style.width = '100%';
+        setTimeout(function() { loader.classList.remove('active'); loader.querySelector('.cs-page-loader__bar').style.width = '0'; }, 300);
+    }
+});

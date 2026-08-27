@@ -552,7 +552,46 @@
             <span class="chat-widget__icon">💬</span>
         </a>
     </div>
-    
+
+    <!-- Floating AI Stylist Button -->
+    <button class="cs-ai-fab" id="cs-ai-fab" onclick="toggleAIPanel()" aria-label="AI Стиліст">
+        <span class="cs-ai-fab__icon">✨</span>
+        <span class="cs-ai-fab__text">AI Стиліст</span>
+    </button>
+
+    <!-- AI Stylist Side Panel -->
+    <div class="cs-ai-panel" id="cs-ai-panel">
+        <div class="cs-ai-panel__header">
+            <span class="cs-ai-panel__title">✨ AI Стиліст</span>
+            <button class="cs-ai-panel__close" onclick="toggleAIPanel()">✕</button>
+        </div>
+        <div class="cs-ai-panel__body" id="cs-ai-body">
+            <div class="cs-ai-msg cs-ai-msg--bot">Привіт! Я допоможу підібрати образ з нашого каталогу. Для кого шукаємо?</div>
+        </div>
+        <div class="cs-ai-panel__opts" id="cs-ai-opts">
+            <button class="cs-ai-opt" onclick="csAiAnswer('Чоловік')">Чоловік</button>
+            <button class="cs-ai-opt" onclick="csAiAnswer('Жінка')">Жінка</button>
+        </div>
+    </div>
+    <div class="cs-ai-backdrop" id="cs-ai-backdrop" onclick="toggleAIPanel()"></div>
+
+    <!-- Quick View Modal -->
+    <div class="cs-qv-overlay" id="cs-qv-overlay" onclick="if(event.target===this)closeQV()">
+        <div class="cs-qv">
+            <button class="cs-qv__close" onclick="closeQV()">✕</button>
+            <div class="cs-qv__img-wrap"><img id="cs-qv-img" src="" alt=""></div>
+            <div class="cs-qv__info">
+                <span class="cs-qv__brand" id="cs-qv-brand"></span>
+                <h3 class="cs-qv__name" id="cs-qv-name"></h3>
+                <span class="cs-qv__price" id="cs-qv-price"></span>
+                <a class="btn btn-primary cs-qv__btn" id="cs-qv-link" href="#">Перейти до товару</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Transition -->
+    <div class="cs-page-loader" id="cs-page-loader"><div class="cs-page-loader__bar"></div></div>
+
     {% block scripts %}{% endblock %}
     
     <!-- Code Protection -->
